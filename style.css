@@ -1,0 +1,272 @@
+@import url('https://fonts.googleapis.com/css2?family=Dancing+Script:wght@400..700&family=Roboto+Slab:wght@100..900&display=swap');
+
+/* DESKTOP */
+html {
+  padding: 0;
+  margin: 0;
+  scroll-behavior: smooth;
+}
+
+body {
+  font-family: "Roboto Slab", serif;
+  font-optical-sizing: auto;
+  font-weight: 300;
+  font-style: normal;
+  color: #fff;
+  padding: 0;
+  margin: 0;
+}
+
+#app {
+  padding: 0;
+  margin: 0;
+  align-items: start;
+  display: grid;
+}
+
+div {
+    box-sizing: border-box;
+}
+
+h1 {
+  font-size: 45px;
+  margin: 0 0 15px 0;
+  font-family: "Roboto Slab", serif;
+  font-optical-sizing: auto;
+  font-weight: 600;
+  font-style: normal;
+}
+
+h2 {
+  font-size: 35px;
+  margin: 0 0 15px 0;
+  font-family: "Roboto Slab", serif;
+  font-optical-sizing: auto;
+  font-weight: 600;
+  font-style: normal;
+}
+
+h3 {
+  font-size: 22px;
+  margin: 0 0 15px 0;
+  font-family: "Roboto Slab", serif;
+  font-optical-sizing: auto;
+  font-weight: 600;
+  font-style: normal;
+}
+
+h4 {
+  font-size: 18px;
+  margin: 0 0 15px 0;
+}
+
+h5 {
+  font-family: "Roboto Slab", serif;
+  font-optical-sizing: auto;
+  font-weight: 600;
+  padding-left: 10px;
+  border-left: 5px solid #4a85ff;
+  font-size: 18px;
+}
+
+p, li {
+  font-size: 18px;
+  margin: 0 0 15px 0;
+}
+
+a {
+  color: inherit;
+}
+
+button {
+  padding: 10px 15px;
+  border: 3px solid #fff;
+  border-radius: 5px;
+  color: #fff;
+  background-color: transparent;
+  font-size: 18px;
+  transition: all 0.2s ease;
+  font-family: inherit;
+  font-weight: 600;
+}
+
+button:hover {
+  color: #454545;
+  background-color: #fff;
+}
+
+#particles-js {
+  position: fixed;
+  top: 0;
+  right: 0;
+  left: 0;
+  bottom: 0;
+  z-index: -1;
+  pointer-events: none;
+}
+
+#header {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  background-color: rgba(0,0,0,0.5);
+  display: grid;
+  grid-template-columns: 1fr 600px;
+  height: 100px;
+  backdrop-filter: blur(5px);
+  z-index: 999;
+}
+
+#header div {
+  display: grid;
+  align-content: center;
+}
+
+#header ul {
+  list-style-type: none;
+  display: flex;
+  margin-right: 0 !important;
+}
+
+.name {
+  color: #fff;
+  text-decoration: none;
+  padding: 15px 30px;
+}
+
+.name h3, .name p, .name li {
+  margin: 0;
+}
+
+.nav {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr 1fr;
+  grid-gap: 15px;
+}
+
+.nav div {
+  padding: 0;
+  margin: 0;
+}
+
+.nav a {
+  color: #fff;
+  text-decoration: none;
+  text-align: center;
+  transition: all 0.2s ease;
+  border-bottom: 3px solid transparent;
+  line-height: 97px;
+}
+
+.nav a:hover {
+  border-bottom: 3px solid #fff;
+}
+
+.content-panel {
+  min-height: 100vh;
+  padding: 250px 50px 50px 50px;
+  display: grid;
+  align-content: center;
+}
+
+.photo {
+  background-image: url('/media/me.jpg');
+  background-size: cover;
+  background-position: center center;
+  height: 200px;
+  width: 200px;
+  border-radius: 100%;
+  margin-top: -150px;
+  margin-bottom: 50px;
+  box-shadow: 0 5px 15px rgba(0,0,0,0.35);
+}
+
+.page-title {
+  color: #fff;
+  width: 100%;
+  max-width: 1200px;
+  margin: auto;
+}
+
+.dual-col {
+  max-width: 1200px;
+  margin: auto;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  grid-gap: 50px;
+  background: #fff;
+  backdrop-filter: blur(5px);
+  padding: 50px;
+  border-radius: 10px;
+  box-shadow: 0 25px 25px rgba(0,0,0,0.35);
+}
+
+.dual-col h3 {
+  color: #454545;
+  margin: 0 0 15px 0;
+  border-top: 3px solid #6FB1FC;
+  padding-top: 5px;
+}
+
+.dual-col p, .dual-col li {
+  color: #454545;
+}
+
+.creds {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  grid-gap: 50px;
+}
+
+.company-logo {
+  max-height: 80px;
+  margin-bottom: 25px;
+}
+
+/* TABLET */
+@media screen and (max-width: 1024px) {
+  body {
+  }
+  
+  #header {
+    grid-template-columns: 100%;
+    height: 180px;
+    text-align: center;
+  }
+  
+  #header ul {
+    margin: auto !important;
+  }
+  
+  .content-panel {
+    min-height: calc(100vh - 100px);
+    padding: 230px 50px 50px 50px;
+  }
+  
+  .dual-col {
+    grid-template-columns: 1fr;
+  }
+  
+  .photo {
+    height: 300px;
+    width: 300px;
+  }
+  
+}
+
+/* MOBILE */
+@media screen and (max-width: 768px) {
+  body {
+  }
+  
+  .creds {
+    grid-template-columns: 1fr;
+  }
+  
+  .photo {
+    height: 200px;
+    width: 200px;
+  }
+}
+
