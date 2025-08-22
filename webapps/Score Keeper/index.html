@@ -1,0 +1,520 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ping Pong Score Keeper</title>
+    
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- Font Awesome for icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    
+    <!-- Chart.js for graphs -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    
+    <!-- Google Fonts: Inter -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+    <style>
+        /* Custom styles for a Material Design feel and smooth animations */
+        body {
+            font-family: 'Inter', sans-serif;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+        }
+
+        .material-card {
+            transition: all 0.3s cubic-bezier(.25,.8,.25,1);
+        }
+
+        .score-display {
+            transition: transform 0.2s ease-in-out, color 0.2s ease-in-out;
+        }
+
+        .score-increment-animation {
+            transform: scale(1.25);
+            color: #4f46e5; /* indigo-600 */
+        }
+        
+        .serving-indicator {
+            transition: opacity 0.3s ease-in-out;
+        }
+
+        .btn-material {
+            transition: background-color 0.3s, box-shadow 0.3s;
+        }
+
+        .btn-material:hover {
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+        }
+        
+        .game-point {
+            color: #f59e0b; /* amber-500 */
+            font-weight: 600;
+            animation: pulse 1.5s infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% {
+                opacity: 1;
+            }
+            50% {
+                opacity: 0.7;
+            }
+        }
+    </style>
+</head>
+<body class="bg-gray-100 text-gray-800">
+
+    <div class="container mx-auto p-4 md:p-8 max-w-4xl">
+        
+        <header class="text-center mb-8">
+            <h1 class="text-4xl font-bold text-indigo-600">Ping Pong Scorer</h1>
+            <p class="text-gray-500 mt-2">Track your matches and analyze your performance.</p>
+        </header>
+
+        <!-- Player Setup Section -->
+        <div id="player-setup" class="material-card bg-white p-6 rounded-2xl shadow-lg mb-8">
+            <h2 class="text-2xl font-semibold mb-4 text-gray-700">Player Setup</h2>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <input type="text" id="player1-name-input" placeholder="Player 1 Name" class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition">
+                <input type="text" id="player2-name-input" placeholder="Player 2 Name" class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition">
+            </div>
+            <div class="mt-4">
+                <label for="winning-score-input" class="block text-sm font-medium text-gray-700">Points to Win</label>
+                <input type="number" id="winning-score-input" value="11" min="1" class="w-full p-3 mt-1 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition">
+            </div>
+            <button id="start-game-btn" class="btn-material w-full mt-6 bg-indigo-600 text-white font-bold py-3 px-4 rounded-lg hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
+                Start Game
+            </button>
+        </div>
+
+        <!-- Main Game Section (Initially Hidden) -->
+        <main id="game-section" class="hidden">
+            <!-- Scoreboard -->
+            <div class="material-card bg-white p-6 rounded-2xl shadow-lg mb-8">
+                <div class="grid grid-cols-2 gap-4 text-center">
+                    <!-- Player 1 Score -->
+                    <div>
+                        <h2 id="player1-name" class="text-2xl md:text-3xl font-bold truncate">Player 1</h2>
+                        <div class="flex items-center justify-center mt-2">
+                            <i id="p1-serving" class="fas fa-table-tennis-paddle-ball text-indigo-500 text-xl mr-3 serving-indicator opacity-0"></i>
+                            <p id="player1-score" class="score-display text-6xl md:text-7xl font-bold">0</p>
+                        </div>
+                        <button id="player1-score-btn" class="btn-material w-full md:w-3/4 mt-4 bg-blue-500 text-white font-bold py-3 px-4 rounded-lg hover:bg-blue-600">
+                            <i class="fas fa-plus mr-2"></i> Add Point
+                        </button>
+                    </div>
+                    <!-- Player 2 Score -->
+                    <div>
+                        <h2 id="player2-name" class="text-2xl md:text-3xl font-bold truncate">Player 2</h2>
+                        <div class="flex items-center justify-center mt-2">
+                             <i id="p2-serving" class="fas fa-table-tennis-paddle-ball text-indigo-500 text-xl mr-3 serving-indicator opacity-0"></i>
+                            <p id="player2-score" class="score-display text-6xl md:text-7xl font-bold">0</p>
+                        </div>
+                        <button id="player2-score-btn" class="btn-material w-full md:w-3/4 mt-4 bg-red-500 text-white font-bold py-3 px-4 rounded-lg hover:bg-red-600">
+                            <i class="fas fa-plus mr-2"></i> Add Point
+                        </button>
+                    </div>
+                </div>
+                <div id="game-point-alert" class="text-center mt-4 h-6"></div>
+            </div>
+
+            <!-- Game Controls -->
+            <div class="material-card bg-white p-4 rounded-2xl shadow-lg mb-8 flex justify-center space-x-4">
+                 <button id="reset-btn" class="btn-material flex-1 bg-gray-700 text-white font-bold py-3 px-4 rounded-lg hover:bg-gray-800">
+                    <i class="fas fa-undo mr-2"></i> Reset Game
+                </button>
+                <button id="new-players-btn" class="btn-material flex-1 bg-gray-500 text-white font-bold py-3 px-4 rounded-lg hover:bg-gray-600">
+                    <i class="fas fa-users mr-2"></i> New Players
+                </button>
+            </div>
+
+            <!-- Match History -->
+             <div class="flex justify-center">
+                <div class="w-full lg:w-3/4">
+                    <div class="material-card bg-white p-6 rounded-2xl shadow-lg">
+                        <h3 class="text-2xl font-semibold mb-4 text-gray-700 text-center">Match History</h3>
+                        <div class="text-center">
+                            <p class="text-xl"><span id="history-p1-name" class="font-bold">Player 1</span>: <span id="p1-wins" class="text-green-600 font-bold">0</span> Wins / <span id="p1-losses" class="text-red-600 font-bold">0</span> Losses</p>
+                            <p class="text-xl mt-2"><span id="history-p2-name" class="font-bold">Player 2</span>: <span id="p2-wins" class="text-green-600 font-bold">0</span> Wins / <span id="p2-losses" class="text-red-600 font-bold">0</span> Losses</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+        
+        <!-- Winner Popover -->
+        <div id="winner-popover" class="fixed inset-0 bg-white p-4 md:p-8 flex-col items-center justify-center hidden opacity-0 transition-opacity duration-300 z-50 overflow-y-auto">
+            <div class="w-full max-w-4xl text-center flex flex-col h-full">
+                <header>
+                    <h2 class="text-4xl font-bold text-indigo-600 mb-2">Winner!</h2>
+                    <p id="winner-name" class="text-3xl mb-4"></p>
+                </header>
+                
+                <main class="flex-grow flex items-center justify-center">
+                    <div class="material-card bg-gray-50 p-6 rounded-2xl shadow-lg w-full">
+                        <h3 class="text-2xl font-semibold mb-4 text-gray-700">Final Game Performance</h3>
+                        <canvas id="performanceChart"></canvas>
+                        <div id="chart-congrats" class="text-center mt-4 hidden">
+                            <p id="chart-winner-text" class="text-xl font-semibold text-green-600"></p>
+                        </div>
+                    </div>
+                </main>
+
+                <footer class="mt-6">
+                    <button id="play-again-btn" class="btn-material bg-indigo-600 text-white font-bold py-3 px-6 rounded-lg hover:bg-indigo-700">
+                        Play Again
+                    </button>
+                </footer>
+            </div>
+        </div>
+
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            // DOM Elements
+            const playerSetupSection = document.getElementById('player-setup');
+            const gameSection = document.getElementById('game-section');
+            const startGameBtn = document.getElementById('start-game-btn');
+            const p1NameInput = document.getElementById('player1-name-input');
+            const p2NameInput = document.getElementById('player2-name-input');
+            const winningScoreInput = document.getElementById('winning-score-input');
+
+            const p1NameDisplay = document.getElementById('player1-name');
+            const p2NameDisplay = document.getElementById('player2-name');
+            const p1ScoreDisplay = document.getElementById('player1-score');
+            const p2ScoreDisplay = document.getElementById('player2-score');
+            const p1ScoreBtn = document.getElementById('player1-score-btn');
+            const p2ScoreBtn = document.getElementById('player2-score-btn');
+            
+            const p1ServingIndicator = document.getElementById('p1-serving');
+            const p2ServingIndicator = document.getElementById('p2-serving');
+            const gamePointAlert = document.getElementById('game-point-alert');
+
+            const resetBtn = document.getElementById('reset-btn');
+            const newPlayersBtn = document.getElementById('new-players-btn');
+
+            const historyP1Name = document.getElementById('history-p1-name');
+            const historyP2Name = document.getElementById('history-p2-name');
+            const p1WinsDisplay = document.getElementById('p1-wins');
+            const p1LossesDisplay = document.getElementById('p1-losses');
+            const p2WinsDisplay = document.getElementById('p2-wins');
+            const p2LossesDisplay = document.getElementById('p2-losses');
+            
+            const winnerPopover = document.getElementById('winner-popover');
+            const winnerNameDisplay = document.getElementById('winner-name');
+            const playAgainBtn = document.getElementById('play-again-btn');
+            
+            const chartCongrats = document.getElementById('chart-congrats');
+            const chartWinnerText = document.getElementById('chart-winner-text');
+
+            // Game State
+            let players = {
+                p1: { name: 'Player 1', score: 0, wins: 0, losses: 0 },
+                p2: { name: 'Player 2', score: 0, wins: 0, losses: 0 }
+            };
+            let winningScore = 11;
+            let gameOver = false;
+            let gameHistory = []; // To store score progression for the chart
+
+            // Chart.js instance
+            let performanceChart;
+            const chartCanvas = document.getElementById('performanceChart');
+            const chartCtx = chartCanvas.getContext('2d');
+
+            // --- Event Listeners ---
+            startGameBtn.addEventListener('click', setupGame);
+            p1ScoreBtn.addEventListener('click', () => incrementScore('p1'));
+            p2ScoreBtn.addEventListener('click', () => incrementScore('p2'));
+            resetBtn.addEventListener('click', resetGame);
+            newPlayersBtn.addEventListener('click', showPlayerSetup);
+            playAgainBtn.addEventListener('click', () => {
+                hideWinnerPopover();
+                resetGame();
+            });
+
+            // --- Functions ---
+            
+            function loadPlayerData() {
+                const savedPlayers = localStorage.getItem('pingPongPlayers');
+                if (savedPlayers) {
+                    const parsedPlayers = JSON.parse(savedPlayers);
+                    if (parsedPlayers.p1 && parsedPlayers.p2) {
+                        players = parsedPlayers;
+                        players.p1.score = 0;
+                        players.p2.score = 0;
+                        
+                        p1NameInput.value = players.p1.name;
+                        p2NameInput.value = players.p2.name;
+                        
+                        if(players.p1.name !== 'Player 1' || players.p2.name !== 'Player 2') {
+                            setupGame();
+                        }
+                    }
+                }
+            }
+
+            function savePlayerData() {
+                const dataToSave = {
+                    p1: { name: players.p1.name, wins: players.p1.wins, losses: players.p1.losses },
+                    p2: { name: players.p2.name, wins: players.p2.wins, losses: players.p2.losses }
+                };
+                localStorage.setItem('pingPongPlayers', JSON.stringify(dataToSave));
+            }
+
+            function setupGame() {
+                const p1Name = p1NameInput.value.trim() || 'Player 1';
+                const p2Name = p2NameInput.value.trim() || 'Player 2';
+                
+                const scoreToWin = parseInt(winningScoreInput.value, 10);
+                winningScore = scoreToWin > 0 ? scoreToWin : 11;
+                
+                if (players.p1.name !== p1Name || players.p2.name !== p2Name) {
+                    players = {
+                        p1: { name: p1Name, score: 0, wins: 0, losses: 0 },
+                        p2: { name: p2Name, score: 0, wins: 0, losses: 0 }
+                    };
+                }
+                
+                playerSetupSection.classList.add('hidden');
+                gameSection.classList.remove('hidden');
+                
+                updateNames();
+                updateHistoryDisplay();
+                resetGame();
+                initializeChart();
+            }
+
+            function showPlayerSetup() {
+                gameSection.classList.add('hidden');
+                playerSetupSection.classList.remove('hidden');
+                hideWinnerPopover();
+                gameOver = true;
+            }
+
+            function updateNames() {
+                p1NameDisplay.textContent = players.p1.name;
+                p2NameDisplay.textContent = players.p2.name;
+                historyP1Name.textContent = players.p1.name;
+                historyP2Name.textContent = players.p2.name;
+            }
+
+            function incrementScore(player) {
+                if (gameOver) return;
+
+                players[player].score++;
+                updateScoreDisplay();
+                checkForWinner();
+                updateServingIndicator();
+                
+                const scoreElement = player === 'p1' ? p1ScoreDisplay : p2ScoreDisplay;
+                scoreElement.classList.add('score-increment-animation');
+                setTimeout(() => {
+                    scoreElement.classList.remove('score-increment-animation');
+                }, 200);
+            }
+
+            function updateScoreDisplay() {
+                p1ScoreDisplay.textContent = players.p1.score;
+                p2ScoreDisplay.textContent = players.p2.score;
+                gameHistory.push({ p1: players.p1.score, p2: players.p2.score });
+            }
+
+            function updateServingIndicator() {
+                if (gameOver) {
+                    p1ServingIndicator.classList.add('opacity-0');
+                    p2ServingIndicator.classList.add('opacity-0');
+                    return;
+                }
+                
+                const totalScore = players.p1.score + players.p2.score;
+                const isDeuce = players.p1.score >= (winningScore - 1) && players.p2.score >= (winningScore - 1);
+                
+                const servesPerTurn = isDeuce ? 1 : 2;
+                const servingPlayerIndex = Math.floor(totalScore / servesPerTurn) % 2;
+
+                if (servingPlayerIndex === 0) {
+                    p1ServingIndicator.classList.remove('opacity-0');
+                    p2ServingIndicator.classList.add('opacity-0');
+                } else {
+                    p1ServingIndicator.classList.add('opacity-0');
+                    p2ServingIndicator.classList.remove('opacity-0');
+                }
+            }
+
+            function checkForWinner() {
+                const { p1, p2 } = players;
+                const p1Score = p1.score;
+                const p2Score = p2.score;
+                let winner = null;
+
+                if (p1Score >= winningScore && p1Score >= p2Score + 2) {
+                    winner = 'p1';
+                } else if (p2Score >= winningScore && p2Score >= p1Score + 2) {
+                    winner = 'p2';
+                }
+                
+                if (winner) {
+                    endGame(winner);
+                } else {
+                    checkGamePoint();
+                }
+            }
+            
+            function checkGamePoint() {
+                const { p1, p2 } = players;
+                const p1Score = p1.score;
+                const p2Score = p2.score;
+                const gamePointThreshold = winningScore - 1;
+                let message = '';
+
+                if (p1Score >= gamePointThreshold && p1Score > p2Score) {
+                    message = p1Score === p2Score + 1 && p2Score >= gamePointThreshold ? `${p1.name} has Advantage!` : `${p1.name} is on Game Point!`;
+                } else if (p2Score >= gamePointThreshold && p2Score > p1Score) {
+                    message = p2Score === p1Score + 1 && p1Score >= gamePointThreshold ? `${p2.name} has Advantage!` : `${p2.name} is on Game Point!`;
+                }
+                
+                if (message) {
+                    gamePointAlert.textContent = message;
+                    gamePointAlert.classList.add('game-point');
+                } else {
+                    gamePointAlert.textContent = '';
+                    gamePointAlert.classList.remove('game-point');
+                }
+            }
+
+            function endGame(winner) {
+                gameOver = true;
+                const loser = winner === 'p1' ? 'p2' : 'p1';
+                
+                players[winner].wins++;
+                players[loser].losses++;
+                
+                updateHistoryDisplay();
+                savePlayerData();
+                
+                winnerNameDisplay.textContent = players[winner].name;
+                chartWinnerText.textContent = `Congratulations, ${players[winner].name}! A great victory.`;
+                chartCongrats.classList.remove('hidden');
+                
+                updateChart();
+                showWinnerPopover();
+            }
+            
+            function showWinnerPopover() {
+                winnerPopover.classList.remove('hidden');
+                setTimeout(() => {
+                    winnerPopover.classList.remove('opacity-0');
+                }, 10);
+            }
+
+            function hideWinnerPopover() {
+                winnerPopover.classList.add('opacity-0');
+                setTimeout(() => {
+                    winnerPopover.classList.add('hidden');
+                }, 300);
+            }
+
+            function resetGame() {
+                players.p1.score = 0;
+                players.p2.score = 0;
+                gameOver = false;
+                gameHistory = [{ p1: 0, p2: 0 }];
+                updateScoreDisplay();
+                updateServingIndicator();
+                gamePointAlert.textContent = '';
+                gamePointAlert.classList.remove('game-point');
+                chartCongrats.classList.add('hidden');
+                chartWinnerText.textContent = '';
+                if (performanceChart) updateChart(); // Clear chart on reset
+            }
+
+            function updateHistoryDisplay() {
+                p1WinsDisplay.textContent = players.p1.wins;
+                p1LossesDisplay.textContent = players.p1.losses;
+                p2WinsDisplay.textContent = players.p2.wins;
+                p2LossesDisplay.textContent = players.p2.losses;
+            }
+            
+            function initializeChart() {
+                if (performanceChart) {
+                    performanceChart.destroy();
+                }
+                performanceChart = new Chart(chartCtx, {
+                    type: 'line',
+                    data: {
+                        labels: [0],
+                        datasets: [
+                            {
+                                label: players.p1.name,
+                                data: [0],
+                                borderColor: 'rgba(79, 70, 229, 1)', // indigo-600
+                                backgroundColor: 'rgba(79, 70, 229, 0.1)',
+                                tension: 0.3,
+                                fill: true,
+                            },
+                            {
+                                label: players.p2.name,
+                                data: [0],
+                                borderColor: 'rgba(220, 38, 38, 1)', // red-600
+                                backgroundColor: 'rgba(220, 38, 38, 0.1)',
+                                tension: 0.3,
+                                fill: true,
+                            }
+                        ]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: true,
+                        scales: {
+                            y: {
+                                beginAtZero: true,
+                                ticks: {
+                                    stepSize: 1
+                                }
+                            },
+                            x: {
+                                title: {
+                                    display: true,
+                                    text: 'Points Played'
+                                }
+                            }
+                        },
+                        plugins: {
+                            legend: {
+                                position: 'top',
+                            },
+                            tooltip: {
+                                mode: 'index',
+                                intersect: false,
+                            }
+                        }
+                    }
+                });
+            }
+
+            function updateChart() {
+                if (!performanceChart) return;
+                
+                const labels = gameHistory.map((_, index) => index);
+                const p1Data = gameHistory.map(score => score.p1);
+                const p2Data = gameHistory.map(score => score.p2);
+
+                performanceChart.data.labels = labels;
+                performanceChart.data.datasets[0].data = p1Data;
+                performanceChart.data.datasets[1].data = p2Data;
+                performanceChart.update();
+            }
+
+            // Initial Load
+            loadPlayerData();
+        });
+    </script>
+</body>
+</html>
