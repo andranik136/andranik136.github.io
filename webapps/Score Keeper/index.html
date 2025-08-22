@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Ping Pong Score Keeper</title>
+    <title>Score Keeper for Table Tennis</title>
     
     <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
@@ -73,8 +73,8 @@
     <div class="container mx-auto p-4 md:p-8 max-w-4xl">
         
         <header class="text-center mb-8">
-            <h1 class="text-4xl font-bold text-indigo-600">Ping Pong Scorer</h1>
-            <p class="text-gray-500 mt-2">Track your matches and analyze your performance.</p>
+            <h1 class="text-4xl font-bold text-indigo-600">Score Keeper</h1>
+            <h3 class="text-4xl font-bold text-indigo-600">for table tennis</h3>
         </header>
 
         <!-- Player Setup Section -->
@@ -149,8 +149,8 @@
         </main>
         
         <!-- Winner Popover -->
-        <div id="winner-popover" class="fixed inset-0 bg-white p-4 md:p-8 flex-col items-center justify-center hidden opacity-0 transition-opacity duration-300 z-50 overflow-y-auto">
-            <div class="w-full max-w-4xl text-center flex flex-col h-full">
+        <div id="winner-popover" class="fixed inset-0 bg-white p-4 md:p-8 flex items-center justify-center hidden opacity-0 transition-opacity duration-300 z-50 overflow-y-auto">
+            <div class="w-full max-w-4xl text-center flex flex-col">
                 <header>
                     <h2 class="text-4xl font-bold text-indigo-600 mb-2">Winner!</h2>
                     <p id="winner-name" class="text-3xl mb-4"></p>
