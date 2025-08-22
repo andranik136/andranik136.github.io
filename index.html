@@ -1,212 +1,298 @@
 <!DOCTYPE html>
 <html lang="en">
-  <head>
+<head>
     <meta charset="UTF-8">
-    <link rel="icon" href="/favicon.ico">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="stylesheet" href="style.css">
-    <title>Portfolio by Andranik Shirinian</title>
-  </head>
-  <body>
-    <!-- particles.js container -->
-    <div id="particles-js"></div> 
-<!--    NAVIGATION BAR-->
-    <div id="header">
-      <div>
-        <a href="#aboutme" class="name">
-          <h3>Andranik Shirinian</h3>
-          <p>Front-End Web Development – Graphic Design – Motion Graphics</p>
-        </a>
-      </div>
-      <div class="nav">
-          <a href="#aboutme">About Me</a>
-          <a href="#professional">Professional Work</a>
-          <a href="#personal">Personal Projects</a>
-          <a href="#contact">Contact</a>
-      </div>
-    </div>
-    <div id="app">
-<!--  ABOUT ME-->
-      <div id="aboutme" class="content-panel" style="background: rgba(98, 0, 234, 0.5);">
-        
-        <div class="dual-col">
-          
-<!--      LEFT COLUMN-->
-          <div>
-            <div class="photo"></div>
-            <h3>About Me</h3>
-            <p>I'm a graphic designer and front-end web developer who loves to create beautiful and functional designs. I'm passionate about using my skills to help businesses and individuals communicate their message in a clear and engaging way.</p>
-              
-              <p>I'm proficient in Adobe Illustrator, Photoshop, After Effects, , and I'm also familiar with HTML, CSS, JavaScript, VueJS, and NodeJS. I'm always up for learning new things, and I'm always looking for new challenges.</p>
-              
-              <p>In my previous role as a freelance graphic designer, I worked with a variety of clients to create logos, website designs, marketing materials, and more. I'm currently working as a front-end web developer and graphic designer for BluIP Inc. in Glendale, CA.</p>              
-              <p>I'm a creative and resourceful problem-solver, and I'm always looking for new ways to improve my skills and knowledge. I'm also a team player and I'm always willing to go the extra mile.</p>
-              
-              <p>If you're looking for a designer who can bring your vision to life, I'd love to chat!</p>
-          </div>
-<!--      RIGHT COLUMN-->
-          <div class="creds">
-            <div>
-                <h3>Skills</h3>
-                
-                <h5>Graphic design:</h5>
-                <p>
-                  <ul>
-                    <li>Adobe Illustrator</li>
-                    <li>After Effects</li>
-                    <li>Photoshop</li>
-                    <li>Blender</li>
-                  </ul>
-                <h5>Web development:</h5>
-                <p>
-                  <ul>
-                    <li>HTML</li>
-                    <li>CSS</li>
-                    <li>JavaScript</li>
-                    <li>VueJS</li>
-                    <li>NodeJS</li>
-                  </ul>
-                </p>
-                <h5>Other skills: </h5>
-                <p>
-                  <ul>
-                    <li>User experience design</li>
-                    <li>Typography</li>
-                    <li>Color theory</li>
-                    <li>Animation</li>
-                  </ul>
-                </p>
-            </div>
-            <div>
-              <div style="margin-bottom: 50px;">
-                <h3>Experience</h3>
-                
-                <ul>
-                  <li>Front-end web developer and graphic designer at BluIP Inc. (2016-present)</li>
-                  <li>Freelance graphic designer (2012-2016)</li>
-                </ul>
-              </div>
-              <div style="margin-bottom: 50px;">
-                <h3>Education</h3>
-                
-                <p>Computer Science/Information Technology, Los Angeles City College (2012-2016)</p>
-              </div>
-              <div>
-                <h3>Personal Interests</h3>
-                
-                <ul>
-                    <li>Spending time with my dog</li>
-                    <li>Hiking</li>
-                    <li>Photography</li>
-                    <li>3D Modeling/Scanning</li>
-                    <li>Traveling</li>
-                    <li>Camping</li>
-                </ul>
-              </div>
-            </div>
-        </div>
-      </div>
-      <div style="text-align: center; padding: 50px;">
-        <a href="#professional"><button>Professional Work</button></a>
-      </div>
-    </div>
+    <title>Andranik Shirinian - Portfolio</title>
     
-    <div id="professional" class="content-panel" style="background: rgba(48, 79, 254, 0.5);">
-      <div class="page-title">
-        <h1>Professional Work</h1>
-      </div>
-      <div class="dual-col" style="width: 100%;">
-        <div>
-          <img class="company-logo" src="/media/bluip-logo.svg" >
-          <h3>BluIP Inc</h3>
-          <p><ul>
-            <li>Website</li>
-            <li>Web Applications</li>
-            <li>Large Format Print</li>
-            <li>Documentation</li>
-          </ul></p>
-        </div>
-        <div>
-          <img class="company-logo" src="/media/support-insurance-logo.svg" >
-          <h3>Support Insurance Agency</h3>
-          <p><ul>
-            <li>Website</li>
-            <li>Print Marketing</li>
-          </ul></p>
-        </div>
-        <div>
-          <img class="company-logo" src="/media/adweek-logo.svg" >
-          <h3>Adweek</h3>
-          <p><ul>
-            <li>AT&T</li>
-            <li>Salesforce</li>
-          </ul></p>
-        </div>
-      </div>      
-      <div style="text-align: center; padding: 50px;">
-        <a href="#personal"><button>Personal Projects</button></a>
-      </div>
+    <!-- Tailwind CSS for styling -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&family=Russo+One&display=swap" rel="stylesheet">
+    
+    <!-- Vue.js -->
+    <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
+
+    <style>
+        /* Custom styles for the high-contrast, modern theme */
+        body {
+            font-family: 'Poppins', sans-serif;
+            background-color: #121212;
+            color: #E0E0E0;
+            overflow-x: hidden;
+        }
+
+        h1, h2, h3, .nav-link {
+            font-family: 'Russo One', sans-serif;
+            letter-spacing: 1.5px;
+        }
+
+        .hero-section {
+            background: linear-gradient(-45deg, #ee7752, #e73c7e, #23a6d5, #23d5ab);
+            background-size: 400% 400%;
+            animation: gradientBG 15s ease infinite;
+            height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        @keyframes gradientBG {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+
+        .section {
+            padding: 100px 0;
+            border-bottom: 1px solid #333;
+        }
+
+        .section-title {
+            font-size: 3rem;
+            margin-bottom: 2rem;
+            text-transform: uppercase;
+            color: #FFFFFF;
+        }
+
+        .portfolio-item {
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            overflow: hidden;
+        }
+
+        .portfolio-item:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.3), 0 10px 10px -5px rgba(0, 0, 0, 0.1);
+        }
+        
+        .portfolio-item img {
+            transition: transform 0.5s ease;
+        }
+
+        .portfolio-item:hover img {
+            transform: scale(1.1);
+        }
+
+        .contact-form input, .contact-form textarea {
+            background-color: #2a2a2a;
+            border: 1px solid #444;
+            color: #E0E0E0;
+            transition: border-color 0.3s ease;
+        }
+
+        .contact-form input:focus, .contact-form textarea:focus {
+            outline: none;
+            border-color: #e73c7e;
+        }
+
+        .btn-primary {
+            background-color: #e73c7e;
+            color: #FFFFFF;
+            font-family: 'Russo One', sans-serif;
+            padding: 12px 30px;
+            border-radius: 50px;
+            transition: background-color 0.3s ease, transform 0.3s ease;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .btn-primary:hover {
+            background-color: #d62c6e;
+            transform: translateY(-3px);
+        }
+
+        /* Animation for elements on scroll */
+        .fade-in {
+            opacity: 0;
+            transform: translateY(30px);
+            transition: opacity 0.6s ease-out, transform 0.6s ease-out;
+        }
+
+        .fade-in.visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    </style>
+</head>
+<body class="bg-gray-900 text-gray-200">
+
+    <div id="app">
+        <!-- Header & Navigation -->
+        <header class="fixed w-full z-30 top-0 bg-black bg-opacity-50 backdrop-blur-sm transition-all duration-300" :class="{ 'bg-opacity-90': scrolled }">
+            <div class="container mx-auto px-6 py-4 flex justify-between items-center">
+                <a href="#" class="text-2xl font-bold text-white">AS</a>
+                <nav class="hidden md:flex space-x-8">
+                    <a v-for="link in navLinks" :key="link.id" :href="'#' + link.id" @click.prevent="scrollTo(link.id)" class="nav-link text-white hover:text-pink-500 transition duration-300">{{ link.text }}</a>
+                </nav>
+                <div class="md:hidden">
+                    <button @click="mobileMenuOpen = !mobileMenuOpen" class="text-white focus:outline-none">
+                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16m-7 6h7"></path></svg>
+                    </button>
+                </div>
+            </div>
+            <!-- Mobile Menu -->
+            <div v-show="mobileMenuOpen" class="md:hidden bg-black bg-opacity-80">
+                 <a v-for="link in navLinks" :key="link.id" :href="'#' + link.id" @click.prevent="scrollTo(link.id, true)" class="block py-2 px-4 text-sm text-white hover:bg-gray-800">{{ link.text }}</a>
+            </div>
+        </header>
+
+        <!-- Hero Section -->
+        <section class="hero-section text-white text-center">
+            <div class="bg-black bg-opacity-50 p-10 rounded-lg">
+                <h1 class="text-6xl md:text-8xl font-bold mb-4 uppercase">Andranik Shirinian</h1>
+                <p class="text-xl md:text-2xl">Web Developer | Graphic Designer | 3D Artist</p>
+            </div>
+        </section>
+
+        <main class="container mx-auto px-6">
+            <!-- About Section -->
+            <section id="about" class="section text-center">
+                <h2 class="section-title fade-in">About Me</h2>
+                <div class="max-w-3xl mx-auto fade-in">
+                    <img src="https://placehold.co/150x150/e73c7e/ffffff?text=AS" alt="Andranik Shirinian" class="rounded-full mx-auto mb-6 border-4 border-pink-500">
+                    <p class="text-lg leading-relaxed">
+                        I'm a passionate and versatile creator with a deep love for technology and art. My journey has led me through the exciting worlds of web development, the creative challenges of graphic design, and the boundless possibilities of 3D art. I thrive on bringing ideas to life, whether it's through clean code, compelling visuals, or immersive digital environments. Let's build something amazing together.
+                    </p>
+                </div>
+            </section>
+
+            <!-- Portfolio Section -->
+            <section id="portfolio" class="section">
+                <h2 class="section-title text-center fade-in">My Work</h2>
+                <div class="flex justify-center mb-8 fade-in">
+                    <button v-for="category in categories" :key="category" @click="activeCategory = category" 
+                            class="mx-2 px-4 py-2 rounded-full transition"
+                            :class="{'bg-pink-500 text-white': activeCategory === category, 'bg-gray-800 text-gray-300': activeCategory !== category}">
+                        {{ category }}
+                    </button>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+                    <div v-for="item in filteredPortfolio" :key="item.id" class="portfolio-item bg-gray-800 rounded-lg shadow-lg fade-in">
+                        <img :src="item.image" :alt="item.title" class="w-full h-56 object-cover rounded-t-lg">
+                        <div class="p-6">
+                            <h3 class="text-xl font-bold mb-2">{{ item.title }}</h3>
+                            <p class="text-gray-400">{{ item.description }}</p>
+                            <span class="inline-block bg-gray-700 text-pink-400 text-xs font-semibold mt-4 px-2.5 py-0.5 rounded-full">{{ item.category }}</span>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Contact Section -->
+            <section id="contact" class="section">
+                <h2 class="section-title text-center fade-in">Get In Touch</h2>
+                <div class="max-w-xl mx-auto text-center fade-in">
+                    <p class="mb-8">
+                        Have a project in mind or just want to say hello? My inbox is always open.
+                    </p>
+                    <a href="mailto:andranik136@gmail.com" class="btn-primary inline-block">
+                        andranik136@gmail.com
+                    </a>
+                </div>
+            </section>
+        </main>
+
+        <!-- Footer -->
+        <footer class="bg-gray-900 py-6 text-center text-gray-500">
+            <p>&copy; {{ new Date().getFullYear() }} Andranik Shirinian. All Rights Reserved.</p>
+        </footer>
     </div>
-      
-      
-      <div id="personal" class="content-panel" style="background: rgba(0, 145, 234, 0.5);">
-        <div class="page-title">
-          <h1>Personal Projects</h1>
-        </div>
-        <div class="dual-col" style="width: 100%;">
-          <div>
-            <h3>2D Graphics</h3>
-            <p><ul>
-              <li>Project 1</li>
-              <li>Project 2</li>
-              <li>Project 3</li>
-            </ul></p>
-          </div>
-          <div>
-            <h3>Blender/3D</h3>
-            <p><ul>
-              <li>Project 1</li>
-              <li>Project 2</li>
-              <li>Project 3</li>
-            </ul></p>
-        </div>
-        <div>
-          <h3>Web Development</h3>
-          <p><ul>
-            <li>Project 1</li>
-            <li>Project 2</li>
-            <li>Project 3</li>
-          </ul></p>
-        </div>
-        </div>
-        <div style="text-align: center; padding: 50px;">
-          <a href="#contact"><button>Contact Me</button></a>
-        </div>
-      </div>
-                  
-      <div id="contact" class="content-panel" style="background: rgba(0, 184, 212, 0.5);">
-        <div class="page-title">
-          <h1>Contact Me</h1>
-        </div>
-        <div class="dual-col" style="width: 100%;">
-          <div>
-            <h3>Email</h3>
-            <p>andranik136@me.com</p>
-          </div>
-          <div>
-            <h3>Social</h3>
-            <p><ul>
-              <li>Linkedin</li>
-              <li>Instagram</li>
-              <li>Threads</li>
-            </ul></p>
-          </div>
-        </div>
-      </div>
-    </div>
-    <script type="module" src="/src/main.js"></script>
-    <script type="module" src="/js/app.js"></script>
-    <script src="/vendor/particles.min.js"></script>
-  </body>
+
+    <script>
+        const { createApp, ref, onMounted, onUnmounted, computed } = Vue;
+
+        createApp({
+            setup() {
+                // Navigation state
+                const scrolled = ref(false);
+                const mobileMenuOpen = ref(false);
+                const navLinks = ref([
+                    { id: 'about', text: 'About' },
+                    { id: 'portfolio', text: 'Portfolio' },
+                    { id: 'contact', text: 'Contact' }
+                ]);
+
+                // Handle scroll event for header style change
+                const handleScroll = () => {
+                    scrolled.value = window.scrollY > 50;
+                };
+
+                // Smooth scrolling function
+                const scrollTo = (id, isMobile = false) => {
+                    const element = document.getElementById(id);
+                    if (element) {
+                        const headerOffset = 80; // Adjust for fixed header height
+                        const elementPosition = element.getBoundingClientRect().top;
+                        const offsetPosition = elementPosition + window.pageYOffset - headerOffset;
+                        
+                        window.scrollTo({
+                            top: offsetPosition,
+                            behavior: "smooth"
+                        });
+                    }
+                    if (isMobile) {
+                        mobileMenuOpen.value = false;
+                    }
+                };
+
+                // Portfolio data and filtering
+                const activeCategory = ref('All');
+                const categories = ['All', 'Web Development', 'Graphic Design', '3D Art'];
+                const portfolioItems = ref([
+                    { id: 1, title: 'E-commerce Platform', category: 'Web Development', description: 'A full-stack e-commerce solution with a modern frontend.', image: 'https://placehold.co/600x400/23a6d5/ffffff?text=Web+Project' },
+                    { id: 2, title: 'Corporate Branding', category: 'Graphic Design', description: 'Complete brand identity design for a tech startup.', image: 'https://placehold.co/600x400/e73c7e/ffffff?text=Design+Project' },
+                    { id: 3, title: 'Architectural Visualization', category: '3D Art', description: 'Realistic rendering of a modern residential building.', image: 'https://placehold.co/600x400/ee7752/ffffff?text=3D+Project' },
+                    { id: 4, title: 'Portfolio Website', category: 'Web Development', description: 'A personal portfolio website for a creative professional.', image: 'https://placehold.co/600x400/23d5ab/ffffff?text=Web+Project' },
+                    { id: 5, title: 'Product Packaging', category: 'Graphic Design', description: 'Eye-catching packaging design for a new beverage.', image: 'https://placehold.co/600x400/e73c7e/ffffff?text=Design+Project' },
+                    { id: 6, title: 'Character Model', category: '3D Art', description: 'A stylized 3D character model for an animated short.', image: 'https://placehold.co/600x400/ee7752/ffffff?text=3D+Project' }
+                ]);
+
+                const filteredPortfolio = computed(() => {
+                    if (activeCategory.value === 'All') {
+                        return portfolioItems.value;
+                    }
+                    return portfolioItems.value.filter(item => item.category === activeCategory.value);
+                });
+
+                // Scroll animations
+                const handleScrollAnimations = () => {
+                    const elements = document.querySelectorAll('.fade-in');
+                    elements.forEach(el => {
+                        const rect = el.getBoundingClientRect();
+                        if (rect.top < window.innerHeight - 100) {
+                            el.classList.add('visible');
+                        }
+                    });
+                };
+
+                // Lifecycle hooks
+                onMounted(() => {
+                    window.addEventListener('scroll', handleScroll);
+                    window.addEventListener('scroll', handleScrollAnimations);
+                    handleScrollAnimations(); // Initial check
+                });
+
+                onUnmounted(() => {
+                    window.removeEventListener('scroll', handleScroll);
+                    window.removeEventListener('scroll', handleScrollAnimations);
+                });
+
+                return {
+                    scrolled,
+                    mobileMenuOpen,
+                    navLinks,
+                    scrollTo,
+                    activeCategory,
+                    categories,
+                    filteredPortfolio
+                };
+            }
+        }).mount('#app');
+    </script>
+
+</body>
 </html>
-                
