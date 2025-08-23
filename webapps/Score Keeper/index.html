@@ -3,8 +3,13 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Score Keeper for Table Tennis</title>
+    <title>Scoreboard for Table Tennis</title>
     
+    <!-- PWA Meta Tags -->
+    <meta name="theme-color" content="#4f46e5"/>
+    <link rel="apple-touch-icon" href="scoreboard-icon-512.png">
+    <link rel="manifest" href="manifest.json">
+
     <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
     
@@ -73,8 +78,8 @@
     <div class="container mx-auto p-4 md:p-8 max-w-4xl">
         
         <header class="text-center mb-8">
-            <h1 class="text-4xl font-bold text-indigo-600">Score Keeper</h1>
-            <h3 class="text-4xl font-bold text-indigo-600">for table tennis</h3>
+            <h1 class="text-4xl font-bold text-indigo-600">Scoreboard</h1>
+            <p class="text-gray-500 mt-2">For Table Tennis</p>
         </header>
 
         <!-- Player Setup Section -->
@@ -177,6 +182,67 @@
     </div>
 
     <script>
+        // PWA Service Worker Registration
+        if ('serviceWorker' in navigator) {
+            // Define the service worker code as a string
+            const swCode = `
+                const CACHE_NAME = 'ping-pong-scorer-cache-v1';
+                // Note: Caching the root '/' is crucial for the app to work offline from the base URL.
+                const urlsToCache = [
+                    '/',
+                    'https://cdn.tailwindcss.com',
+                    'https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css',
+                    'https://cdn.jsdelivr.net/npm/chart.js',
+                    'https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap',
+                    'https://fonts.gstatic.com/s/inter/v13/UcC73FwrK3iLTeHuS_fvQtMwCp50KnMa2JL7SUc.woff2'
+                ];
+
+                // Install event: fires when the service worker is first installed.
+                self.addEventListener('install', event => {
+                    event.waitUntil(
+                        caches.open(CACHE_NAME)
+                            .then(cache => {
+                                console.log('Opened cache');
+                                // Add all specified URLs to the cache.
+                                return cache.addAll(urlsToCache);
+                            })
+                    );
+                });
+
+                // Fetch event: fires for every network request.
+                self.addEventListener('fetch', event => {
+                    event.respondWith(
+                        // Check if the request is in the cache.
+                        caches.match(event.request)
+                            .then(response => {
+                                if (response) {
+                                    return response; // Serve from cache if found.
+                                }
+                                // If not in cache, fetch from the network.
+                                return fetch(event.request); 
+                            })
+                    );
+                });
+            `;
+
+            // Create a Blob from the service worker string.
+            const blob = new Blob([swCode], { type: 'application/javascript' });
+            // Create an object URL for the Blob.
+            const swUrl = URL.createObjectURL(blob);
+
+            // Register the service worker on window load.
+            window.addEventListener('load', () => {
+                navigator.serviceWorker.register(swUrl)
+                    .then(registration => {
+                        console.log('ServiceWorker registration successful with scope: ', registration.scope);
+                    })
+                    .catch(err => {
+                        console.log('ServiceWorker registration failed: ', err);
+                    });
+            });
+        }
+
+
         document.addEventListener('DOMContentLoaded', () => {
             // DOM Elements
             const playerSetupSection = document.getElementById('player-setup');

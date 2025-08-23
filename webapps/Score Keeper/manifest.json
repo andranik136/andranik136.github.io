@@ -1,0 +1,17 @@
+{
+  "name": "Scoreboard for Table Tennis",
+  "short_name": "Scoreboard",
+  "start_url": ".",
+  "display": "standalone",
+  "background_color": "#f3f4f6",
+  "theme_color": "#4f46e5",
+  "description": "A simple app to keep score for table tennis matches.",
+  "icons": [
+    {
+      "src": "scoreboard-icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ]
+}
