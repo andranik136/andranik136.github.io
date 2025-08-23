@@ -1,0 +1,570 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dynamic Weather App</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;700&display=swap');
+
+        :root {
+            --primary-color: #2c3e50;
+            --secondary-color: #34495e;
+            --accent-color: #42b983;
+            --text-color: #ecf0f1;
+            --card-bg: rgba(255, 255, 255, 0.1);
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background: var(--primary-color);
+            color: var(--text-color);
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            transition: background 0.5s ease;
+        }
+
+        #app {
+            width: 90%;
+            max-width: 800px;
+            padding: 2rem;
+            border-radius: 1.5rem;
+            background: var(--secondary-color);
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+            position: relative;
+            overflow: hidden;
+            text-align: center;
+        }
+
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 2rem;
+        }
+
+        .header h1 {
+            font-size: 2.5rem;
+            font-weight: 700;
+            margin: 0;
+        }
+
+        .loading, .error {
+            font-size: 1.2rem;
+            margin-top: 2rem;
+        }
+
+        /* Settings Button */
+        .settings-btn {
+            background: none;
+            border: none;
+            cursor: pointer;
+            padding: 0.5rem;
+            color: var(--text-color);
+        }
+
+        .settings-btn svg {
+            width: 28px;
+            height: 28px;
+            transition: transform 0.3s ease;
+        }
+        .settings-btn:hover svg {
+            transform: rotate(60deg);
+        }
+
+        /* Current Weather Section */
+        .current-weather {
+            margin-bottom: 2rem;
+        }
+
+        .current-weather .location {
+            font-size: 1.8rem;
+            font-weight: 700;
+            margin-bottom: 0.5rem;
+        }
+
+        .current-weather .temperature {
+            font-size: 5rem;
+            font-weight: 300;
+            margin: 0.5rem 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .current-weather .temperature span {
+            font-size: 2rem;
+            font-weight: 400;
+        }
+
+        .current-weather .condition {
+            font-size: 1.5rem;
+            font-weight: 400;
+        }
+
+        .current-details {
+            display: flex;
+            justify-content: center;
+            gap: 1.5rem;
+            margin-top: 1rem;
+        }
+
+        .detail-item {
+            font-size: 1rem;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 0.25rem;
+        }
+        .detail-item .value {
+            font-weight: 700;
+        }
+
+        /* Weekly Forecast */
+        .weekly-forecast {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(100px, 1fr));
+            gap: 1rem;
+            margin-top: 2rem;
+        }
+
+        .forecast-card {
+            background: var(--card-bg);
+            border-radius: 1rem;
+            padding: 1rem 0.5rem;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+        }
+
+        .forecast-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+        }
+
+        .forecast-card .day {
+            font-weight: 700;
+            margin-bottom: 0.5rem;
+        }
+
+        .forecast-card .temp-range {
+            font-size: 0.9rem;
+            margin-top: 0.5rem;
+        }
+
+        /* SVG Icons */
+        .weather-icon {
+            width: 80px;
+            height: 80px;
+        }
+
+        .forecast-icon {
+            width: 50px;
+            height: 50px;
+        }
+
+        /* Settings Modal */
+        .settings-modal {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.8);
+            backdrop-filter: blur(5px);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 10;
+            opacity: 0;
+            visibility: hidden;
+            transition: opacity 0.3s ease, visibility 0.3s ease;
+        }
+
+        .settings-modal.active {
+            opacity: 1;
+            visibility: visible;
+        }
+
+        .settings-content {
+            background: var(--secondary-color);
+            padding: 2rem;
+            border-radius: 1.5rem;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+            width: 80%;
+            max-width: 400px;
+            text-align: left;
+        }
+
+        .settings-content h2 {
+            margin-top: 0;
+            font-size: 1.5rem;
+        }
+
+        .settings-content input {
+            width: 100%;
+            padding: 0.75rem;
+            margin-bottom: 1rem;
+            border: 1px solid var(--text-color);
+            border-radius: 0.5rem;
+            background: var(--primary-color);
+            color: var(--text-color);
+            box-sizing: border-box;
+        }
+
+        .settings-content button {
+            width: 100%;
+            padding: 0.75rem;
+            background: var(--accent-color);
+            border: none;
+            border-radius: 0.5rem;
+            color: var(--primary-color);
+            font-weight: bold;
+            cursor: pointer;
+            transition: background 0.2s ease;
+        }
+
+        .settings-content button:hover {
+            background: #39a374;
+        }
+
+        .close-btn {
+            position: absolute;
+            top: 1rem;
+            right: 1rem;
+            background: none;
+            border: none;
+            cursor: pointer;
+            font-size: 1.5rem;
+            color: var(--text-color);
+        }
+
+        /* SVG Animations */
+        .sun-animation {
+            transform-origin: center;
+            animation: rotate 10s linear infinite;
+        }
+
+        .cloud-animation {
+            animation: move-cloud 15s linear infinite alternate;
+        }
+
+        .rain-animation {
+            opacity: 0.7;
+            animation: fall-rain 1s linear infinite;
+        }
+
+        .bolt-animation {
+            opacity: 0;
+            animation: flash 1s ease-in-out infinite;
+        }
+
+        @keyframes rotate {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
+
+        @keyframes move-cloud {
+            from { transform: translateX(0); }
+            to { transform: translateX(10px); }
+        }
+
+        @keyframes fall-rain {
+            from { transform: translateY(0); opacity: 0; }
+            to { transform: translateY(20px); opacity: 1; }
+        }
+
+        @keyframes flash {
+            0%, 100% { opacity: 0; }
+            50% { opacity: 1; }
+        }
+
+    </style>
+</head>
+<body>
+
+<div id="app">
+    <div class="header">
+        <h1>Weather App</h1>
+        <button class="settings-btn" @click="toggleSettings">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor">
+                <path d="M12 15.5A3.5 3.5 0 0 1 8.5 12A3.5 3.5 0 0 1 12 8.5a3.5 3.5 0 0 1 3.5 3.5a3.5 3.5 0 0 1-3.5 3.5m7.4-2.5l2.77 1.54c.64.35.7.83.1 1.74l-2.4 4.16c-.5.87-1.42 1.3-2.3.93l-2.9-1.22c-.64.35-1.4.58-2.18.67l-.42 3.1c-.13 1.13-1.04 2-2.15 2h-4.8c-1.11 0-2.02-.87-2.15-2l-.42-3.1c-.78-.09-1.54-.32-2.18-.67l-2.9 1.22c-.88.37-1.8-.06-2.3-.93L.3 14.78c-.6-.91-.54-1.39.1-1.74l2.77-1.54c-.03-.28-.05-.56-.05-.88s.02-.6.05-.88L.4 9.22c-.6-.91-.54-1.39.1-1.74l2.4-4.16c.5-.87 1.42-1.3 2.3-.93l2.9 1.22c.64-.35 1.4-.58 2.18-.67l.42-3.1c.13-1.13 1.04-2 2.15-2h4.8c1.11 0 2.02.87 2.15 2l.42 3.1c.78.09 1.54.32 2.18.67l2.9-1.22c.88-.37 1.8.06 2.3.93l2.4 4.16c.6.91.54 1.39-.1 1.74l-2.77 1.54c.03.28.05.56.05.88s-.02.6-.05.88z"/>
+            </svg>
+        </button>
+    </div>
+
+    <div v-if="loading" class="loading">
+        Loading weather data...
+    </div>
+
+    <div v-else-if="error" class="error">
+        {{ error }}
+    </div>
+
+    <div v-else class="weather-container">
+        <!-- Current Weather -->
+        <div class="current-weather">
+            <h2 class="location">{{ location }}</h2>
+            <div class="weather-icon">
+                <div v-html="getWeatherIcon(weatherData.current.weather_code)"></div>
+            </div>
+            <div class="temperature">
+                {{ Math.round(weatherData.current.temperature_2m) }}<span>°C</span>
+            </div>
+            <div class="condition">
+                {{ getWeatherDescription(weatherData.current.weather_code) }}
+            </div>
+            <div class="current-details">
+                <div class="detail-item">
+                    <span class="value">{{ uvIndex }}</span>
+                    <span>UV Index</span>
+                </div>
+                <div class="detail-item">
+                    <span class="value">{{ aqi }}</span>
+                    <span>AQI</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Weekly Forecast -->
+        <div class="weekly-forecast">
+            <div v-for="(day, index) in weeklyForecast" :key="index" class="forecast-card">
+                <div class="day">{{ getDayName(day.time) }}</div>
+                <div class="forecast-icon">
+                    <div v-html="getWeatherIcon(day.weather_code)"></div>
+                </div>
+                <div class="temp-range">
+                    {{ Math.round(day.temperature_2m_max) }}° / {{ Math.round(day.temperature_2m_min) }}°
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Settings Modal -->
+    <div :class="['settings-modal', { 'active': isSettingsVisible }]">
+        <div class="settings-content">
+            <button class="close-btn" @click="toggleSettings">&times;</button>
+            <h2>Change Location</h2>
+            <p>Enter a ZIP code to get the weather for that location.</p>
+            <input type="text" v-model="zipCodeInput" placeholder="e.g., 90210" @keyup.enter="fetchByZipCode">
+            <button @click="fetchByZipCode">Get Weather</button>
+        </div>
+    </div>
+</div>
+
+<script src="https://unpkg.com/vue@3"></script>
+<script>
+    // This is the main Vue.js application instance.
+    const app = Vue.createApp({
+        data() {
+            return {
+                // Main data objects to store weather and location info.
+                weatherData: null,
+                weeklyForecast: [],
+                uvIndex: 'N/A',
+                aqi: 'N/A',
+                location: 'Your Location',
+                // UI state variables.
+                loading: true,
+                error: null,
+                isSettingsVisible: false,
+                zipCodeInput: ''
+            };
+        },
+        computed: {
+            // Vue computed property to map weather codes to SVG icons.
+            getWeatherIcon() {
+                return (weatherCode) => {
+                    const icons = {
+                        // Clear Sky
+                        0: `<svg class="sun-animation" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor">
+                              <path d="M12 2A10 10 0 1 1 2 12A10 10 0 0 1 12 2m0 2a8 8 0 1 0 8 8a8 8 0 0 0-8-8m-1 11h2v-2h-2m-3-1l1.41-1.41-1.41-1.41L7 10.59l-1.41-1.41L4.17 10.59L3 9.41l1.17-1.17 1.41-1.41L5 6l1.41 1.41L7.82 6.58L9.23 8l1.41 1.41L9.23 10.82l-1.41 1.41L8 12.23l1.41 1.41L10.82 14.64l1.41 1.41L12.23 14.64l1.41 1.41L14.64 12.23l1.41-1.41L16.05 10.82l-1.41-1.41-1.41-1.41-1.41-1.41-1.41-1.41-1.41-1.41-1.41-1.41-1.41-1.41-1.41-1.41-1.41-1.41L7 7L8.41 8.41L9.23 9.23L10.05 10.05l1.41 1.41L10.82 12.23L9.41 13.64L8 15.05L6.58 13.64L5.17 12.23L3.76 10.82L2.35 9.41z"/>
+                           </svg>`,
+                        // Mainly clear, partly cloudy
+                        1: `<svg class="cloud-animation" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor">
+                              <path d="M19.36 10.04a7 7 0 0 0-12.72 0a5.5 5.5 0 0 0-4.64 5.46a5.5 5.5 0 0 0 5.5 5.5h9a6.5 6.5 0 0 0 6.47-5.5a6.5 6.5 0 0 0-6.47-6.5h-1zm-3.36 3.96h-6v2h6v-2zm0-4h-6v-2h6v2z"/>
+                           </svg>`,
+                        // Overcast, fog
+                        2: `<svg class="cloud-animation" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor">
+                              <path d="M19.36 10.04a7 7 0 0 0-12.72 0a5.5 5.5 0 0 0-4.64 5.46a5.5 5.5 0 0 0 5.5 5.5h9a6.5 6.5 0 0 0 6.47-5.5a6.5 6.5 0 0 0-6.47-6.5h-1z"/>
+                           </svg>`,
+                        // Rain, drizzle
+                        51: `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor">
+                               <path d="M19.36 10.04a7 7 0 0 0-12.72 0a5.5 5.5 0 0 0-4.64 5.46a5.5 5.5 0 0 0 5.5 5.5h9a6.5 6.5 0 0 0 6.47-5.5a6.5 6.5 0 0 0-6.47-6.5h-1z"/>
+                               <path class="rain-animation" d="M12 18.5V20.5M15 17.5V19.5M9 17.5V19.5" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                           </svg>`,
+                        // Thunderstorm
+                        95: `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor">
+                               <path d="M19.36 10.04a7 7 0 0 0-12.72 0a5.5 5.5 0 0 0-4.64 5.46a5.5 5.5 0 0 0 5.5 5.5h9a6.5 6.5 0 0 0 6.47-5.5a6.5 6.5 0 0 0-6.47-6.5h-1z"/>
+                               <path class="bolt-animation" d="M12 16L9 22L15 16L12 11" stroke="yellow" stroke-width="2" stroke-linecap="round"/>
+                           </svg>`,
+                        // Default for other conditions
+                        default: `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor">
+                                    <path d="M12 2A10 10 0 1 1 2 12A10 10 0 0 1 12 2m0 2a8 8 0 1 0 8 8a8 8 0 0 0-8-8z"/>
+                                  </svg>`
+                    };
+                    return icons[weatherCode] || icons.default;
+                };
+            },
+            // Maps weather codes to descriptions for readability.
+            getWeatherDescription() {
+                return (weatherCode) => {
+                    const descriptions = {
+                        0: "Clear Sky",
+                        1: "Partly Cloudy",
+                        2: "Cloudy",
+                        3: "Overcast",
+                        45: "Fog",
+                        48: "Depositing Rime Fog",
+                        51: "Drizzle",
+                        53: "Drizzle",
+                        55: "Dense Drizzle",
+                        56: "Freezing Drizzle",
+                        57: "Dense Freezing Drizzle",
+                        61: "Rain",
+                        63: "Rain",
+                        65: "Heavy Rain",
+                        66: "Freezing Rain",
+                        67: "Heavy Freezing Rain",
+                        71: "Snow Fall",
+                        73: "Moderate Snow Fall",
+                        75: "Heavy Snow Fall",
+                        77: "Snow Grains",
+                        80: "Rain Showers",
+                        81: "Rain Showers",
+                        82: "Violent Rain Showers",
+                        85: "Snow Showers",
+                        86: "Snow Showers",
+                        95: "Thunderstorm",
+                        96: "Thunderstorm with Hail",
+                        99: "Thunderstorm with Hail"
+                    };
+                    return descriptions[weatherCode] || "Unknown";
+                };
+            },
+            // Maps a date string to a day name (e.g., "Mon").
+            getDayName() {
+                return (dateStr) => {
+                    const date = new Date(dateStr);
+                    return date.toLocaleDateString('en-US', { weekday: 'short' });
+                };
+            }
+        },
+        methods: {
+            // Toggles the visibility of the settings modal.
+            toggleSettings() {
+                this.isSettingsVisible = !this.isSettingsVisible;
+            },
+            // Fetches weather data based on the user's current latitude and longitude.
+            async fetchWeatherByCurrentLocation() {
+                this.loading = true;
+                this.error = null;
+                this.location = 'Your Location';
+                if ("geolocation" in navigator) {
+                    navigator.geolocation.getCurrentPosition(
+                        async (position) => {
+                            const { latitude, longitude } = position.coords;
+                            await this.fetchWeatherData(latitude, longitude);
+                        },
+                        (err) => {
+                            console.error("Geolocation error:", err);
+                            this.error = "Couldn't get your location. Please enter a ZIP code.";
+                            this.loading = false;
+                        }
+                    );
+                } else {
+                    this.error = "Geolocation is not supported by your browser.";
+                    this.loading = false;
+                }
+            },
+            // Fetches weather data for a given latitude and longitude.
+            async fetchWeatherData(lat, lon) {
+                this.loading = true;
+                this.error = null;
+                try {
+                    // Fetch weather forecast and details
+                    const weatherUrl = `https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&current=temperature_2m,weather_code&daily=weather_code,temperature_2m_max,temperature_2m_min&timezone=auto&forecast_days=7&uv_index=true`;
+                    const weatherResponse = await fetch(weatherUrl);
+                    if (!weatherResponse.ok) {
+                        throw new Error("Failed to fetch weather data.");
+                    }
+                    this.weatherData = await weatherResponse.json();
+                    this.weeklyForecast = this.weatherData.daily;
+                    this.uvIndex = this.weatherData.uv_index ? this.weatherData.uv_index[0] : 'N/A';
+
+                    // Fetch air quality data
+                    const aqiUrl = `https://air-quality-api.open-meteo.com/v1/air-quality?latitude=${lat}&longitude=${lon}&current=european_aqi&timezone=auto`;
+                    const aqiResponse = await fetch(aqiUrl);
+                    if (!aqiResponse.ok) {
+                        throw new Error("Failed to fetch air quality data.");
+                    }
+                    const aqiData = await aqiResponse.json();
+                    this.aqi = aqiData.current ? aqiData.current.european_aqi : 'N/A';
+
+                    // Reverse geocoding to get location name
+                    const geocodingUrl = `https://geocoding-api.open-meteo.com/v1/search?name=${lat},${lon}&count=1`;
+                    const geoResponse = await fetch(geocodingUrl);
+                    const geoData = await geoResponse.json();
+
+                    if (geoData && geoData.results && geoData.results.length > 0) {
+                        this.location = `${geoData.results[0].name}, ${geoData.results[0].country}`;
+                    } else {
+                        // Fallback to coordinates if location name not found
+                        this.location = `Lat: ${lat.toFixed(2)}, Lon: ${lon.toFixed(2)}`;
+                    }
+
+                } catch (e) {
+                    console.error("Error fetching data:", e);
+                    this.error = "There was an issue retrieving weather data. Please try again.";
+                } finally {
+                    this.loading = false;
+                }
+            },
+            // Fetches location coordinates from a ZIP code and then gets weather data.
+            async fetchByZipCode() {
+                this.loading = true;
+                this.error = null;
+                this.isSettingsVisible = false;
+
+                const zip = this.zipCodeInput.trim();
+                if (!zip) {
+                    this.error = "Please enter a valid ZIP code.";
+                    this.loading = false;
+                    return;
+                }
+
+                try {
+                    const geocodingUrl = `https://geocoding-api.open-meteo.com/v1/search?name=${zip}&count=1&language=en&format=json`;
+                    const geoResponse = await fetch(geocodingUrl);
+                    const geoData = await geoResponse.json();
+
+                    if (geoData && geoData.results && geoData.results.length > 0) {
+                        const { latitude, longitude } = geoData.results[0];
+                        await this.fetchWeatherData(latitude, longitude);
+                    } else {
+                        this.error = "Location not found for that ZIP code. Please try a different one.";
+                    }
+                } catch (e) {
+                    console.error("Error fetching location data:", e);
+                    this.error = "There was an issue finding that location. Please try again.";
+                } finally {
+                    this.loading = false;
+                }
+            }
+        },
+        mounted() {
+            // When the app is mounted, try to get the user's current location.
+            this.fetchWeatherByCurrentLocation();
+        }
+    });
+
+    app.mount('#app');
+</script>
+
+</body>
+</html>
