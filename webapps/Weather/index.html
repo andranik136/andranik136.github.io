@@ -3,682 +3,345 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Dynamic Weather App</title>
+    <title>Weather</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/skycons/1396634940/skycons.min.js"></script>
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;700&display=swap');
-
-        :root {
-            --primary-color: #2c3e50;
-            --secondary-color: #34495e;
-            --accent-color: #42b983;
-            --text-color: #ecf0f1;
-            --card-bg: rgba(255, 255, 255, 0.1);
-            --card-hover-bg: rgba(255, 255, 255, 0.15);
-            --menu-bg: #22313f; /* Slightly darker for the side menu */
-        }
-
         body {
-            font-family: 'Inter', sans-serif;
-            background: var(--primary-color);
-            color: var(--text-color);
-            margin: 0;
-            padding: 0;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            min-height: 100vh;
-            transition: background 0.5s ease;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            background-color: #1F2937; /* Dark blue-gray background */
+            color: white;
         }
-
-        #app {
-            width: 90%;
-            max-width: 800px;
-            padding: 2rem;
-            border-radius: 1.5rem;
-            background: var(--secondary-color);
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
-            position: relative;
-            overflow: hidden;
-            text-align: center;
+        .weather-card {
+            background-color: rgba(55, 65, 81, 0.6); /* Semi-transparent card */
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
         }
-
-        .header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 2rem;
+        .hourly-item {
+            min-width: 70px;
         }
-
-        .header h1 {
-            font-size: 2.5rem;
-            font-weight: 700;
-            margin: 0;
+        /* Custom scrollbar for better aesthetics */
+        .hourly-forecast::-webkit-scrollbar {
+            height: 4px;
         }
-
-        /* Settings Button */
-        .settings-btn {
-            background: none;
-            border: none;
-            cursor: pointer;
-            width: 32px;
-            height: 32px;
-            padding: 0;
-            display: flex;
-            flex-direction: column;
-            justify-content: space-around;
+        .hourly-forecast::-webkit-scrollbar-thumb {
+            background-color: rgba(255, 255, 255, 0.2);
+            border-radius: 2px;
         }
-
-        .settings-btn .hamburger-line {
-            display: block;
-            width: 100%;
-            height: 3px;
-            background-color: var(--text-color);
-            transition: transform 0.3s ease-in-out, opacity 0.3s ease-in-out;
-        }
-
-        .settings-btn.active .hamburger-line:nth-child(1) {
-            transform: translateY(9.5px) rotate(45deg);
-        }
-
-        .settings-btn.active .hamburger-line:nth-child(2) {
-            opacity: 0;
-        }
-
-        .settings-btn.active .hamburger-line:nth-child(3) {
-            transform: translateY(-9.5px) rotate(-45deg);
-        }
-
-        /* Current Weather Section */
-        .current-weather {
-            margin-bottom: 2rem;
-            animation: fadeIn 0.8s ease-in-out;
-        }
-
-        .current-weather .location {
-            font-size: 1.8rem;
-            font-weight: 700;
-            margin-bottom: 0.5rem;
-        }
-
-        .current-weather .temperature {
-            font-size: 5rem;
-            font-weight: 300;
-            margin: 0.5rem 0;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-        }
-
-        .current-weather .temperature span {
-            font-size: 2rem;
-            font-weight: 400;
-        }
-
-        .current-weather .condition {
-            font-size: 1.5rem;
-            font-weight: 400;
-        }
-
-        .current-details {
-            display: flex;
-            justify-content: center;
-            gap: 1.5rem;
-            margin-top: 1rem;
-        }
-
-        .detail-item {
-            font-size: 1rem;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            gap: 0.25rem;
-            background: var(--card-bg);
-            padding: 0.75rem 1.25rem;
-            border-radius: 0.75rem;
-            transition: background 0.2s ease;
-        }
-        .detail-item:hover {
-            background: var(--card-hover-bg);
-        }
-        .detail-item .value {
-            font-weight: 700;
-        }
-
-        /* Weekly Forecast */
-        .weekly-forecast {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(100px, 1fr));
-            gap: 1rem;
-            margin-top: 2rem;
-        }
-
-        .forecast-card {
-            background: var(--card-bg);
-            border-radius: 1rem;
-            padding: 1rem 0.5rem;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            transition: transform 0.2s ease, box-shadow 0.2s ease, background 0.2s ease;
-        }
-
-        .forecast-card:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
-            background: var(--card-hover-bg);
-        }
-
-        .forecast-card .day {
-            font-weight: 700;
-            margin-bottom: 0.5rem;
-        }
-
-        .forecast-card .temp-range {
-            font-size: 0.9rem;
-            margin-top: 0.5rem;
-        }
-
-        /* SVG Icons */
-        .weather-icon {
-            width: 80px;
-            height: 80px;
-        }
-
-        .forecast-icon {
-            width: 50px;
-            height: 50px;
-        }
-
-        /* Settings Modal (Slide-in Menu) */
-        .settings-modal {
-            position: fixed;
-            top: 0;
-            left: 0;
-            height: 100vh;
-            width: 100%;
-            background: rgba(0, 0, 0, 0.5);
-            backdrop-filter: blur(5px);
-            z-index: 10;
-            opacity: 0;
-            visibility: hidden;
-            transition: opacity 0.3s ease, visibility 0.3s ease;
-        }
-
-        .settings-modal.active {
-            opacity: 1;
-            visibility: visible;
-        }
-
-        .settings-content {
-            background: var(--menu-bg);
-            height: 100%;
-            width: 80%;
-            max-width: 400px;
-            padding: 2rem;
-            box-shadow: 5px 0 20px rgba(0, 0, 0, 0.3);
-            transform: translateX(-100%);
-            transition: transform 0.3s ease;
-            box-sizing: border-box;
-            text-align: left;
-            display: flex;
-            flex-direction: column;
-        }
-
-        .settings-modal.active .settings-content {
-            transform: translateX(0);
-        }
-        
-        .settings-section {
-            margin-bottom: 2rem;
-        }
-
-        .settings-content h2 {
-            margin-top: 0;
-            font-size: 1.5rem;
-        }
-
-        .settings-content input[type="text"] {
-            width: 100%;
-            padding: 0.75rem;
-            margin-bottom: 1rem;
-            border: 1px solid var(--text-color);
-            border-radius: 0.5rem;
-            background: var(--primary-color);
-            color: var(--text-color);
-            box-sizing: border-box;
-        }
-
-        .settings-content button {
-            width: 100%;
-            padding: 0.75rem;
-            background: var(--accent-color);
-            border: none;
-            border-radius: 0.5rem;
-            color: var(--primary-color);
-            font-weight: bold;
-            cursor: pointer;
-            transition: background 0.2s ease;
-        }
-
-        .settings-content button:hover {
-            background: #39a374;
-        }
-
-        .close-btn {
-            background: none;
-            border: none;
-            cursor: pointer;
-            font-size: 1.5rem;
-            color: var(--text-color);
-            align-self: flex-start;
-            margin-bottom: 1rem;
-        }
-
-        /* Radio button group for units */
-        .radio-group {
-            display: flex;
-            gap: 1rem;
-            margin-top: 0.5rem;
-        }
-
-        .radio-group label {
-            cursor: pointer;
-            font-weight: 400;
-        }
-
-        .radio-group input[type="radio"] {
-            appearance: none;
-            -webkit-appearance: none;
-            width: 18px;
-            height: 18px;
-            border: 2px solid var(--text-color);
-            border-radius: 50%;
-            margin-right: 0.5rem;
-            vertical-align: middle;
-            position: relative;
-            top: -1px;
-            cursor: pointer;
-        }
-
-        .radio-group input[type="radio"]:checked {
-            background-color: var(--accent-color);
-            border-color: var(--accent-color);
-        }
-
-        /* SVG Animations */
-        .sun-animation {
-            transform-origin: center;
-            animation: rotate 10s linear infinite;
-        }
-
-        .cloud-animation {
-            animation: move-cloud 15s linear infinite alternate;
-        }
-
-        .rain-animation {
-            opacity: 0.7;
-            animation: fall-rain 1s linear infinite;
-        }
-
-        .bolt-animation {
-            opacity: 0;
-            animation: flash 1s ease-in-out infinite;
-        }
-
-        @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(20px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
-
-        @keyframes rotate {
-            from { transform: rotate(0deg); }
-            to { transform: rotate(360deg); }
-        }
-
-        @keyframes move-cloud {
-            from { transform: translateX(0); }
-            to { transform: translateX(10px); }
-        }
-
-        @keyframes fall-rain {
-            from { transform: translateY(0); opacity: 0; }
-            to { transform: translateY(20px); opacity: 1; }
-        }
-
-        @keyframes flash {
-            0%, 100% { opacity: 0; }
-            50% { opacity: 1; }
+        .hourly-forecast::-webkit-scrollbar-track {
+            background: transparent;
         }
     </style>
 </head>
-<body>
+<body class="flex items-center justify-center min-h-screen p-4 bg-cover bg-center bg-no-repeat" style="background-image: url('https://placehold.co/1200x800/1F2937/FFFFFF?text=Loading+Background...');">
 
-<div id="app">
-    <div class="header">
-        <h1>Weather App</h1>
-        <!-- Hamburger menu icon with animation -->
-        <button :class="['settings-btn', { 'active': isSettingsVisible }]" @click="toggleSettings">
-            <span class="hamburger-line"></span>
-            <span class="hamburger-line"></span>
-            <span class="hamburger-line"></span>
-        </button>
+    <div id="loading" class="text-center">
+        <p class="text-2xl">Fetching weather data...</p>
+        <p class="text-sm text-gray-400">Please allow location access.</p>
     </div>
 
-    <div v-if="loading" class="loading">
-        Loading weather data...
-    </div>
+    <main id="weather-container" class="max-w-md w-full mx-auto hidden space-y-4">
+        <!-- Current Weather Section -->
+        <section id="current-weather" class="text-center p-6 rounded-2xl">
+            <h1 id="location" class="text-4xl font-light">--</h1>
+            <p id="current-temp" class="text-8xl font-thin tracking-tight my-1">--&deg;</p>
+            <p id="current-condition" class="text-2xl text-gray-300 font-light">--</p>
+            <div class="flex justify-center space-x-4 text-xl mt-1">
+                <span id="high-temp">H:--&deg;</span>
+                <span id="low-temp">L:--&deg;</span>
+            </div>
+        </section>
 
-    <div v-else-if="error" class="error">
-        {{ error }}
-    </div>
+        <!-- Hourly Forecast Section -->
+        <section class="weather-card p-4 rounded-2xl">
+            <h2 class="text-sm text-gray-400 font-medium mb-3 px-2 border-b border-gray-600 pb-2">HOURLY FORECAST</h2>
+            <div id="hourly-forecast-container" class="hourly-forecast flex overflow-x-auto space-x-4 pb-2">
+                <!-- Hourly items will be injected here by JavaScript -->
+            </div>
+        </section>
 
-    <div v-else class="weather-container">
-        <!-- Current Weather -->
-        <div class="current-weather">
-            <h2 class="location">{{ location }}</h2>
-            <div class="weather-icon">
-                <div v-html="getWeatherIcon(weatherData.current.weather_code)"></div>
+        <!-- 7-Day Forecast Section -->
+        <section class="weather-card p-4 rounded-2xl">
+            <h2 class="text-sm text-gray-400 font-medium mb-2 px-2 border-b border-gray-600 pb-2">7-DAY FORECAST</h2>
+            <div id="daily-forecast-container" class="space-y-2">
+                <!-- Daily items will be injected here by JavaScript -->
             </div>
-            <div class="temperature">
-                {{ Math.round(weatherData.current.temperature_2m) }}<span>{{ unitSymbol }}</span>
-            </div>
-            <div class="condition">
-                {{ getWeatherDescription(weatherData.current.weather_code) }}
-            </div>
-            <div class="current-details">
-                <div class="detail-item">
-                    <span class="value">{{ uvIndex }}</span>
-                    <span>UV Index</span>
-                </div>
-                <div class="detail-item">
-                    <span class="value">{{ aqi }}</span>
-                    <span>AQI</span>
-                </div>
-            </div>
-        </div>
+        </section>
 
-        <!-- Weekly Forecast -->
-        <div class="weekly-forecast">
-            <div v-for="(day, index) in weeklyForecast" :key="index" class="forecast-card">
-                <div class="day">{{ getDayName(day.time) }}</div>
-                <div class="forecast-icon">
-                    <div v-html="getWeatherIcon(day.weather_code)"></div>
-                </div>
-                <div class="temp-range">
-                    {{ Math.round(day.temperature_2m_max) }}° / {{ Math.round(day.temperature_2m_min) }}°
-                </div>
-            </div>
-        </div>
-    </div>
+    </main>
 
-    <!-- Settings Modal -->
-    <div :class="['settings-modal', { 'active': isSettingsVisible }]" @click.self="toggleSettings">
-        <div class="settings-content">
-            <button class="close-btn" @click="toggleSettings">&times;</button>
-            <div class="settings-section">
-                <h2>Change Location</h2>
-                <p>Enter a ZIP code to get the weather for that location.</p>
-                <input type="text" v-model="zipCodeInput" placeholder="e.g., 90210" @keyup.enter="fetchByZipCode">
-                <button @click="fetchByZipCode">Get Weather</button>
-            </div>
-            <div class="settings-section">
-                <h2>Temperature Units</h2>
-                <p>Select your preferred temperature unit.</p>
-                <div class="radio-group">
-                    <label>
-                        <input type="radio" value="celsius" v-model="unit">
-                        Celsius
-                    </label>
-                    <label>
-                        <input type="radio" value="fahrenheit" v-model="unit">
-                        Fahrenheit
-                    </label>
-                </div>
-            </div>
-        </div>
-    </div>
-</div>
+    <script>
+        $(document).ready(function() {
+            const skycons = new Skycons({"color": "white"});
 
-<script src="https://unpkg.com/vue@3"></script>
-<script>
-    // This is the main Vue.js application instance.
-    const app = Vue.createApp({
-        data() {
-            return {
-                // Main data objects to store weather and location info.
-                weatherData: null,
-                weeklyForecast: [],
-                uvIndex: 'N/A',
-                aqi: 'N/A',
-                location: 'Your Location',
-                // UI state variables.
-                loading: true,
-                error: null,
-                isSettingsVisible: false,
-                zipCodeInput: '',
-                // Unit setting for temperature, defaults to Celsius.
-                unit: 'celsius'
+            // Mapping from NWS icon codes to Skycon identifiers
+            const iconMapping = {
+                "skc": "CLEAR_DAY",
+                "few": "PARTLY_CLOUDY_DAY",
+                "sct": "PARTLY_CLOUDY_DAY",
+                "bkn": "CLOUDY",
+                "ovc": "CLOUDY",
+                "wind_skc": "WIND",
+                "wind_few": "WIND",
+                "wind_sct": "WIND",
+                "wind_bkn": "WIND",
+                "wind_ovc": "WIND",
+                "snow": "SNOW",
+                "rain_snow": "SLEET",
+                "rain_sleet": "SLEET",
+                "snow_sleet": "SLEET",
+                "fzra": "SLEET",
+                "rain_fzra": "SLEET",
+                "snow_fzra": "SLEET",
+                "sleet": "SLEET",
+                "rain": "RAIN",
+                "rain_showers": "RAIN",
+                "rain_showers_hi": "RAIN",
+                "tsra": "RAIN", // Thunderstorm and rain
+                "tsra_sct": "RAIN",
+                "tsra_hi": "RAIN",
+                "tornado": "WIND",
+                "hurricane": "WIND",
+                "tropical_storm": "WIND",
+                "dust": "FOG",
+                "smoke": "FOG",
+                "haze": "FOG",
+                "fog": "FOG",
+                "hot": "CLEAR_DAY",
+                "cold": "CLEAR_DAY",
+                "blizzard": "SNOW"
             };
-        },
-        computed: {
-            // Vue computed property to map weather codes to SVG icons.
-            getWeatherIcon() {
-                return (weatherCode) => {
-                    const icons = {
-                        // Clear Sky
-                        0: `<svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" class="sun-animation">
-                              <path d="M12 2C16.9706 2 21 6.02944 21 11C21 15.9706 16.9706 20 12 20C7.02944 20 3 15.9706 3 11C3 6.02944 7.02944 2 12 2ZM12 4V5M12 17V19M4.2 4.2L5.6 5.6M18.4 17.4L19.8 18.8M2 11H3M21 11H22M4.2 17.4L5.6 18.8M18.4 4.2L19.8 5.6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                           </svg>`,
-                        // Mainly clear, partly cloudy
-                        1: `<svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" class="cloud-animation">
-                              <path d="M12 4V5M12 17V19M4.2 4.2L5.6 5.6M18.4 17.4L19.8 18.8M2 11H3M21 11H22M4.2 17.4L5.6 18.8M18.4 4.2L19.8 5.6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                              <path d="M16 16.4C18.4 16.4 20.4 14.4 20.4 12C20.4 9.6 18.4 7.6 16 7.6C15.5 7.6 15 7.7 14.5 7.9C13.8 6.4 12.3 5.4 10.6 5.4C8.3 5.4 6.4 7.3 6.4 9.6C6.4 11.9 8.3 13.8 10.6 13.8L16 13.8V16.4Z" fill="currentColor" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/>
-                           </svg>`,
-                        // Overcast, fog
-                        2: `<svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" class="cloud-animation">
-                               <path d="M16 16.4C18.4 16.4 20.4 14.4 20.4 12C20.4 9.6 18.4 7.6 16 7.6C15.5 7.6 15 7.7 14.5 7.9C13.8 6.4 12.3 5.4 10.6 5.4C8.3 5.4 6.4 7.3 6.4 9.6C6.4 11.9 8.3 13.8 10.6 13.8L16 13.8V16.4Z" fill="currentColor" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/>
-                           </svg>`,
-                        // Rain, drizzle
-                        51: `<svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                               <path d="M16 16.4C18.4 16.4 20.4 14.4 20.4 12C20.4 9.6 18.4 7.6 16 7.6C15.5 7.6 15 7.7 14.5 7.9C13.8 6.4 12.3 5.4 10.6 5.4C8.3 5.4 6.4 7.3 6.4 9.6C6.4 11.9 8.3 13.8 10.6 13.8L16 13.8V16.4Z" fill="currentColor" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/>
-                               <path class="rain-animation" d="M12 18V22M9 16V20M15 16V20" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
-                           </svg>`,
-                        // Thunderstorm
-                        95: `<svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                <path d="M16 16.4C18.4 16.4 20.4 14.4 20.4 12C20.4 9.6 18.4 7.6 16 7.6C15.5 7.6 15 7.7 14.5 7.9C13.8 6.4 12.3 5.4 10.6 5.4C8.3 5.4 6.4 7.3 6.4 9.6C6.4 11.9 8.3 13.8 10.6 13.8L16 13.8V16.4Z" fill="currentColor" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/>
-                                <path class="bolt-animation" d="M12 14L9 22L15 16L12 11" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                            </svg>`,
-                        // Default for other conditions
-                        default: `<svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                     <path d="M12 2C16.9706 2 21 6.02944 21 11C21 15.9706 16.9706 20 12 20C7.02944 20 3 15.9706 3 11C3 6.02944 7.02944 2 12 2Z" fill="currentColor" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/>
-                                  </svg>`
-                    };
-                    return icons[weatherCode] || icons.default;
-                };
-            },
-            // Maps weather codes to descriptions for readability.
-            getWeatherDescription() {
-                return (weatherCode) => {
-                    const descriptions = {
-                        0: "Clear Sky",
-                        1: "Partly Cloudy",
-                        2: "Cloudy",
-                        3: "Overcast",
-                        45: "Fog",
-                        48: "Depositing Rime Fog",
-                        51: "Drizzle",
-                        53: "Drizzle",
-                        55: "Dense Drizzle",
-                        56: "Freezing Drizzle",
-                        57: "Dense Freezing Drizzle",
-                        61: "Rain",
-                        63: "Rain",
-                        65: "Heavy Rain",
-                        66: "Freezing Rain",
-                        67: "Heavy Freezing Rain",
-                        71: "Snow Fall",
-                        73: "Moderate Snow Fall",
-                        75: "Heavy Snow Fall",
-                        77: "Snow Grains",
-                        80: "Rain Showers",
-                        81: "Rain Showers",
-                        82: "Violent Rain Showers",
-                        85: "Snow Showers",
-                        86: "Snow Showers",
-                        95: "Thunderstorm",
-                        96: "Thunderstorm with Hail",
-                        99: "Thunderstorm with Hail"
-                    };
-                    return descriptions[weatherCode] || "Unknown";
-                };
-            },
-            // Maps a date string to a day name (e.g., "Mon").
-            getDayName() {
-                return (dateStr) => {
-                    const date = new Date(dateStr);
-                    return date.toLocaleDateString('en-US', { weekday: 'short' });
-                };
-            },
-            // Computed property for the correct temperature unit symbol.
-            unitSymbol() {
-                return this.unit === 'celsius' ? '°C' : '°F';
+            
+            // Background image mapping
+            const backgroundMapping = {
+                "CLEAR_DAY": "https://images.unsplash.com/photo-1590077428593-a55d2275685a?q=80&w=1974&auto=format&fit=crop",
+                "PARTLY_CLOUDY_DAY": "https://images.unsplash.com/photo-1517685352821-92cf884ee6a5?q=80&w=2148&auto=format&fit=crop",
+                "CLOUDY": "https://images.unsplash.com/photo-1499956827185-0d63ee78a910?q=80&w=1974&auto=format&fit=crop",
+                "RAIN": "https://images.unsplash.com/photo-1519692933481-e162a57d6721?q=80&w=2070&auto=format&fit=crop",
+                "SNOW": "https://images.unsplash.com/photo-1547754980-3df97fed72a8?q=80&w=2070&auto=format&fit=crop",
+                "SLEET": "https://images.unsplash.com/photo-1542601098-8fc114e148e2?q=80&w=2070&auto=format&fit=crop",
+                "WIND": "https://images.unsplash.com/photo-1505672993344-3fb83844a69e?q=80&w=2070&auto=format&fit=crop",
+                "FOG": "https://images.unsplash.com/photo-1487621167305-5d248087c883?q=80&w=2070&auto=format&fit=crop",
+                "FALLBACK": "https://images.unsplash.com/photo-1530563811534-425a8a903b03?q=80&w=2070&auto=format&fit=crop"
+            };
+
+            function setBackgroundImage(skyconKey) {
+                const url = backgroundMapping[skyconKey] || backgroundMapping["FALLBACK"];
+                $('body').css('background-image', `url('${url}')`);
             }
-        },
-        watch: {
-            // Watch for changes in the 'unit' data property.
-            unit(newUnit, oldUnit) {
-                // When the unit changes, re-fetch the weather data with the new unit.
-                if (newUnit !== oldUnit) {
-                    this.fetchWeatherByCurrentLocation();
-                }
-            }
-        },
-        methods: {
-            // Toggles the visibility of the settings modal.
-            toggleSettings() {
-                this.isSettingsVisible = !this.isSettingsVisible;
-            },
-            // Fetches weather data based on the user's current latitude and longitude.
-            async fetchWeatherByCurrentLocation() {
-                this.loading = true;
-                this.error = null;
-                this.location = 'Your Location';
-                if ("geolocation" in navigator) {
-                    try {
-                        // Check if geolocation permission is already granted.
-                        const permissionStatus = await navigator.permissions.query({ name: 'geolocation' });
-                        if (permissionStatus.state === 'granted' || permissionStatus.state === 'prompt') {
-                            navigator.geolocation.getCurrentPosition(
-                                async (position) => {
-                                    const { latitude, longitude } = position.coords;
-                                    await this.fetchWeatherData(latitude, longitude);
-                                },
-                                (err) => {
-                                    console.error("Geolocation error:", err);
-                                    this.error = "Could not get your location. Please ensure location services are enabled for your browser and try again.";
-                                    this.loading = false;
-                                }
-                            );
-                        } else {
-                            this.error = "Please grant location access to use this feature.";
-                            this.loading = false;
-                        }
-                    } catch (e) {
-                        console.error("Permission API error:", e);
-                        this.error = "An issue occurred with location permissions. Please use the ZIP code search instead.";
-                        this.loading = false;
-                    }
+
+            function getLocation() {
+                if (navigator.geolocation) {
+                    navigator.geolocation.getCurrentPosition(showPosition, showError);
                 } else {
-                    this.error = "Geolocation is not supported by your browser. Please use the ZIP code search.";
-                    this.loading = false;
-                }
-            },
-            // Fetches weather data for a given latitude and longitude.
-            async fetchWeatherData(lat, lon) {
-                this.loading = true;
-                this.error = null;
-                try {
-                    // Determine the temperature unit for the API request.
-                    const tempUnitParam = this.unit === 'fahrenheit' ? '&temperature_unit=fahrenheit' : '';
-
-                    // Fetch weather forecast and details
-                    const weatherUrl = `https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&current=temperature_2m,weather_code&daily=weather_code,temperature_2m_max,temperature_2m_min&timezone=auto&forecast_days=7&uv_index=true${tempUnitParam}`;
-                    const weatherResponse = await fetch(weatherUrl);
-                    if (!weatherResponse.ok) {
-                        throw new Error("Failed to fetch weather data.");
-                    }
-                    this.weatherData = await weatherResponse.json();
-                    this.weeklyForecast = this.weatherData.daily;
-                    this.uvIndex = this.weatherData.daily.uv_index_max[0] || 'N/A';
-
-                    // Fetch air quality data
-                    const aqiUrl = `https://air-quality-api.open-meteo.com/v1/air-quality?latitude=${lat}&longitude=${lon}&current=european_aqi&timezone=auto`;
-                    const aqiResponse = await fetch(aqiUrl);
-                    if (!aqiResponse.ok) {
-                        throw new Error("Failed to fetch air quality data.");
-                    }
-                    const aqiData = await aqiResponse.json();
-                    this.aqi = aqiData.current ? aqiData.current.european_aqi : 'N/A';
-
-                    // Reverse geocoding to get location name
-                    const geocodingUrl = `https://geocoding-api.open-meteo.com/v1/search?name=${lat},${lon}&count=1`;
-                    const geoResponse = await fetch(geocodingUrl);
-                    const geoData = await geoResponse.json();
-
-                    if (geoData && geoData.results && geoData.results.length > 0) {
-                        this.location = `${geoData.results[0].name}, ${geoData.results[0].country}`;
-                    } else {
-                        // Fallback to coordinates if location name not found
-                        this.location = `Lat: ${lat.toFixed(2)}, Lon: ${lon.toFixed(2)}`;
-                    }
-
-                } catch (e) {
-                    console.error("Error fetching data:", e);
-                    this.error = "There was an issue retrieving weather data. Please try again.";
-                } finally {
-                    this.loading = false;
-                }
-            },
-            // Fetches location coordinates from a ZIP code and then gets weather data.
-            async fetchByZipCode() {
-                this.loading = true;
-                this.error = null;
-                this.isSettingsVisible = false;
-
-                const zip = this.zipCodeInput.trim();
-                if (!zip) {
-                    this.error = "Please enter a valid ZIP code.";
-                    this.loading = false;
-                    return;
-                }
-
-                try {
-                    const geocodingUrl = `https://geocoding-api.open-meteo.com/v1/search?name=${zip}&count=1&language=en&format=json`;
-                    const geoResponse = await fetch(geocodingUrl);
-                    const geoData = await geoResponse.json();
-
-                    if (geoData && geoData.results && geoData.results.length > 0) {
-                        const { latitude, longitude } = geoData.results[0];
-                        await this.fetchWeatherData(latitude, longitude);
-                    } else {
-                        this.error = "Location not found for that ZIP code. Please try a different one.";
-                    }
-                } catch (e) {
-                    console.error("Error fetching location data:", e);
-                    this.error = "There was an issue finding that location. Please try again.";
-                } finally {
-                    this.loading = false;
+                    $('#loading').text("Geolocation is not supported by this browser.");
                 }
             }
-        },
-        mounted() {
-            // When the app is mounted, try to get the user's current location.
-            this.fetchWeatherByCurrentLocation();
-        }
-    });
 
-    app.mount('#app');
-</script>
+            function showPosition(position) {
+                const lat = position.coords.latitude.toFixed(4);
+                const lon = position.coords.longitude.toFixed(4);
+                getWeather(lat, lon);
+            }
 
+            function showError(error) {
+                let message = "";
+                switch(error.code) {
+                    case error.PERMISSION_DENIED:
+                        message = "User denied the request for Geolocation.";
+                        break;
+                    case error.POSITION_UNAVAILABLE:
+                        message = "Location information is unavailable.";
+                        break;
+                    case error.TIMEOUT:
+                        message = "The request to get user location timed out.";
+                        break;
+                    case error.UNKNOWN_ERROR:
+                        message = "An unknown error occurred.";
+                        break;
+                }
+                $('#loading').text(message);
+            }
+
+            function getWeather(lat, lon) {
+                const pointsUrl = `https://api.weather.gov/points/${lat},${lon}`;
+
+                $.getJSON(pointsUrl, function(data) {
+                    const forecastUrl = data.properties.forecast;
+                    const hourlyForecastUrl = data.properties.forecastHourly;
+                    const city = data.properties.relativeLocation.properties.city;
+                    const state = data.properties.relativeLocation.properties.state;
+
+                    $('#location').text(`${city}, ${state}`);
+
+                    // Fetch both forecasts concurrently
+                    $.when(
+                        $.getJSON(hourlyForecastUrl),
+                        $.getJSON(forecastUrl)
+                    ).done(function(hourlyData, dailyData) {
+                        displayCurrentWeather(dailyData[0].properties.periods[0]);
+                        displayHourlyForecast(hourlyData[0].properties.periods);
+                        displayDailyForecast(dailyData[0].properties.periods);
+                        
+                        $('#loading').hide();
+                        $('#weather-container').removeClass('hidden');
+                        skycons.play();
+                    }).fail(function() {
+                        $('#loading').text("Failed to fetch weather data. Please try again later.");
+                    });
+                }).fail(function() {
+                    $('#loading').text("Could not retrieve weather station data for your location.");
+                });
+            }
+
+            function getSkyconIdentifier(iconUrl) {
+                if (!iconUrl) return "CLOUDY";
+                const parts = iconUrl.split('/');
+                const iconName = parts[parts.length - 1].split('?')[0].split(',')[0];
+                const key = iconName.replace(/_\d*$/, '').split(/(\d+)/)[0];
+                return iconMapping[key] || "CLOUDY";
+            }
+
+            function displayCurrentWeather(current) {
+                $('#current-temp').html(`${current.temperature}&deg;`);
+                $('#current-condition').text(current.shortForecast);
+                
+                // Find today's high and low from the daily forecast
+                const today = new Date().getDate();
+                let high = -Infinity, low = Infinity;
+                
+                // The first period is today's day or night forecast
+                if (current.isDaytime) {
+                    high = current.temperature;
+                } else {
+                    low = current.temperature;
+                }
+
+                // The next period might be tonight or tomorrow, need to check
+                const nextPeriod = dailyData.properties.periods[1];
+                if (new Date(nextPeriod.startTime).getDate() === today) {
+                     if (nextPeriod.isDaytime) {
+                        high = Math.max(high, nextPeriod.temperature);
+                    } else {
+                        low = Math.min(low, nextPeriod.temperature);
+                    }
+                }
+                
+                // If we only have one value, we can look at the next day's low
+                const firstDayForecast = dailyData.properties.periods[0];
+                const secondDayForecast = dailyData.properties.periods[2]; // tomorrow
+                
+                if (high === -Infinity) high = firstDayForecast.temperature;
+                if (low === Infinity) low = nextPeriod.temperature;
+
+
+                $('#high-temp').html(`H:${high}&deg;`);
+                $('#low-temp').html(`L:${low}&deg;`);
+                
+                const skyconId = getSkyconIdentifier(current.icon);
+                setBackgroundImage(skyconId);
+            }
+            
+            let dailyData; // Store daily data globally to access in current weather
+
+            function displayHourlyForecast(periods) {
+                const container = $('#hourly-forecast-container');
+                container.empty();
+                const now = new Date();
+
+                periods.slice(0, 24).forEach(period => {
+                    const time = new Date(period.startTime);
+                    let hour = time.getHours();
+                    const ampm = hour >= 12 ? 'PM' : 'AM';
+                    hour = hour % 12;
+                    hour = hour ? hour : 12; // the hour '0' should be '12'
+                    const displayTime = (time.getHours() === now.getHours()) ? 'Now' : `${hour}${ampm}`;
+
+                    const skyconId = getSkyconIdentifier(period.icon);
+                    const canvasId = `hourly-icon-${period.number}`;
+
+                    const item = `
+                        <div class="hourly-item flex flex-col items-center space-y-1 text-center">
+                            <span class="text-sm font-medium">${displayTime}</span>
+                            <canvas id="${canvasId}" width="40" height="40"></canvas>
+                            <span class="text-xl font-medium">${period.temperature}&deg;</span>
+                        </div>
+                    `;
+                    container.append(item);
+                    skycons.add(canvasId, Skycons[skyconId]);
+                });
+            }
+
+            function displayDailyForecast(periods) {
+                dailyData = { properties: { periods } }; // Store for use in current weather
+                const container = $('#daily-forecast-container');
+                container.empty();
+                
+                const processedDays = {};
+
+                periods.forEach(period => {
+                    const dayName = new Date(period.startTime).toLocaleDateString('en-US', { weekday: 'long' });
+                    
+                    if (!processedDays[dayName]) {
+                        processedDays[dayName] = { high: -273, low: 999, icon: period.icon };
+                    }
+
+                    if (period.isDaytime) {
+                        processedDays[dayName].high = Math.max(processedDays[dayName].high, period.temperature);
+                    } else {
+                        processedDays[dayName].low = Math.min(processedDays[dayName].low, period.temperature);
+                    }
+                });
+
+                // Correct for the first entry if it's nighttime
+                const firstPeriod = periods[0];
+                const firstDayName = new Date(firstPeriod.startTime).toLocaleDateString('en-US', { weekday: 'long' });
+                if (!firstPeriod.isDaytime) {
+                    processedDays[firstDayName].low = firstPeriod.temperature;
+                    // Find today's high from hourly if available
+                    let todayHigh = -273;
+                    periods.slice(0,12).forEach(p => {
+                        if (new Date(p.startTime).getDate() === new Date().getDate()) {
+                           todayHigh = Math.max(todayHigh, p.temperature);
+                        }
+                    });
+                    processedDays[firstDayName].high = todayHigh;
+                } else {
+                    processedDays[firstDayName].high = firstPeriod.temperature;
+                }
+
+
+                let dayCount = 0;
+                for (const day in processedDays) {
+                    if (dayCount >= 7) break;
+                    
+                    const data = processedDays[day];
+                    const skyconId = getSkyconIdentifier(data.icon);
+                    const canvasId = `daily-icon-${day}`;
+                    
+                    const isToday = day === new Date().toLocaleDateString('en-US', { weekday: 'long' });
+
+                    const item = `
+                        <div class="flex items-center justify-between text-lg font-medium">
+                            <span class="w-1/3">${isToday ? 'Today' : day}</span>
+                            <canvas id="${canvasId}" width="28" height="28"></canvas>
+                            <div class="w-1/3 flex justify-end space-x-4">
+                                <span>${data.high > -200 ? data.high : '--'}&deg;</span>
+                                <span class="text-gray-400">${data.low < 900 ? data.low : '--'}&deg;</span>
+                            </div>
+                        </div>
+                    `;
+                    container.append(item);
+                    skycons.add(canvasId, Skycons[skyconId]);
+                    dayCount++;
+                }
+            }
+
+            // Start the process
+            getLocation();
+        });
+    </script>
 </body>
 </html>
