@@ -190,7 +190,7 @@
         <p id="loading-message">Fetching weather data...</p>
         <p id="loading-submessage">Please allow location access.</p>
         <form id="location-form" class="hidden" style="margin-top: 1rem;">
-            <input type="text" id="city-input" placeholder="Enter City, State" required>
+            <input type="text" id="city-input" placeholder="Enter City, State, or ZIP" required>
             <button type="submit">Get Weather</button>
         </form>
     </div>
@@ -486,7 +486,23 @@
                 });
             }
 
-            getLocation();
+            function startWeatherApp() {
+                const urlParams = new URLSearchParams(window.location.search);
+                const zip = urlParams.get('zip');
+                const city = urlParams.get('city');
+
+                if (zip) {
+                    $('#loading-submessage').addClass('hidden');
+                    getWeatherByCity(zip);
+                } else if (city) {
+                    $('#loading-submessage').addClass('hidden');
+                    getWeatherByCity(city);
+                } else {
+                    getLocation(); // Fallback to geolocation
+                }
+            }
+
+            startWeatherApp();
         });
     </script>
 </body>
