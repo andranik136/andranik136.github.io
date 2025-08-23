@@ -260,12 +260,12 @@
                 const activeCategory = ref('All');
                 const categories = ['All', 'Web Development', 'Graphic Design', '3D Art'];
                 const portfolioItems = ref([
-                    { id: 1, title: 'Weather App', category: 'Web Development', description: 'A simple weather app with hourly and weekly forecast from the NWS.', image: '/media/weather-app-screen.jpg' },
-                    { id: 2, title: 'Corporate Branding', category: 'Graphic Design', description: 'Complete brand identity design for a tech startup.', image: 'https://placehold.co/600x400/e73c7e/ffffff?text=Design+Project' },
-                    { id: 3, title: 'Architectural Visualization', category: '3D Art', description: 'Realistic rendering of a modern residential building.', image: 'https://placehold.co/600x400/ee7752/ffffff?text=3D+Project' },
-                    { id: 4, title: 'Scoreboard for Table Tennis', category: 'Web Development', description: 'A score keeping app made just for table tennis.', image: '/media/scoreboard-app-screen.jpg' },
-                    { id: 5, title: 'Product Packaging', category: 'Graphic Design', description: 'Eye-catching packaging design for a new beverage.', image: 'https://placehold.co/600x400/e73c7e/ffffff?text=Design+Project' },
-                    { id: 6, title: 'Character Model', category: '3D Art', description: 'A stylized 3D character model for an animated short.', image: 'https://placehold.co/600x400/ee7752/ffffff?text=3D+Project' }
+                    { id: 1, title: 'Weather App', category: 'Web Development', description: 'A simple weather app with hourly and weekly forecast from the NWS.', image: '/media/weather-app-screen.jpg', link: '/webapps/Weather' },
+                    { id: 2, title: 'Corporate Branding', category: 'Graphic Design', description: 'Complete brand identity design for a tech startup.', image: 'https://placehold.co/600x400/e73c7e/ffffff?text=Design+Project', link: '#' },
+                    { id: 3, title: 'Architectural Visualization', category: '3D Art', description: 'Realistic rendering of a modern residential building.', image: 'https://placehold.co/600x400/ee7752/ffffff?text=3D+Project', link: '#' },
+                    { id: 4, title: 'Scoreboard for Table Tennis', category: 'Web Development', description: 'A score keeping app made just for table tennis.', image: '/media/scoreboard-app-screen.jpg', link: '/webapps/Score Keeper' },
+                    { id: 5, title: 'Product Packaging', category: 'Graphic Design', description: 'Eye-catching packaging design for a new beverage.', image: 'https://placehold.co/600x400/e73c7e/ffffff?text=Design+Project', link: '#' },
+                    { id: 6, title: 'Character Model', category: '3D Art', description: 'A stylized 3D character model for an animated short.', image: 'https://placehold.co/600x400/ee7752/ffffff?text=3D+Project', link: '#' }
                 ]);
 
                 const filteredPortfolio = computed(() => {
