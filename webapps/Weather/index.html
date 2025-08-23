@@ -13,6 +13,8 @@
             --accent-color: #42b983;
             --text-color: #ecf0f1;
             --card-bg: rgba(255, 255, 255, 0.1);
+            --card-hover-bg: rgba(255, 255, 255, 0.15);
+            --menu-bg: #22313f; /* Slightly darker for the side menu */
         }
 
         body {
@@ -79,6 +81,7 @@
         /* Current Weather Section */
         .current-weather {
             margin-bottom: 2rem;
+            animation: fadeIn 0.8s ease-in-out;
         }
 
         .current-weather .location {
@@ -119,6 +122,13 @@
             flex-direction: column;
             align-items: center;
             gap: 0.25rem;
+            background: var(--card-bg);
+            padding: 0.75rem 1.25rem;
+            border-radius: 0.75rem;
+            transition: background 0.2s ease;
+        }
+        .detail-item:hover {
+            background: var(--card-hover-bg);
         }
         .detail-item .value {
             font-weight: 700;
@@ -139,12 +149,13 @@
             display: flex;
             flex-direction: column;
             align-items: center;
-            transition: transform 0.2s ease, box-shadow 0.2s ease;
+            transition: transform 0.2s ease, box-shadow 0.2s ease, background 0.2s ease;
         }
 
         .forecast-card:hover {
             transform: translateY(-5px);
             box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+            background: var(--card-hover-bg);
         }
 
         .forecast-card .day {
@@ -168,18 +179,15 @@
             height: 50px;
         }
 
-        /* Settings Modal */
+        /* Settings Modal (Slide-in Menu) */
         .settings-modal {
-            position: absolute;
+            position: fixed;
             top: 0;
             left: 0;
+            height: 100vh;
             width: 100%;
-            height: 100%;
-            background: rgba(0, 0, 0, 0.8);
+            background: rgba(0, 0, 0, 0.5);
             backdrop-filter: blur(5px);
-            display: flex;
-            justify-content: center;
-            align-items: center;
             z-index: 10;
             opacity: 0;
             visibility: hidden;
@@ -192,17 +200,26 @@
         }
 
         .settings-content {
-            background: var(--secondary-color);
-            padding: 2rem;
-            border-radius: 1.5rem;
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+            background: var(--menu-bg);
+            height: 100%;
             width: 80%;
             max-width: 400px;
+            padding: 2rem;
+            box-shadow: 5px 0 20px rgba(0, 0, 0, 0.3);
+            transform: translateX(-100%);
+            transition: transform 0.3s ease;
+            box-sizing: border-box;
             text-align: left;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .settings-modal.active .settings-content {
+            transform: translateX(0);
         }
         
         .settings-section {
-            margin-bottom: 1.5rem;
+            margin-bottom: 2rem;
         }
 
         .settings-content h2 {
@@ -238,14 +255,13 @@
         }
 
         .close-btn {
-            position: absolute;
-            top: 1rem;
-            right: 1rem;
             background: none;
             border: none;
             cursor: pointer;
             font-size: 1.5rem;
             color: var(--text-color);
+            align-self: flex-start;
+            margin-bottom: 1rem;
         }
 
         /* Radio button group for units */
@@ -297,6 +313,11 @@
         .bolt-animation {
             opacity: 0;
             animation: flash 1s ease-in-out infinite;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
         }
 
         @keyframes rotate {
