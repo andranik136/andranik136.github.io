@@ -14,6 +14,7 @@
             color: white;
             margin: 0;
             display: flex;
+            flex-direction: column; /* Allow footer to sit below main content */
             align-items: center;
             justify-content: center;
             min-height: 100vh;
@@ -188,7 +189,7 @@
         .daily-item .temps .low {
             color: #9CA3AF;
         }
-
+        
         /* Footer */
         footer {
             margin-top: 1.5rem;
@@ -243,7 +244,7 @@
         </section>
 
     </main>
-
+    
     <footer id="weather-credit" class="hidden">
         <p>Weather data provided by the <a href="https://www.weather.gov" target="_blank" rel="noopener noreferrer">National Weather Service</a>.</p>
     </footer>
@@ -372,6 +373,7 @@
                         
                         $('#loading').addClass('hidden');
                         $('#weather-container').removeClass('hidden');
+                        $('#weather-credit').removeClass('hidden'); // Show the credit footer
                     }).fail(function() {
                         $('#loading-message').text("Failed to fetch weather data. Please try again later.");
                         $('#location-form').removeClass('hidden');
