@@ -4,25 +4,124 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Weather</title>
-    <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/skycons/1396634940/skycons.min.js"></script>
     <style>
+        /* Base Styles */
         body {
             font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
-            background-color: #1F2937; /* Dark blue-gray background */
+            background-color: #1F2937; /* Default dark blue-gray background */
             color: white;
+            margin: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            padding: 1rem;
+            transition: background 1s ease; /* Smooth transition for background changes */
         }
+
+        main {
+            max-width: 28rem;
+            width: 100%;
+            margin: auto;
+        }
+        
+        main > section:not(:first-child) {
+            margin-top: 1rem;
+        }
+
+        /* Loading Indicator */
+        #loading {
+            text-align: center;
+        }
+        #loading p:first-child {
+            font-size: 1.5rem;
+        }
+        #loading p:last-child {
+            font-size: 0.875rem;
+            color: #9CA3AF;
+        }
+        .hidden {
+            display: none;
+        }
+
+        /* Current Weather Section */
+        #current-weather {
+            text-align: center;
+            padding: 1.5rem;
+        }
+        #location {
+            font-size: 2.25rem;
+            font-weight: 300;
+        }
+        #current-temp {
+            font-size: 6rem;
+            font-weight: 100;
+            letter-spacing: -0.05em;
+            margin: 0.25rem 0;
+        }
+        #current-condition {
+            font-size: 1.5rem;
+            color: #D1D5DB;
+            font-weight: 300;
+        }
+        .temp-range {
+            display: flex;
+            justify-content: center;
+            font-size: 1.25rem;
+            margin-top: 0.25rem;
+        }
+        .temp-range span:first-child {
+            margin-right: 1rem;
+        }
+
+        /* Reusable Card Style */
         .weather-card {
             background-color: rgba(55, 65, 81, 0.6); /* Semi-transparent card */
             backdrop-filter: blur(10px);
             -webkit-backdrop-filter: blur(10px);
             border: 1px solid rgba(255, 255, 255, 0.1);
+            padding: 1rem;
+            border-radius: 1rem;
+        }
+        
+        .card-header {
+            font-size: 0.875rem;
+            color: #9CA3AF;
+            font-weight: 500;
+            margin-bottom: 0.75rem;
+            padding: 0 0.5rem 0.5rem;
+            border-bottom: 1px solid #4B5563;
+        }
+
+        /* Hourly Forecast */
+        .hourly-forecast {
+            display: flex;
+            overflow-x: auto;
+            padding-bottom: 0.5rem;
         }
         .hourly-item {
             min-width: 70px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            text-align: center;
+            margin-right: 1rem;
         }
-        /* Custom scrollbar for better aesthetics */
+        .hourly-item > span {
+            margin-top: 0.25rem;
+        }
+        .hourly-item .time {
+            font-size: 0.875rem;
+            font-weight: 500;
+        }
+        .hourly-item .temp {
+            font-size: 1.25rem;
+            font-weight: 500;
+        }
+        
+        /* Custom scrollbar for hourly forecast */
         .hourly-forecast::-webkit-scrollbar {
             height: 4px;
         }
@@ -33,39 +132,66 @@
         .hourly-forecast::-webkit-scrollbar-track {
             background: transparent;
         }
+
+        /* Daily Forecast */
+        .daily-forecast-container > div:not(:first-child) {
+            margin-top: 0.5rem;
+        }
+        .daily-item {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            font-size: 1.125rem;
+            font-weight: 500;
+        }
+        .daily-item .day-name {
+            width: 33.33%;
+        }
+        .daily-item .temps {
+            width: 33.33%;
+            display: flex;
+            justify-content: flex-end;
+        }
+        .daily-item .temps span:first-child {
+            margin-right: 1rem;
+        }
+        .daily-item .temps .low {
+            color: #9CA3AF;
+        }
+
     </style>
 </head>
-<body class="flex items-center justify-center min-h-screen p-4 bg-cover bg-center bg-no-repeat" style="background-image: url('https://placehold.co/1200x800/1F2937/FFFFFF?text=Loading+Background...');">
+<body>
 
-    <div id="loading" class="text-center">
-        <p class="text-2xl">Fetching weather data...</p>
-        <p class="text-sm text-gray-400">Please allow location access.</p>
+    <div id="loading">
+        <p>Fetching weather data...</p>
+        <p>Please allow location access.</p>
     </div>
 
-    <main id="weather-container" class="max-w-md w-full mx-auto hidden space-y-4">
+    <main id="weather-container" class="hidden">
         <!-- Current Weather Section -->
-        <section id="current-weather" class="text-center p-6 rounded-2xl">
-            <h1 id="location" class="text-4xl font-light">--</h1>
-            <p id="current-temp" class="text-8xl font-thin tracking-tight my-1">--&deg;</p>
-            <p id="current-condition" class="text-2xl text-gray-300 font-light">--</p>
-            <div class="flex justify-center space-x-4 text-xl mt-1">
+        <section id="current-weather">
+            <h1 id="location">--</h1>
+            <p id="current-temp">--&deg;</p>
+            <p id="current-condition">--</p>
+            <div class="temp-range">
                 <span id="high-temp">H:--&deg;</span>
                 <span id="low-temp">L:--&deg;</span>
             </div>
         </section>
 
         <!-- Hourly Forecast Section -->
-        <section class="weather-card p-4 rounded-2xl">
-            <h2 class="text-sm text-gray-400 font-medium mb-3 px-2 border-b border-gray-600 pb-2">HOURLY FORECAST</h2>
-            <div id="hourly-forecast-container" class="hourly-forecast flex overflow-x-auto space-x-4 pb-2">
+        <section class="weather-card">
+            <h2 class="card-header">HOURLY FORECAST</h2>
+            <div id="hourly-forecast-container" class="hourly-forecast">
                 <!-- Hourly items will be injected here by JavaScript -->
             </div>
         </section>
 
         <!-- 7-Day Forecast Section -->
-        <section class="weather-card p-4 rounded-2xl">
-            <h2 class="text-sm text-gray-400 font-medium mb-2 px-2 border-b border-gray-600 pb-2">7-DAY FORECAST</h2>
-            <div id="daily-forecast-container" class="space-y-2">
+        <section class="weather-card">
+            <h2 class="card-header">7-DAY FORECAST</h2>
+            <div id="daily-forecast-container" class="daily-forecast-container">
                 <!-- Daily items will be injected here by JavaScript -->
             </div>
         </section>
@@ -78,65 +204,41 @@
 
             // Mapping from NWS icon codes to Skycon identifiers
             const iconMapping = {
-                "skc": "CLEAR_DAY",
-                "few": "PARTLY_CLOUDY_DAY",
-                "sct": "PARTLY_CLOUDY_DAY",
-                "bkn": "CLOUDY",
-                "ovc": "CLOUDY",
-                "wind_skc": "WIND",
-                "wind_few": "WIND",
-                "wind_sct": "WIND",
-                "wind_bkn": "WIND",
-                "wind_ovc": "WIND",
-                "snow": "SNOW",
-                "rain_snow": "SLEET",
-                "rain_sleet": "SLEET",
-                "snow_sleet": "SLEET",
-                "fzra": "SLEET",
-                "rain_fzra": "SLEET",
-                "snow_fzra": "SLEET",
-                "sleet": "SLEET",
-                "rain": "RAIN",
-                "rain_showers": "RAIN",
-                "rain_showers_hi": "RAIN",
-                "tsra": "RAIN", // Thunderstorm and rain
-                "tsra_sct": "RAIN",
-                "tsra_hi": "RAIN",
-                "tornado": "WIND",
-                "hurricane": "WIND",
-                "tropical_storm": "WIND",
-                "dust": "FOG",
-                "smoke": "FOG",
-                "haze": "FOG",
-                "fog": "FOG",
-                "hot": "CLEAR_DAY",
-                "cold": "CLEAR_DAY",
-                "blizzard": "SNOW"
+                "skc": "CLEAR_DAY", "few": "PARTLY_CLOUDY_DAY", "sct": "PARTLY_CLOUDY_DAY",
+                "bkn": "CLOUDY", "ovc": "CLOUDY", "wind_skc": "WIND", "wind_few": "WIND",
+                "wind_sct": "WIND", "wind_bkn": "WIND", "wind_ovc": "WIND", "snow": "SNOW",
+                "rain_snow": "SLEET", "rain_sleet": "SLEET", "snow_sleet": "SLEET", "fzra": "SLEET",
+                "rain_fzra": "SLEET", "snow_fzra": "SLEET", "sleet": "SLEET", "rain": "RAIN",
+                "rain_showers": "RAIN", "rain_showers_hi": "RAIN", "tsra": "RAIN", "tsra_sct": "RAIN",
+                "tsra_hi": "RAIN", "tornado": "WIND", "hurricane": "WIND", "tropical_storm": "WIND",
+                "dust": "FOG", "smoke": "FOG", "haze": "FOG", "fog": "FOG", "hot": "CLEAR_DAY",
+                "cold": "CLEAR_DAY", "blizzard": "SNOW"
             };
             
-            // Background image mapping
-            const backgroundMapping = {
-                "CLEAR_DAY": "https://images.unsplash.com/photo-1590077428593-a55d2275685a?q=80&w=1974&auto=format&fit=crop",
-                "PARTLY_CLOUDY_DAY": "https://images.unsplash.com/photo-1517685352821-92cf884ee6a5?q=80&w=2148&auto=format&fit=crop",
-                "CLOUDY": "https://images.unsplash.com/photo-1499956827185-0d63ee78a910?q=80&w=1974&auto=format&fit=crop",
-                "RAIN": "https://images.unsplash.com/photo-1519692933481-e162a57d6721?q=80&w=2070&auto=format&fit=crop",
-                "SNOW": "https://images.unsplash.com/photo-1547754980-3df97fed72a8?q=80&w=2070&auto=format&fit=crop",
-                "SLEET": "https://images.unsplash.com/photo-1542601098-8fc114e148e2?q=80&w=2070&auto=format&fit=crop",
-                "WIND": "https://images.unsplash.com/photo-1505672993344-3fb83844a69e?q=80&w=2070&auto=format&fit=crop",
-                "FOG": "https://images.unsplash.com/photo-1487621167305-5d248087c883?q=80&w=2070&auto=format&fit=crop",
-                "FALLBACK": "https://images.unsplash.com/photo-1530563811534-425a8a903b03?q=80&w=2070&auto=format&fit=crop"
+            // Background gradient mapping
+            const backgroundGradientMapping = {
+                "CLEAR_DAY": "linear-gradient(to top, #4A90E2, #87CEEB)",
+                "PARTLY_CLOUDY_DAY": "linear-gradient(to top, #54717A, #A2B2BD)",
+                "CLOUDY": "linear-gradient(to top, #546E7A, #90A4AE)",
+                "RAIN": "linear-gradient(to top, #2C3E50, #8CA3AD)",
+                "SNOW": "linear-gradient(to top, #BDBDBD, #E0E0E0)",
+                "SLEET": "linear-gradient(to top, #8A9AAB, #BFCAD6)",
+                "WIND": "linear-gradient(to top, #6B7A8F, #A9B4C2)",
+                "FOG": "linear-gradient(to top, #606C88, #A3AFB7)",
+                "FALLBACK": "linear-gradient(to top, #1F2937, #374151)"
             };
 
-            function setBackgroundImage(skyconKey) {
-                const url = backgroundMapping[skyconKey] || backgroundMapping["FALLBACK"];
-                $('body').css('background-image', `url('${url}')`);
+            function setBackgroundGradient(skyconKey) {
+                const gradient = backgroundGradientMapping[skyconKey] || backgroundGradientMapping["FALLBACK"];
+                $('body').css('background', gradient);
             }
 
             function getLocation() {
                 if (navigator.geolocation) {
                     navigator.geolocation.getCurrentPosition(showPosition, showError);
                 } else {
-                    $('#loading').text("Geolocation is not supported by this browser.");
+                    $('#loading p:first-child').text("Geolocation is not supported by this browser.");
+                    $('#loading p:last-child').text("");
                 }
             }
 
@@ -149,20 +251,13 @@
             function showError(error) {
                 let message = "";
                 switch(error.code) {
-                    case error.PERMISSION_DENIED:
-                        message = "User denied the request for Geolocation.";
-                        break;
-                    case error.POSITION_UNAVAILABLE:
-                        message = "Location information is unavailable.";
-                        break;
-                    case error.TIMEOUT:
-                        message = "The request to get user location timed out.";
-                        break;
-                    case error.UNKNOWN_ERROR:
-                        message = "An unknown error occurred.";
-                        break;
+                    case error.PERMISSION_DENIED: message = "User denied the request for Geolocation."; break;
+                    case error.POSITION_UNAVAILABLE: message = "Location information is unavailable."; break;
+                    case error.TIMEOUT: message = "The request to get user location timed out."; break;
+                    case error.UNKNOWN_ERROR: message = "An unknown error occurred."; break;
                 }
-                $('#loading').text(message);
+                $('#loading p:first-child').text(message);
+                $('#loading p:last-child').text("");
             }
 
             function getWeather(lat, lon) {
@@ -176,23 +271,24 @@
 
                     $('#location').text(`${city}, ${state}`);
 
-                    // Fetch both forecasts concurrently
                     $.when(
                         $.getJSON(hourlyForecastUrl),
                         $.getJSON(forecastUrl)
                     ).done(function(hourlyData, dailyData) {
-                        displayCurrentWeather(dailyData[0].properties.periods[0]);
+                        displayCurrentWeather(dailyData[0].properties.periods[0], dailyData[0]);
                         displayHourlyForecast(hourlyData[0].properties.periods);
                         displayDailyForecast(dailyData[0].properties.periods);
                         
-                        $('#loading').hide();
+                        $('#loading').addClass('hidden');
                         $('#weather-container').removeClass('hidden');
                         skycons.play();
                     }).fail(function() {
-                        $('#loading').text("Failed to fetch weather data. Please try again later.");
+                        $('#loading p:first-child').text("Failed to fetch weather data. Please try again later.");
+                        $('#loading p:last-child').text("");
                     });
                 }).fail(function() {
-                    $('#loading').text("Could not retrieve weather station data for your location.");
+                    $('#loading p:first-child').text("Could not retrieve weather station data for your location.");
+                    $('#loading p:last-child').text("");
                 });
             }
 
@@ -204,23 +300,20 @@
                 return iconMapping[key] || "CLOUDY";
             }
 
-            function displayCurrentWeather(current) {
+            function displayCurrentWeather(current, fullDailyData) {
                 $('#current-temp').html(`${current.temperature}&deg;`);
                 $('#current-condition').text(current.shortForecast);
                 
-                // Find today's high and low from the daily forecast
                 const today = new Date().getDate();
                 let high = -Infinity, low = Infinity;
                 
-                // The first period is today's day or night forecast
                 if (current.isDaytime) {
                     high = current.temperature;
                 } else {
                     low = current.temperature;
                 }
 
-                // The next period might be tonight or tomorrow, need to check
-                const nextPeriod = dailyData.properties.periods[1];
+                const nextPeriod = fullDailyData.properties.periods[1];
                 if (new Date(nextPeriod.startTime).getDate() === today) {
                      if (nextPeriod.isDaytime) {
                         high = Math.max(high, nextPeriod.temperature);
@@ -229,22 +322,16 @@
                     }
                 }
                 
-                // If we only have one value, we can look at the next day's low
-                const firstDayForecast = dailyData.properties.periods[0];
-                const secondDayForecast = dailyData.properties.periods[2]; // tomorrow
-                
+                const firstDayForecast = fullDailyData.properties.periods[0];
                 if (high === -Infinity) high = firstDayForecast.temperature;
                 if (low === Infinity) low = nextPeriod.temperature;
-
 
                 $('#high-temp').html(`H:${high}&deg;`);
                 $('#low-temp').html(`L:${low}&deg;`);
                 
                 const skyconId = getSkyconIdentifier(current.icon);
-                setBackgroundImage(skyconId);
+                setBackgroundGradient(skyconId);
             }
-            
-            let dailyData; // Store daily data globally to access in current weather
 
             function displayHourlyForecast(periods) {
                 const container = $('#hourly-forecast-container');
@@ -255,18 +342,17 @@
                     const time = new Date(period.startTime);
                     let hour = time.getHours();
                     const ampm = hour >= 12 ? 'PM' : 'AM';
-                    hour = hour % 12;
-                    hour = hour ? hour : 12; // the hour '0' should be '12'
+                    hour = hour % 12 || 12;
                     const displayTime = (time.getHours() === now.getHours()) ? 'Now' : `${hour}${ampm}`;
 
                     const skyconId = getSkyconIdentifier(period.icon);
                     const canvasId = `hourly-icon-${period.number}`;
 
                     const item = `
-                        <div class="hourly-item flex flex-col items-center space-y-1 text-center">
-                            <span class="text-sm font-medium">${displayTime}</span>
+                        <div class="hourly-item">
+                            <span class="time">${displayTime}</span>
                             <canvas id="${canvasId}" width="40" height="40"></canvas>
-                            <span class="text-xl font-medium">${period.temperature}&deg;</span>
+                            <span class="temp">${period.temperature}&deg;</span>
                         </div>
                     `;
                     container.append(item);
@@ -275,71 +361,62 @@
             }
 
             function displayDailyForecast(periods) {
-                dailyData = { properties: { periods } }; // Store for use in current weather
                 const container = $('#daily-forecast-container');
                 container.empty();
                 
-                const processedDays = {};
+                const processedDays = new Map();
 
                 periods.forEach(period => {
                     const dayName = new Date(period.startTime).toLocaleDateString('en-US', { weekday: 'long' });
                     
-                    if (!processedDays[dayName]) {
-                        processedDays[dayName] = { high: -273, low: 999, icon: period.icon };
+                    if (!processedDays.has(dayName)) {
+                        processedDays.set(dayName, { high: -273, low: 999, icon: period.icon });
                     }
 
+                    let dayData = processedDays.get(dayName);
                     if (period.isDaytime) {
-                        processedDays[dayName].high = Math.max(processedDays[dayName].high, period.temperature);
+                        dayData.high = Math.max(dayData.high, period.temperature);
                     } else {
-                        processedDays[dayName].low = Math.min(processedDays[dayName].low, period.temperature);
+                        dayData.low = Math.min(dayData.low, period.temperature);
                     }
                 });
 
-                // Correct for the first entry if it's nighttime
                 const firstPeriod = periods[0];
                 const firstDayName = new Date(firstPeriod.startTime).toLocaleDateString('en-US', { weekday: 'long' });
                 if (!firstPeriod.isDaytime) {
-                    processedDays[firstDayName].low = firstPeriod.temperature;
-                    // Find today's high from hourly if available
                     let todayHigh = -273;
                     periods.slice(0,12).forEach(p => {
                         if (new Date(p.startTime).getDate() === new Date().getDate()) {
                            todayHigh = Math.max(todayHigh, p.temperature);
                         }
                     });
-                    processedDays[firstDayName].high = todayHigh;
-                } else {
-                    processedDays[firstDayName].high = firstPeriod.temperature;
+                    processedDays.get(firstDayName).high = todayHigh;
                 }
 
-
                 let dayCount = 0;
-                for (const day in processedDays) {
-                    if (dayCount >= 7) break;
+                processedDays.forEach((data, day) => {
+                    if (dayCount >= 7) return;
                     
-                    const data = processedDays[day];
                     const skyconId = getSkyconIdentifier(data.icon);
                     const canvasId = `daily-icon-${day}`;
-                    
                     const isToday = day === new Date().toLocaleDateString('en-US', { weekday: 'long' });
 
                     const item = `
-                        <div class="flex items-center justify-between text-lg font-medium">
-                            <span class="w-1/3">${isToday ? 'Today' : day}</span>
+                        <div class="daily-item">
+                            <span class="day-name">${isToday ? 'Today' : day}</span>
                             <canvas id="${canvasId}" width="28" height="28"></canvas>
-                            <div class="w-1/3 flex justify-end space-x-4">
+                            <div class="temps">
                                 <span>${data.high > -200 ? data.high : '--'}&deg;</span>
-                                <span class="text-gray-400">${data.low < 900 ? data.low : '--'}&deg;</span>
+                                <span class="low">${data.low < 900 ? data.low : '--'}&deg;</span>
                             </div>
                         </div>
                     `;
                     container.append(item);
                     skycons.add(canvasId, Skycons[skyconId]);
                     dayCount++;
-                }
+                });
             }
 
-            // Start the process
             getLocation();
         });
     </script>
