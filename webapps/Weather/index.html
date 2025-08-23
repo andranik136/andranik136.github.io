@@ -14,8 +14,10 @@
     <link rel="manifest" href="manifest.json">
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
-    <!-- Replaced Font Awesome with Weather Icons -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/weather-icons/2.0.10/css/weather-icons.min.css">
+    <!-- Added Chart.js and datalabels plugin -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2.2.0"></script>
     <style>
         /* Base Styles */
         body {
@@ -27,7 +29,7 @@
             flex-direction: column; /* Allow footer to sit below main content */
             align-items: center;
             justify-content: center;
-            min-height: calc(100vh - 2rem);
+            min-height: 100vh;
             padding: 1rem;
             background-size: cover;
             background-position: center;
@@ -124,13 +126,13 @@
             border-bottom: 1px solid #4B5563;
         }
 
-        /* Hourly Forecast */
-        .hourly-forecast {
+        /* Horizontal Forecast Styles (for both hourly and daily) */
+        .horizontal-forecast {
             display: flex;
             overflow-x: auto;
             padding-bottom: 0.5rem;
         }
-        .hourly-item {
+        .horizontal-forecast-item {
             min-width: 70px;
             display: flex;
             flex-direction: column;
@@ -138,68 +140,43 @@
             text-align: center;
             margin-right: 1rem;
         }
-        .hourly-item > span {
+        .horizontal-forecast-item > span {
             margin-top: 0.25rem;
         }
-        .hourly-item .time {
+        .horizontal-forecast-item .time, .horizontal-forecast-item .day-name {
             font-size: 0.875rem;
             font-weight: 500;
         }
-        .hourly-item .temp {
+        .horizontal-forecast-item .temp {
             font-size: 1.25rem;
             font-weight: 500;
         }
-        .hourly-item i {
+        .horizontal-forecast-item i {
             font-size: 2rem;
             line-height: 1;
-            height: 50px;
+            height: 60px;
             display: flex;
             align-items: center;
         }
         
-        /* Custom scrollbar for hourly forecast */
-        .hourly-forecast::-webkit-scrollbar {
+        /* Custom scrollbar */
+        .horizontal-forecast::-webkit-scrollbar {
             height: 4px;
         }
-        .hourly-forecast::-webkit-scrollbar-thumb {
+        .horizontal-forecast::-webkit-scrollbar-thumb {
             background-color: rgba(255, 255, 255, 0.2);
             border-radius: 2px;
         }
-        .hourly-forecast::-webkit-scrollbar-track {
+        .horizontal-forecast::-webkit-scrollbar-track {
             background: transparent;
         }
-
-        /* Daily Forecast */
-        .daily-forecast-container > div:not(:first-child) {
-            margin-top: 0.5rem;
-        }
-        .daily-item {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            font-size: 1.125rem;
-            font-weight: 500;
-        }
-        .daily-item .day-name {
-            width: 33.33%;
-        }
-        .daily-item i {
-            font-size: 1.2rem;
-            width: 28px;
-            text-align: center;
-        }
-        .daily-item .temps {
-            width: 33.33%;
-            display: flex;
-            justify-content: flex-end;
-        }
-        .daily-item .temps span:first-child {
-            margin-right: 1rem;
-        }
-        .daily-item .temps .low {
-            color: #9CA3AF;
-        }
         
+        /* Daily Forecast Specifics */
+        #daily-chart-container {
+            height: 150px;
+            margin-bottom: 2rem; /* Increased separation */
+        }
+
         /* Footer */
         footer {
             margin-top: 1.5rem;
@@ -240,7 +217,7 @@
         <!-- Hourly Forecast Section -->
         <section class="weather-card">
             <h2 class="card-header">HOURLY FORECAST</h2>
-            <div id="hourly-forecast-container" class="hourly-forecast">
+            <div id="hourly-forecast-container" class="horizontal-forecast">
                 <!-- Hourly items will be injected here by JavaScript -->
             </div>
         </section>
@@ -248,7 +225,10 @@
         <!-- 7-Day Forecast Section -->
         <section class="weather-card">
             <h2 class="card-header">7-DAY FORECAST</h2>
-            <div id="daily-forecast-container" class="daily-forecast-container">
+            <div id="daily-chart-container">
+                <canvas id="daily-chart"></canvas>
+            </div>
+            <div id="daily-forecast-container" class="horizontal-forecast">
                 <!-- Daily items will be injected here by JavaScript -->
             </div>
         </section>
@@ -261,7 +241,10 @@
 
     <script>
         $(document).ready(function() {
-            // Mapping from NWS icon codes to our new SVG icon keys
+            let dailyChartInstance; // To hold the chart instance
+            Chart.register(ChartDataLabels); // Register the datalabels plugin
+
+            // Mapping from NWS icon codes to icon keys
             const iconMapping = {
                 "skc": "CLEAR_DAY", "few": "PARTLY_CLOUDY_DAY", "sct": "PARTLY_CLOUDY_DAY",
                 "bkn": "CLOUDY", "ovc": "CLOUDY", "wind_skc": "WIND", "wind_few": "WIND",
@@ -286,7 +269,7 @@
                 'FOG': 'wi-fog'
             };
             
-            // Background image mapping - REPLACE THESE PLACEHOLDERS WITH YOUR IMAGE URLS
+            // Background image mapping
             const backgroundImageMapping = {
                 "CLEAR_DAY": "/media/clear.png",
                 "PARTLY_CLOUDY_DAY": "/media/partly_cloudy.png",
@@ -308,7 +291,7 @@
                 if (navigator.geolocation) {
                     navigator.geolocation.getCurrentPosition(showPosition, showError);
                 } else {
-                    showError(); // Pass no error object to signify geolocation is not supported
+                    showError(); 
                 }
             }
 
@@ -320,7 +303,7 @@
 
             function showError(error) {
                 let message = "Could not get your location. Please enter it manually.";
-                if (error) { // Check if an error object was passed
+                if (error) { 
                     switch(error.code) {
                         case error.PERMISSION_DENIED: message = "Location access denied. Please enter your location manually."; break;
                         case error.POSITION_UNAVAILABLE: message = "Location information is unavailable. Please enter it manually."; break;
@@ -383,7 +366,7 @@
                         
                         $('#loading').addClass('hidden');
                         $('#weather-container').removeClass('hidden');
-                        $('#weather-credit').removeClass('hidden'); // Show the credit footer
+                        $('#weather-credit').removeClass('hidden');
                     }).fail(function() {
                         $('#loading-message').text("Failed to fetch weather data. Please try again later.");
                         $('#location-form').removeClass('hidden');
@@ -453,7 +436,7 @@
                     const iconClass = weatherIconMapping[skyconId] || 'wi-cloud';
 
                     const item = `
-                        <div class="hourly-item">
+                        <div class="horizontal-forecast-item">
                             <span class="time">${displayTime}</span>
                             <i class="wi ${iconClass}"></i>
                             <span class="temp">${period.temperature}&deg;</span>
@@ -470,7 +453,7 @@
                 const processedDays = new Map();
 
                 periods.forEach(period => {
-                    const dayName = new Date(period.startTime).toLocaleDateString('en-US', { weekday: 'long' });
+                    const dayName = new Date(period.startTime).toLocaleDateString('en-US', { weekday: 'short' });
                     
                     if (!processedDays.has(dayName)) {
                         processedDays.set(dayName, { high: -273, low: 999, icon: period.icon });
@@ -485,7 +468,7 @@
                 });
 
                 const firstPeriod = periods[0];
-                const firstDayName = new Date(firstPeriod.startTime).toLocaleDateString('en-US', { weekday: 'long' });
+                const firstDayName = new Date(firstPeriod.startTime).toLocaleDateString('en-US', { weekday: 'short' });
                 if (!firstPeriod.isDaytime) {
                     let todayHigh = -273;
                     periods.slice(0,12).forEach(p => {
@@ -497,27 +480,100 @@
                         processedDays.get(firstDayName).high = todayHigh;
                     }
                 }
-
+                
+                const chartLabels = [];
+                const highTemps = [];
+                const lowTemps = [];
                 let dayCount = 0;
+
                 processedDays.forEach((data, day) => {
                     if (dayCount >= 7) return;
                     
                     const skyconId = getSkyconIdentifier(data.icon);
                     const iconClass = weatherIconMapping[skyconId] || 'wi-cloud';
-                    const isToday = day === new Date().toLocaleDateString('en-US', { weekday: 'long' });
+                    const isToday = day === new Date().toLocaleDateString('en-US', { weekday: 'short' });
 
                     const item = `
-                        <div class="daily-item">
-                            <span class="day-name">${isToday ? 'Today' : day}</span>
+                        <div class="horizontal-forecast-item">
+                            <span class="day-name">${isToday ? 'Now' : day}</span>
                             <i class="wi ${iconClass}"></i>
-                            <div class="temps">
-                                <span>${data.high > -200 ? data.high : '--'}&deg;</span>
-                                <span class="low">${data.low < 900 ? data.low : '--'}&deg;</span>
-                            </div>
+                            <span class="temp">${data.high > -200 ? data.high : '--'}&deg;</span>
+                            <span class="temp" style="color: #9CA3AF;">${data.low < 900 ? data.low : '--'}&deg;</span>
                         </div>
                     `;
                     container.append(item);
+                    
+                    chartLabels.push(day);
+                    highTemps.push(data.high > -200 ? data.high : null);
+                    lowTemps.push(data.low < 900 ? data.low : null);
+
                     dayCount++;
+                });
+
+                // Create or update the chart
+                const ctx = document.getElementById('daily-chart').getContext('2d');
+                if(dailyChartInstance) {
+                    dailyChartInstance.destroy();
+                }
+                dailyChartInstance = new Chart(ctx, {
+                    type: 'line',
+                    data: {
+                        labels: chartLabels,
+                        datasets: [
+                            {
+                                label: 'High',
+                                data: highTemps,
+                                borderColor: 'rgba(255, 159, 64, 1)',
+                                borderWidth: 2,
+                                fill: false,
+                                tension: 0.4,
+                                datalabels: {
+                                    align: 'top',
+                                    offset: 8
+                                }
+                            },
+                            {
+                                label: 'Low',
+                                data: lowTemps,
+                                borderColor: 'rgba(54, 162, 235, 1)',
+                                borderWidth: 2,
+                                fill: false,
+                                tension: 0.4,
+                                datalabels: {
+                                    align: 'bottom',
+                                    offset: 8
+                                }
+                            }
+                        ]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: {
+                            legend: { display: false },
+                            tooltip: { enabled: false },
+                            datalabels: {
+                                color: 'white',
+                                font: {
+                                    weight: 'bold'
+                                },
+                                formatter: (value) => value ? `${value}°` : ''
+                            }
+                        },
+                        scales: {
+                            x: { 
+                                grid: { display: false },
+                                ticks: { color: 'white' }
+                            },
+                            y: { display: false }
+                        },
+                        elements: {
+                            point: { radius: 3, backgroundColor: 'white' }
+                        },
+                        layout: {
+                            padding: { top: 20, bottom: 10 }
+                        }
+                    }
                 });
             }
 
