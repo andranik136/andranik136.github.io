@@ -25,7 +25,7 @@
             justify-content: center;
             align-items: center;
             min-height: 100vh;
-            transition: all 0.5s ease;
+            transition: background 0.5s ease;
         }
 
         #app {
@@ -200,13 +200,17 @@
             max-width: 400px;
             text-align: left;
         }
+        
+        .settings-section {
+            margin-bottom: 1.5rem;
+        }
 
         .settings-content h2 {
             margin-top: 0;
             font-size: 1.5rem;
         }
 
-        .settings-content input {
+        .settings-content input[type="text"] {
             width: 100%;
             padding: 0.75rem;
             margin-bottom: 1rem;
@@ -242,6 +246,37 @@
             cursor: pointer;
             font-size: 1.5rem;
             color: var(--text-color);
+        }
+
+        /* Radio button group for units */
+        .radio-group {
+            display: flex;
+            gap: 1rem;
+            margin-top: 0.5rem;
+        }
+
+        .radio-group label {
+            cursor: pointer;
+            font-weight: 400;
+        }
+
+        .radio-group input[type="radio"] {
+            appearance: none;
+            -webkit-appearance: none;
+            width: 18px;
+            height: 18px;
+            border: 2px solid var(--text-color);
+            border-radius: 50%;
+            margin-right: 0.5rem;
+            vertical-align: middle;
+            position: relative;
+            top: -1px;
+            cursor: pointer;
+        }
+
+        .radio-group input[type="radio"]:checked {
+            background-color: var(--accent-color);
+            border-color: var(--accent-color);
         }
 
         /* SVG Animations */
@@ -292,8 +327,9 @@
     <div class="header">
         <h1>Weather App</h1>
         <button class="settings-btn" @click="toggleSettings">
-            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor">
-                <path d="M12 15.5A3.5 3.5 0 0 1 8.5 12A3.5 3.5 0 0 1 12 8.5a3.5 3.5 0 0 1 3.5 3.5a3.5 3.5 0 0 1-3.5 3.5m7.4-2.5l2.77 1.54c.64.35.7.83.1 1.74l-2.4 4.16c-.5.87-1.42 1.3-2.3.93l-2.9-1.22c-.64.35-1.4.58-2.18.67l-.42 3.1c-.13 1.13-1.04 2-2.15 2h-4.8c-1.11 0-2.02-.87-2.15-2l-.42-3.1c-.78-.09-1.54-.32-2.18-.67l-2.9 1.22c-.88.37-1.8-.06-2.3-.93L.3 14.78c-.6-.91-.54-1.39.1-1.74l2.77-1.54c-.03-.28-.05-.56-.05-.88s.02-.6.05-.88L.4 9.22c-.6-.91-.54-1.39.1-1.74l2.4-4.16c.5-.87 1.42-1.3 2.3-.93l2.9 1.22c.64-.35 1.4-.58 2.18-.67l.42-3.1c.13-1.13 1.04-2 2.15-2h4.8c1.11 0 2.02.87 2.15 2l.42 3.1c.78.09 1.54.32 2.18.67l2.9-1.22c.88-.37 1.8.06 2.3.93l2.4 4.16c.6.91.54 1.39-.1 1.74l-2.77 1.54c.03.28.05.56.05.88s-.02.6-.05.88z"/>
+            <!-- New settings icon from SVG Repo -->
+            <svg viewBox="0 0 24 24" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
+                <path d="M11.5 22C11.66 22 11.83 22 12 22C12.17 22 12.34 22 12.5 22L12.75 20.5H11.25L11.5 22M15 19H17L18.75 20.5H16.25L15.5 19M19.5 16.5H21.5L23 18.25V15.75L21.5 16.5M22 11.5L20.5 11.25V12.75L22 12.5V11.5M19 9H17L15.5 8.25V10.75L15 9M16.5 4.5H18.5L20 6.25V3.75L18.5 4.5M14 2H10V0H14V2M9 5H7L5.5 3.75V6.25L5 5M4.5 9H2.5L1 10.75V8.25L2.5 9M2 13H0V11H2V13M3.75 18.5L5.25 16.5L3.75 14.25L2.5 15.5H5.5L3.75 18.5M8.25 20.5L10.75 18.5L9.25 16.5H6.75L8.25 20.5M12 18A6 6 0 0 1 6 12A6 6 0 0 1 12 6A6 6 0 0 1 18 12A6 6 0 0 1 12 18Z"/>
             </svg>
         </button>
     </div>
@@ -314,7 +350,7 @@
                 <div v-html="getWeatherIcon(weatherData.current.weather_code)"></div>
             </div>
             <div class="temperature">
-                {{ Math.round(weatherData.current.temperature_2m) }}<span>°C</span>
+                {{ Math.round(weatherData.current.temperature_2m) }}<span>{{ unitSymbol }}</span>
             </div>
             <div class="condition">
                 {{ getWeatherDescription(weatherData.current.weather_code) }}
@@ -349,10 +385,26 @@
     <div :class="['settings-modal', { 'active': isSettingsVisible }]">
         <div class="settings-content">
             <button class="close-btn" @click="toggleSettings">&times;</button>
-            <h2>Change Location</h2>
-            <p>Enter a ZIP code to get the weather for that location.</p>
-            <input type="text" v-model="zipCodeInput" placeholder="e.g., 90210" @keyup.enter="fetchByZipCode">
-            <button @click="fetchByZipCode">Get Weather</button>
+            <div class="settings-section">
+                <h2>Change Location</h2>
+                <p>Enter a ZIP code to get the weather for that location.</p>
+                <input type="text" v-model="zipCodeInput" placeholder="e.g., 90210" @keyup.enter="fetchByZipCode">
+                <button @click="fetchByZipCode">Get Weather</button>
+            </div>
+            <div class="settings-section">
+                <h2>Temperature Units</h2>
+                <p>Select your preferred temperature unit.</p>
+                <div class="radio-group">
+                    <label>
+                        <input type="radio" value="celsius" v-model="unit">
+                        Celsius
+                    </label>
+                    <label>
+                        <input type="radio" value="fahrenheit" v-model="unit">
+                        Fahrenheit
+                    </label>
+                </div>
+            </div>
         </div>
     </div>
 </div>
@@ -373,7 +425,9 @@
                 loading: true,
                 error: null,
                 isSettingsVisible: false,
-                zipCodeInput: ''
+                zipCodeInput: '',
+                // Unit setting for temperature, defaults to Celsius.
+                unit: 'celsius'
             };
         },
         computed: {
@@ -382,30 +436,31 @@
                 return (weatherCode) => {
                     const icons = {
                         // Clear Sky
-                        0: `<svg class="sun-animation" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor">
-                              <path d="M12 2A10 10 0 1 1 2 12A10 10 0 0 1 12 2m0 2a8 8 0 1 0 8 8a8 8 0 0 0-8-8m-1 11h2v-2h-2m-3-1l1.41-1.41-1.41-1.41L7 10.59l-1.41-1.41L4.17 10.59L3 9.41l1.17-1.17 1.41-1.41L5 6l1.41 1.41L7.82 6.58L9.23 8l1.41 1.41L9.23 10.82l-1.41 1.41L8 12.23l1.41 1.41L10.82 14.64l1.41 1.41L12.23 14.64l1.41 1.41L14.64 12.23l1.41-1.41L16.05 10.82l-1.41-1.41-1.41-1.41-1.41-1.41-1.41-1.41-1.41-1.41-1.41-1.41-1.41-1.41-1.41-1.41-1.41-1.41L7 7L8.41 8.41L9.23 9.23L10.05 10.05l1.41 1.41L10.82 12.23L9.41 13.64L8 15.05L6.58 13.64L5.17 12.23L3.76 10.82L2.35 9.41z"/>
+                        0: `<svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" class="sun-animation">
+                              <path d="M12 2C16.9706 2 21 6.02944 21 11C21 15.9706 16.9706 20 12 20C7.02944 20 3 15.9706 3 11C3 6.02944 7.02944 2 12 2ZM12 4V5M12 17V19M4.2 4.2L5.6 5.6M18.4 17.4L19.8 18.8M2 11H3M21 11H22M4.2 17.4L5.6 18.8M18.4 4.2L19.8 5.6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
                            </svg>`,
                         // Mainly clear, partly cloudy
-                        1: `<svg class="cloud-animation" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor">
-                              <path d="M19.36 10.04a7 7 0 0 0-12.72 0a5.5 5.5 0 0 0-4.64 5.46a5.5 5.5 0 0 0 5.5 5.5h9a6.5 6.5 0 0 0 6.47-5.5a6.5 6.5 0 0 0-6.47-6.5h-1zm-3.36 3.96h-6v2h6v-2zm0-4h-6v-2h6v2z"/>
+                        1: `<svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" class="cloud-animation">
+                              <path d="M12 4V5M12 17V19M4.2 4.2L5.6 5.6M18.4 17.4L19.8 18.8M2 11H3M21 11H22M4.2 17.4L5.6 18.8M18.4 4.2L19.8 5.6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                              <path d="M16 16.4C18.4 16.4 20.4 14.4 20.4 12C20.4 9.6 18.4 7.6 16 7.6C15.5 7.6 15 7.7 14.5 7.9C13.8 6.4 12.3 5.4 10.6 5.4C8.3 5.4 6.4 7.3 6.4 9.6C6.4 11.9 8.3 13.8 10.6 13.8L16 13.8V16.4Z" fill="currentColor" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/>
                            </svg>`,
                         // Overcast, fog
-                        2: `<svg class="cloud-animation" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor">
-                              <path d="M19.36 10.04a7 7 0 0 0-12.72 0a5.5 5.5 0 0 0-4.64 5.46a5.5 5.5 0 0 0 5.5 5.5h9a6.5 6.5 0 0 0 6.47-5.5a6.5 6.5 0 0 0-6.47-6.5h-1z"/>
+                        2: `<svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" class="cloud-animation">
+                               <path d="M16 16.4C18.4 16.4 20.4 14.4 20.4 12C20.4 9.6 18.4 7.6 16 7.6C15.5 7.6 15 7.7 14.5 7.9C13.8 6.4 12.3 5.4 10.6 5.4C8.3 5.4 6.4 7.3 6.4 9.6C6.4 11.9 8.3 13.8 10.6 13.8L16 13.8V16.4Z" fill="currentColor" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/>
                            </svg>`,
                         // Rain, drizzle
-                        51: `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor">
-                               <path d="M19.36 10.04a7 7 0 0 0-12.72 0a5.5 5.5 0 0 0-4.64 5.46a5.5 5.5 0 0 0 5.5 5.5h9a6.5 6.5 0 0 0 6.47-5.5a6.5 6.5 0 0 0-6.47-6.5h-1z"/>
-                               <path class="rain-animation" d="M12 18.5V20.5M15 17.5V19.5M9 17.5V19.5" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                        51: `<svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                               <path d="M16 16.4C18.4 16.4 20.4 14.4 20.4 12C20.4 9.6 18.4 7.6 16 7.6C15.5 7.6 15 7.7 14.5 7.9C13.8 6.4 12.3 5.4 10.6 5.4C8.3 5.4 6.4 7.3 6.4 9.6C6.4 11.9 8.3 13.8 10.6 13.8L16 13.8V16.4Z" fill="currentColor" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/>
+                               <path class="rain-animation" d="M12 18V22M9 16V20M15 16V20" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
                            </svg>`,
                         // Thunderstorm
-                        95: `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor">
-                               <path d="M19.36 10.04a7 7 0 0 0-12.72 0a5.5 5.5 0 0 0-4.64 5.46a5.5 5.5 0 0 0 5.5 5.5h9a6.5 6.5 0 0 0 6.47-5.5a6.5 6.5 0 0 0-6.47-6.5h-1z"/>
-                               <path class="bolt-animation" d="M12 16L9 22L15 16L12 11" stroke="yellow" stroke-width="2" stroke-linecap="round"/>
-                           </svg>`,
+                        95: `<svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                <path d="M16 16.4C18.4 16.4 20.4 14.4 20.4 12C20.4 9.6 18.4 7.6 16 7.6C15.5 7.6 15 7.7 14.5 7.9C13.8 6.4 12.3 5.4 10.6 5.4C8.3 5.4 6.4 7.3 6.4 9.6C6.4 11.9 8.3 13.8 10.6 13.8L16 13.8V16.4Z" fill="currentColor" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/>
+                                <path class="bolt-animation" d="M12 14L9 22L15 16L12 11" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                            </svg>`,
                         // Default for other conditions
-                        default: `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor">
-                                    <path d="M12 2A10 10 0 1 1 2 12A10 10 0 0 1 12 2m0 2a8 8 0 1 0 8 8a8 8 0 0 0-8-8z"/>
+                        default: `<svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                     <path d="M12 2C16.9706 2 21 6.02944 21 11C21 15.9706 16.9706 20 12 20C7.02944 20 3 15.9706 3 11C3 6.02944 7.02944 2 12 2Z" fill="currentColor" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/>
                                   </svg>`
                     };
                     return icons[weatherCode] || icons.default;
@@ -453,6 +508,19 @@
                     const date = new Date(dateStr);
                     return date.toLocaleDateString('en-US', { weekday: 'short' });
                 };
+            },
+            // Computed property for the correct temperature unit symbol.
+            unitSymbol() {
+                return this.unit === 'celsius' ? '°C' : '°F';
+            }
+        },
+        watch: {
+            // Watch for changes in the 'unit' data property.
+            unit(newUnit, oldUnit) {
+                // When the unit changes, re-fetch the weather data with the new unit.
+                if (newUnit !== oldUnit) {
+                    this.fetchWeatherByCurrentLocation();
+                }
             }
         },
         methods: {
@@ -472,13 +540,15 @@
                             await this.fetchWeatherData(latitude, longitude);
                         },
                         (err) => {
+                            // The error callback handles cases where the user denies permission
+                            // or the location service fails.
                             console.error("Geolocation error:", err);
-                            this.error = "Couldn't get your location. Please enter a ZIP code.";
+                            this.error = "Couldn't get your location. Please ensure location services are enabled for your browser.";
                             this.loading = false;
                         }
                     );
                 } else {
-                    this.error = "Geolocation is not supported by your browser.";
+                    this.error = "Geolocation is not supported by your browser. Please use the ZIP code search.";
                     this.loading = false;
                 }
             },
@@ -487,15 +557,18 @@
                 this.loading = true;
                 this.error = null;
                 try {
+                    // Determine the temperature unit for the API request.
+                    const tempUnitParam = this.unit === 'fahrenheit' ? '&temperature_unit=fahrenheit' : '';
+
                     // Fetch weather forecast and details
-                    const weatherUrl = `https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&current=temperature_2m,weather_code&daily=weather_code,temperature_2m_max,temperature_2m_min&timezone=auto&forecast_days=7&uv_index=true`;
+                    const weatherUrl = `https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&current=temperature_2m,weather_code&daily=weather_code,temperature_2m_max,temperature_2m_min&timezone=auto&forecast_days=7&uv_index=true${tempUnitParam}`;
                     const weatherResponse = await fetch(weatherUrl);
                     if (!weatherResponse.ok) {
                         throw new Error("Failed to fetch weather data.");
                     }
                     this.weatherData = await weatherResponse.json();
                     this.weeklyForecast = this.weatherData.daily;
-                    this.uvIndex = this.weatherData.uv_index ? this.weatherData.uv_index[0] : 'N/A';
+                    this.uvIndex = this.weatherData.daily.uv_index_max[0] || 'N/A';
 
                     // Fetch air quality data
                     const aqiUrl = `https://air-quality-api.open-meteo.com/v1/air-quality?latitude=${lat}&longitude=${lon}&current=european_aqi&timezone=auto`;
