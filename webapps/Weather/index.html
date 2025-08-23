@@ -14,7 +14,8 @@
     <link rel="manifest" href="manifest.json">
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <!-- Replaced Font Awesome with Weather Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/weather-icons/2.0.10/css/weather-icons.min.css">
     <style>
         /* Base Styles */
         body {
@@ -26,7 +27,7 @@
             flex-direction: column; /* Allow footer to sit below main content */
             align-items: center;
             justify-content: center;
-            min-height: calc(100vh - 2.5rem);
+            min-height: calc(100vh - 2rem);
             padding: 1rem;
             background-size: cover;
             background-position: center;
@@ -273,19 +274,19 @@
                 "cold": "CLEAR_DAY", "blizzard": "SNOW"
             };
 
-            // Font Awesome icons mapping.
-            const fontAwesomeIconMapping = {
-                'CLEAR_DAY': 'fa-solid fa-sun',
-                'PARTLY_CLOUDY_DAY': 'fa-solid fa-cloud-sun',
-                'CLOUDY': 'fa-solid fa-cloud',
-                'RAIN': 'fa-solid fa-cloud-showers-heavy',
-                'SNOW': 'fa-solid fa-snowflake',
-                'SLEET': 'fa-solid fa-cloud-meatball',
-                'WIND': 'fa-solid fa-wind',
-                'FOG': 'fa-solid fa-smog'
+            // Weather Icons mapping.
+            const weatherIconMapping = {
+                'CLEAR_DAY': 'wi-day-sunny',
+                'PARTLY_CLOUDY_DAY': 'wi-day-cloudy',
+                'CLOUDY': 'wi-cloudy',
+                'RAIN': 'wi-rain',
+                'SNOW': 'wi-snow',
+                'SLEET': 'wi-sleet',
+                'WIND': 'wi-strong-wind',
+                'FOG': 'wi-fog'
             };
             
-            // Background image mapping
+            // Background image mapping - REPLACE THESE PLACEHOLDERS WITH YOUR IMAGE URLS
             const backgroundImageMapping = {
                 "CLEAR_DAY": "/media/clear.png",
                 "PARTLY_CLOUDY_DAY": "/media/partly_cloudy.png",
@@ -449,12 +450,12 @@
                     const displayTime = (time.getHours() === now.getHours()) ? 'Now' : `${hour}${ampm}`;
 
                     const skyconId = getSkyconIdentifier(period.icon);
-                    const iconClass = fontAwesomeIconMapping[skyconId] || 'fa-solid fa-cloud';
+                    const iconClass = weatherIconMapping[skyconId] || 'wi-cloud';
 
                     const item = `
                         <div class="hourly-item">
                             <span class="time">${displayTime}</span>
-                            <i class="${iconClass}"></i>
+                            <i class="wi ${iconClass}"></i>
                             <span class="temp">${period.temperature}&deg;</span>
                         </div>
                     `;
@@ -502,13 +503,13 @@
                     if (dayCount >= 7) return;
                     
                     const skyconId = getSkyconIdentifier(data.icon);
-                    const iconClass = fontAwesomeIconMapping[skyconId] || 'fa-solid fa-cloud';
+                    const iconClass = weatherIconMapping[skyconId] || 'wi-cloud';
                     const isToday = day === new Date().toLocaleDateString('en-US', { weekday: 'long' });
 
                     const item = `
                         <div class="daily-item">
                             <span class="day-name">${isToday ? 'Today' : day}</span>
-                            <i class="${iconClass}"></i>
+                            <i class="wi ${iconClass}"></i>
                             <div class="temps">
                                 <span>${data.high > -200 ? data.high : '--'}&deg;</span>
                                 <span class="low">${data.low < 900 ? data.low : '--'}&deg;</span>
@@ -554,6 +555,5 @@
             });
         }
     </script>
-    
 </body>
 </html>
