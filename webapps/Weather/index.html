@@ -292,12 +292,14 @@
                 $('#loading-message').text(`Searching for ${city}...`);
                 $('#location-form').addClass('hidden');
 
-                const geocodeUrl = `https://geocode.maps.co/search?q=${encodeURIComponent(city)}`;
+                // Switched to Open-Meteo Geocoding API - no API key required
+                const geocodeUrl = `https://geocoding-api.open-meteo.com/v1/search?name=${encodeURIComponent(city)}&count=1`;
                 
                 $.getJSON(geocodeUrl, function(data) {
-                    if (data && data.length > 0) {
-                        const lat = parseFloat(data[0].lat).toFixed(4);
-                        const lon = parseFloat(data[0].lon).toFixed(4);
+                    // Check if the 'results' array exists and has content
+                    if (data && data.results && data.results.length > 0) {
+                        const lat = data.results[0].latitude.toFixed(4);
+                        const lon = data.results[0].longitude.toFixed(4);
                         getWeather(lat, lon);
                     } else {
                         $('#loading-message').text(`Could not find "${city}". Please try again.`);
