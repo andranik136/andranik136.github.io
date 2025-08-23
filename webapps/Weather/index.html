@@ -189,6 +189,18 @@
             color: #9CA3AF;
         }
 
+        /* Footer */
+        footer {
+            margin-top: 1.5rem;
+            text-align: center;
+            font-size: 0.875rem;
+            color: rgba(255, 255, 255, 0.7);
+        }
+        footer a {
+            color: white;
+            text-decoration: underline;
+        }
+
     </style>
 </head>
 <body>
@@ -231,6 +243,10 @@
         </section>
 
     </main>
+
+    <footer id="weather-credit" class="hidden">
+        <p>Weather data provided by the <a href="https://www.weather.gov" target="_blank" rel="noopener noreferrer">National Weather Service</a>.</p>
+    </footer>
 
     <script>
         $(document).ready(function() {
