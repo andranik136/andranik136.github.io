@@ -31,7 +31,7 @@
             margin-top: 1rem;
         }
 
-        /* Loading Indicator */
+        /* Loading Indicator & Manual Input */
         #loading {
             text-align: center;
         }
@@ -41,6 +41,22 @@
         #loading p:last-child {
             font-size: 0.875rem;
             color: #9CA3AF;
+        }
+        #location-form input {
+            color: black;
+            padding: 0.5rem;
+            border-radius: 0.5rem;
+            border: none;
+            min-width: 200px;
+        }
+        #location-form button {
+            background-color: #4A90E2;
+            color: white;
+            padding: 0.5rem 1rem;
+            border-radius: 0.5rem;
+            border: none;
+            margin-left: 0.5rem;
+            cursor: pointer;
         }
         .hidden {
             display: none;
@@ -164,8 +180,12 @@
 <body>
 
     <div id="loading">
-        <p>Fetching weather data...</p>
-        <p>Please allow location access.</p>
+        <p id="loading-message">Fetching weather data...</p>
+        <p id="loading-submessage">Please allow location access.</p>
+        <form id="location-form" class="hidden" style="margin-top: 1rem;">
+            <input type="text" id="city-input" placeholder="Enter City, State" required>
+            <button type="submit">Get Weather</button>
+        </form>
     </div>
 
     <main id="weather-container" class="hidden">
@@ -237,8 +257,7 @@
                 if (navigator.geolocation) {
                     navigator.geolocation.getCurrentPosition(showPosition, showError);
                 } else {
-                    $('#loading p:first-child').text("Geolocation is not supported by this browser.");
-                    $('#loading p:last-child').text("");
+                    showError(); // Pass no error object to signify geolocation is not supported
                 }
             }
 
@@ -249,19 +268,51 @@
             }
 
             function showError(error) {
-                let message = "";
-                switch(error.code) {
-                    case error.PERMISSION_DENIED: message = "User denied the request for Geolocation."; break;
-                    case error.POSITION_UNAVAILABLE: message = "Location information is unavailable."; break;
-                    case error.TIMEOUT: message = "The request to get user location timed out."; break;
-                    case error.UNKNOWN_ERROR: message = "An unknown error occurred."; break;
+                let message = "Could not get your location. Please enter it manually.";
+                if (error) { // Check if an error object was passed
+                    switch(error.code) {
+                        case error.PERMISSION_DENIED: message = "Location access denied. Please enter your location manually."; break;
+                        case error.POSITION_UNAVAILABLE: message = "Location information is unavailable. Please enter it manually."; break;
+                    }
                 }
-                $('#loading p:first-child').text(message);
-                $('#loading p:last-child').text("");
+                $('#loading-message').text(message);
+                $('#loading-submessage').addClass('hidden');
+                $('#location-form').removeClass('hidden');
             }
+            
+            $('#location-form').on('submit', function(e) {
+                e.preventDefault();
+                const city = $('#city-input').val();
+                if (city) {
+                    getWeatherByCity(city);
+                }
+            });
+
+            function getWeatherByCity(city) {
+                $('#loading-message').text(`Searching for ${city}...`);
+                $('#location-form').addClass('hidden');
+
+                const geocodeUrl = `https://geocode.maps.co/search?q=${encodeURIComponent(city)}`;
+                
+                $.getJSON(geocodeUrl, function(data) {
+                    if (data && data.length > 0) {
+                        const lat = parseFloat(data[0].lat).toFixed(4);
+                        const lon = parseFloat(data[0].lon).toFixed(4);
+                        getWeather(lat, lon);
+                    } else {
+                        $('#loading-message').text(`Could not find "${city}". Please try again.`);
+                        $('#location-form').removeClass('hidden');
+                    }
+                }).fail(function() {
+                     $('#loading-message').text("Failed to look up location. Please check your connection.");
+                     $('#location-form').removeClass('hidden');
+                });
+            }
+
 
             function getWeather(lat, lon) {
                 const pointsUrl = `https://api.weather.gov/points/${lat},${lon}`;
+                $('#loading-message').text('Fetching weather data...');
 
                 $.getJSON(pointsUrl, function(data) {
                     const forecastUrl = data.properties.forecast;
@@ -283,12 +334,12 @@
                         $('#weather-container').removeClass('hidden');
                         skycons.play();
                     }).fail(function() {
-                        $('#loading p:first-child').text("Failed to fetch weather data. Please try again later.");
-                        $('#loading p:last-child').text("");
+                        $('#loading-message').text("Failed to fetch weather data. Please try again later.");
+                        $('#location-form').removeClass('hidden');
                     });
                 }).fail(function() {
-                    $('#loading p:first-child').text("Could not retrieve weather station data for your location.");
-                    $('#loading p:last-child').text("");
+                    $('#loading-message').text("Could not retrieve weather station data for your location.");
+                    $('#location-form').removeClass('hidden');
                 });
             }
 
@@ -314,7 +365,7 @@
                 }
 
                 const nextPeriod = fullDailyData.properties.periods[1];
-                if (new Date(nextPeriod.startTime).getDate() === today) {
+                if (nextPeriod && new Date(nextPeriod.startTime).getDate() === today) {
                      if (nextPeriod.isDaytime) {
                         high = Math.max(high, nextPeriod.temperature);
                     } else {
@@ -324,7 +375,9 @@
                 
                 const firstDayForecast = fullDailyData.properties.periods[0];
                 if (high === -Infinity) high = firstDayForecast.temperature;
-                if (low === Infinity) low = nextPeriod.temperature;
+                if (low === Infinity && nextPeriod) low = nextPeriod.temperature;
+                else if (low === Infinity) low = firstDayForecast.temperature;
+
 
                 $('#high-temp').html(`H:${high}&deg;`);
                 $('#low-temp').html(`L:${low}&deg;`);
@@ -390,7 +443,9 @@
                            todayHigh = Math.max(todayHigh, p.temperature);
                         }
                     });
-                    processedDays.get(firstDayName).high = todayHigh;
+                    if (todayHigh > -273) {
+                        processedDays.get(firstDayName).high = todayHigh;
+                    }
                 }
 
                 let dayCount = 0;
