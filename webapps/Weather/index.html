@@ -18,7 +18,9 @@
             justify-content: center;
             min-height: 100vh;
             padding: 1rem;
-            transition: background 1s ease; /* Smooth transition for background changes */
+            background-size: cover;
+            background-position: center;
+            transition: background-image 1s ease; /* Smooth transition for background changes */
         }
 
         main {
@@ -257,22 +259,22 @@
                 'FOG': 'fa-solid fa-smog'
             };
             
-            // Background gradient mapping
-            const backgroundGradientMapping = {
-                "CLEAR_DAY": "linear-gradient(to top, #4A90E2, #87CEEB)",
-                "PARTLY_CLOUDY_DAY": "linear-gradient(to top, #54717A, #A2B2BD)",
-                "CLOUDY": "linear-gradient(to top, #546E7A, #90A4AE)",
-                "RAIN": "linear-gradient(to top, #2C3E50, #8CA3AD)",
-                "SNOW": "linear-gradient(to top, #BDBDBD, #E0E0E0)",
-                "SLEET": "linear-gradient(to top, #8A9AAB, #BFCAD6)",
-                "WIND": "linear-gradient(to top, #6B7A8F, #A9B4C2)",
-                "FOG": "linear-gradient(to top, #606C88, #A3AFB7)",
-                "FALLBACK": "linear-gradient(to top, #1F2937, #374151)"
+            // Background image mapping
+            const backgroundImageMapping = {
+                "CLEAR_DAY": "/media/clear.png",
+                "PARTLY_CLOUDY_DAY": "/media/partly_cloudy.png",
+                "CLOUDY": "/media/cloudy.png",
+                "RAIN": "/media/rain.png",
+                "SNOW": "/media/snow.png",
+                "SLEET": "/media/sleet.png",
+                "WIND": "/media/wind.png",
+                "FOG": "/media/fog.png",
+                "FALLBACK": "/media/clear.png"
             };
 
-            function setBackgroundGradient(skyconKey) {
-                const gradient = backgroundGradientMapping[skyconKey] || backgroundGradientMapping["FALLBACK"];
-                $('body').css('background', gradient);
+            function setBackgroundImage(skyconKey) {
+                const imageUrl = backgroundImageMapping[skyconKey] || backgroundImageMapping["FALLBACK"];
+                $('body').css('background-image', `url('${imageUrl}')`);
             }
 
             function getLocation() {
@@ -404,7 +406,7 @@
                 $('#low-temp').html(`L:${low}&deg;`);
                 
                 const skyconId = getSkyconIdentifier(current.icon);
-                setBackgroundGradient(skyconId);
+                setBackgroundImage(skyconId);
             }
 
             function displayHourlyForecast(periods) {
