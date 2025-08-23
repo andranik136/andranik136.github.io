@@ -11,7 +11,7 @@
     <!-- Google Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&family=Russo+One&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Share+Tech&display=swap" rel="stylesheet">
     
     <!-- Vue.js -->
     <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
@@ -19,14 +19,14 @@
     <style>
         /* Custom styles for the high-contrast, modern theme */
         body {
-            font-family: 'Poppins', sans-serif;
+            font-family: 'Share Tech', sans-serif;
             background-color: #121212;
             color: #E0E0E0;
             overflow-x: hidden;
         }
 
         h1, h2, h3, .nav-link {
-            font-family: 'Russo One', sans-serif;
+            font-family: 'Share Tech', sans-serif;
             letter-spacing: 1.5px;
         }
 
@@ -61,6 +61,8 @@
         .portfolio-item {
             transition: transform 0.3s ease, box-shadow 0.3s ease;
             overflow: hidden;
+            display: flex;
+            flex-direction: column;
         }
 
         .portfolio-item:hover {
@@ -75,23 +77,17 @@
         .portfolio-item:hover img {
             transform: scale(1.1);
         }
-
-        .contact-form input, .contact-form textarea {
-            background-color: #2a2a2a;
-            border: 1px solid #444;
-            color: #E0E0E0;
-            transition: border-color 0.3s ease;
-        }
-
-        .contact-form input:focus, .contact-form textarea:focus {
-            outline: none;
-            border-color: #e73c7e;
+        
+        .portfolio-content {
+            flex-grow: 1;
+            display: flex;
+            flex-direction: column;
         }
 
         .btn-primary {
             background-color: #e73c7e;
             color: #FFFFFF;
-            font-family: 'Russo One', sans-serif;
+            font-family: 'Share Tech', sans-serif;
             padding: 12px 30px;
             border-radius: 50px;
             transition: background-color 0.3s ease, transform 0.3s ease;
@@ -102,6 +98,16 @@
         .btn-primary:hover {
             background-color: #d62c6e;
             transform: translateY(-3px);
+        }
+
+        .btn-secondary {
+            background-color: transparent;
+            border: 2px solid #e73c7e;
+            color: #e73c7e;
+        }
+        .btn-secondary:hover {
+             background-color: #e73c7e;
+             color: #FFFFFF;
         }
 
         /* Animation for elements on scroll */
@@ -172,11 +178,22 @@
 
                 <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
                     <div v-for="item in filteredPortfolio" :key="item.id" class="portfolio-item bg-gray-800 rounded-lg shadow-lg fade-in">
-                        <img :src="item.image" :alt="item.title" class="w-full h-56 object-cover rounded-t-lg">
-                        <div class="p-6">
-                            <h3 class="text-xl font-bold mb-2">{{ item.title }}</h3>
-                            <p class="text-gray-400">{{ item.description }}</p>
-                            <span class="inline-block bg-gray-700 text-pink-400 text-xs font-semibold mt-4 px-2.5 py-0.5 rounded-full">{{ item.category }}</span>
+                        <a :href="item.link" target="_blank" class="block">
+                            <div class="overflow-hidden rounded-t-lg">
+                                <img :src="item.image" :alt="item.title" class="w-full h-56 object-cover">
+                            </div>
+                        </a>
+                        <div class="p-6 portfolio-content">
+                            <div>
+                                <h3 class="text-xl font-bold mb-2">{{ item.title }}</h3>
+                                <p class="text-gray-400 mb-4">{{ item.description }}</p>
+                                <span class="inline-block bg-gray-700 text-pink-400 text-xs font-semibold px-2.5 py-0.5 rounded-full">{{ item.category }}</span>
+                            </div>
+                            <div class="mt-auto pt-4">
+                                <a :href="item.link" target="_blank" class="btn-primary btn-secondary inline-block w-full text-center">
+                                    View Project
+                                </a>
+                            </div>
                         </div>
                     </div>
                 </div>
