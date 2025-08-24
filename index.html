@@ -178,7 +178,7 @@
 
                 <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
                     <div v-for="item in filteredPortfolio" :key="item.id" class="portfolio-item bg-gray-800 rounded-lg shadow-lg fade-in">
-                        <a :href="item.link" target="_blank" class="block">
+                        <a :href="item.link" class="block">
                             <div class="overflow-hidden rounded-t-lg">
                                 <img :src="item.image" :alt="item.title" class="w-full h-56 object-cover">
                             </div>
@@ -190,7 +190,7 @@
                                 <span class="inline-block bg-gray-700 text-pink-400 text-xs font-semibold px-2.5 py-0.5 rounded-full">{{ item.category }}</span>
                             </div>
                             <div class="mt-auto pt-4">
-                                <a :href="item.link" target="_blank" class="btn-primary btn-secondary inline-block w-full text-center">
+                                <a :href="item.link" class="btn-primary btn-secondary inline-block w-full text-center">
                                     View Project
                                 </a>
                             </div>
