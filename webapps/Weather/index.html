@@ -14,8 +14,10 @@
     <link rel="manifest" href="manifest.json">
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+    <!-- Weather Icons for the forecast -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/weather-icons/2.0.10/css/weather-icons.min.css">
-    <!-- Added Chart.js and datalabels plugin -->
+    <!-- Font Awesome for the menu icon -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2.2.0"></script>
     <style>
@@ -29,7 +31,7 @@
             flex-direction: column; /* Allow footer to sit below main content */
             align-items: center;
             justify-content: center;
-            min-height: 100vh;
+            min-height: calc(100vh - 2rem);
             padding: 1rem;
             background-size: cover;
             background-position: center;
@@ -40,11 +42,51 @@
             max-width: 28rem;
             width: 100%;
             margin: auto;
+            position: relative;
         }
         
         main > section:not(:first-child) {
             margin-top: 1rem;
         }
+
+        /* Menu Styles */
+        #menu-button {
+            position: absolute;
+            top: 1rem;
+            left: 1rem;
+            font-size: 1.5rem;
+            cursor: pointer;
+            z-index: 10;
+            background: none;
+            border: none;
+            color: white;
+            padding: 0.5rem;
+        }
+        #popover-menu {
+            position: absolute;
+            top: 4rem;
+            left: 1rem;
+            background-color: rgba(31, 41, 55, 0.9);
+            backdrop-filter: blur(10px);
+            border-radius: 0.5rem;
+            padding: 0.5rem;
+            z-index: 20;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        #popover-menu button {
+            background: none;
+            border: none;
+            color: white;
+            padding: 0.75rem 1rem;
+            width: 100%;
+            text-align: left;
+            cursor: pointer;
+            border-radius: 0.25rem;
+        }
+        #popover-menu button:hover {
+            background-color: rgba(255, 255, 255, 0.1);
+        }
+
 
         /* Loading Indicator & Manual Input */
         #loading {
@@ -152,9 +194,9 @@
             font-weight: 500;
         }
         .horizontal-forecast-item i {
-            font-size: 2rem;
+            font-size: 2.5rem; /* 40px */
             line-height: 1;
-            height: 60px;
+            height: 40px;
             display: flex;
             align-items: center;
         }
@@ -174,7 +216,7 @@
         /* Daily Forecast Specifics */
         #daily-chart-container {
             height: 200px;
-            margin-bottom: 2rem; /* Increased separation */
+            margin-bottom: 2rem; 
         }
 
         /* Footer */
@@ -203,6 +245,12 @@
     </div>
 
     <main id="weather-container" class="hidden">
+        <button id="menu-button"><i class="fa-solid fa-bars"></i></button>
+        <div id="popover-menu" class="hidden">
+            <button id="change-location-btn">Change Location</button>
+            <button id="toggle-units-btn">Toggle °F/°C</button>
+        </div>
+
         <!-- Current Weather Section -->
         <section id="current-weather">
             <h1 id="location">--</h1>
@@ -241,10 +289,13 @@
 
     <script>
         $(document).ready(function() {
-            let dailyChartInstance; // To hold the chart instance
-            Chart.register(ChartDataLabels); // Register the datalabels plugin
+            let dailyChartInstance;
+            Chart.register(ChartDataLabels);
 
-            // Mapping from NWS icon codes to icon keys
+            // Global state
+            let currentUnit = 'F';
+            let hourlyDataCache, dailyDataCache;
+
             const iconMapping = {
                 "skc": "CLEAR_DAY", "few": "PARTLY_CLOUDY_DAY", "sct": "PARTLY_CLOUDY_DAY",
                 "bkn": "CLOUDY", "ovc": "CLOUDY", "wind_skc": "WIND", "wind_few": "WIND",
@@ -257,19 +308,12 @@
                 "cold": "CLEAR_DAY", "blizzard": "SNOW"
             };
 
-            // Weather Icons mapping.
             const weatherIconMapping = {
-                'CLEAR_DAY': 'wi-day-sunny',
-                'PARTLY_CLOUDY_DAY': 'wi-day-cloudy',
-                'CLOUDY': 'wi-cloudy',
-                'RAIN': 'wi-rain',
-                'SNOW': 'wi-snow',
-                'SLEET': 'wi-sleet',
-                'WIND': 'wi-strong-wind',
-                'FOG': 'wi-fog'
+                'CLEAR_DAY': 'wi-day-sunny', 'PARTLY_CLOUDY_DAY': 'wi-day-cloudy',
+                'CLOUDY': 'wi-cloudy', 'RAIN': 'wi-rain', 'SNOW': 'wi-snow',
+                'SLEET': 'wi-sleet', 'WIND': 'wi-strong-wind', 'FOG': 'wi-fog'
             };
             
-            // Background image mapping
             const backgroundImageMapping = {
                 "CLEAR_DAY": "/media/clear.png",
                 "PARTLY_CLOUDY_DAY": "/media/partly-cloudy.png",
@@ -282,11 +326,40 @@
                 "FALLBACK": "/media/clear.png"
             };
 
+            // --- Utility Functions ---
+            function convertTemp(tempF) {
+                if (currentUnit === 'C') {
+                    return Math.round((tempF - 32) * 5 / 9);
+                }
+                return tempF;
+            }
+
             function setBackgroundImage(skyconKey) {
                 const imageUrl = backgroundImageMapping[skyconKey] || backgroundImageMapping["FALLBACK"];
                 $('body').css('background-image', `url('${imageUrl}')`);
             }
 
+            // --- Event Handlers ---
+            $('#menu-button').on('click', () => $('#popover-menu').toggleClass('hidden'));
+            $('#change-location-btn').on('click', () => {
+                $('#weather-container').addClass('hidden');
+                $('#weather-credit').addClass('hidden');
+                $('#loading').removeClass('hidden');
+                showError(); // Show the form
+                $('#popover-menu').addClass('hidden');
+            });
+            $('#toggle-units-btn').on('click', () => {
+                currentUnit = (currentUnit === 'F') ? 'C' : 'F';
+                updateAllDisplays();
+                $('#popover-menu').addClass('hidden');
+            });
+            
+            $('#location-form').on('submit', function(e) {
+                e.preventDefault();
+                getWeatherByCity($('#city-input').val());
+            });
+
+            // --- Geolocation and API Fetching ---
             function getLocation() {
                 if (navigator.geolocation) {
                     navigator.geolocation.getCurrentPosition(showPosition, showError);
@@ -296,9 +369,7 @@
             }
 
             function showPosition(position) {
-                const lat = position.coords.latitude.toFixed(4);
-                const lon = position.coords.longitude.toFixed(4);
-                getWeather(lat, lon);
+                getWeather(position.coords.latitude.toFixed(4), position.coords.longitude.toFixed(4));
             }
 
             function showError(error) {
@@ -313,68 +384,60 @@
                 $('#loading-submessage').addClass('hidden');
                 $('#location-form').removeClass('hidden');
             }
-            
-            $('#location-form').on('submit', function(e) {
-                e.preventDefault();
-                const city = $('#city-input').val();
-                if (city) {
-                    getWeatherByCity(city);
-                }
-            });
 
             function getWeatherByCity(city) {
+                if (!city) return;
                 $('#loading-message').text(`Searching for ${city}...`);
                 $('#location-form').addClass('hidden');
-
                 const geocodeUrl = `https://geocoding-api.open-meteo.com/v1/search?name=${encodeURIComponent(city)}&count=1`;
-                
-                $.getJSON(geocodeUrl, function(data) {
+                $.getJSON(geocodeUrl, data => {
                     if (data && data.results && data.results.length > 0) {
-                        const lat = data.results[0].latitude.toFixed(4);
-                        const lon = data.results[0].longitude.toFixed(4);
-                        getWeather(lat, lon);
+                        getWeather(data.results[0].latitude.toFixed(4), data.results[0].longitude.toFixed(4));
                     } else {
                         $('#loading-message').text(`Could not find "${city}". Please try again.`);
                         $('#location-form').removeClass('hidden');
                     }
-                }).fail(function() {
+                }).fail(() => {
                      $('#loading-message').text("Failed to look up location. Please check your connection.");
                      $('#location-form').removeClass('hidden');
                 });
             }
 
-
             function getWeather(lat, lon) {
                 const pointsUrl = `https://api.weather.gov/points/${lat},${lon}`;
                 $('#loading-message').text('Fetching weather data...');
 
-                $.getJSON(pointsUrl, function(data) {
-                    const forecastUrl = data.properties.forecast;
-                    const hourlyForecastUrl = data.properties.forecastHourly;
-                    const city = data.properties.relativeLocation.properties.city;
-                    const state = data.properties.relativeLocation.properties.state;
-
+                $.getJSON(pointsUrl, data => {
+                    const { forecast: forecastUrl, forecastHourly: hourlyForecastUrl } = data.properties;
+                    const { city, state } = data.properties.relativeLocation.properties;
                     $('#location').text(`${city}, ${state}`);
 
-                    $.when(
-                        $.getJSON(hourlyForecastUrl),
-                        $.getJSON(forecastUrl)
-                    ).done(function(hourlyData, dailyData) {
-                        displayCurrentWeather(dailyData[0].properties.periods[0], dailyData[0]);
-                        displayHourlyForecast(hourlyData[0].properties.periods);
-                        displayDailyForecast(dailyData[0].properties.periods);
+                    $.when($.getJSON(hourlyForecastUrl), $.getJSON(forecastUrl))
+                     .done((hourly, daily) => {
+                        hourlyDataCache = hourly[0].properties.periods;
+                        dailyDataCache = daily[0].properties.periods;
+                        updateAllDisplays();
                         
                         $('#loading').addClass('hidden');
                         $('#weather-container').removeClass('hidden');
                         $('#weather-credit').removeClass('hidden');
-                    }).fail(function() {
+                    }).fail(() => {
                         $('#loading-message').text("Failed to fetch weather data. Please try again later.");
                         $('#location-form').removeClass('hidden');
                     });
-                }).fail(function() {
+                }).fail(() => {
                     $('#loading-message').text("Could not retrieve weather station data for your location.");
                     $('#location-form').removeClass('hidden');
                 });
+            }
+
+            // --- Display Update Functions ---
+            function updateAllDisplays() {
+                if (hourlyDataCache && dailyDataCache) {
+                    displayCurrentWeather(hourlyDataCache, dailyDataCache);
+                    displayHourlyForecast(hourlyDataCache);
+                    displayDailyForecast(dailyDataCache);
+                }
             }
 
             function getSkyconIdentifier(iconUrl) {
@@ -385,38 +448,21 @@
                 return iconMapping[key] || "CLOUDY";
             }
 
-            function displayCurrentWeather(current, fullDailyData) {
-                $('#current-temp').html(`${current.temperature}&deg;`);
-                $('#current-condition').text(current.shortForecast);
-                
-                const today = new Date().getDate();
-                let high = -Infinity, low = Infinity;
-                
-                if (current.isDaytime) {
-                    high = current.temperature;
-                } else {
-                    low = current.temperature;
-                }
+            function displayCurrentWeather(hourlyPeriods, dailyPeriods) {
+                const currentHour = hourlyPeriods[0];
+                const todayForecast = dailyPeriods[0];
+                const tomorrowForecast = dailyPeriods[1];
 
-                const nextPeriod = fullDailyData.properties.periods[1];
-                if (nextPeriod && new Date(nextPeriod.startTime).getDate() === today) {
-                     if (nextPeriod.isDaytime) {
-                        high = Math.max(high, nextPeriod.temperature);
-                    } else {
-                        low = Math.min(low, nextPeriod.temperature);
-                    }
-                }
+                $('#current-temp').html(`${convertTemp(currentHour.temperature)}&deg;`);
+                $('#current-condition').text(currentHour.shortForecast);
                 
-                const firstDayForecast = fullDailyData.properties.periods[0];
-                if (high === -Infinity) high = firstDayForecast.temperature;
-                if (low === Infinity && nextPeriod) low = nextPeriod.temperature;
-                else if (low === Infinity) low = firstDayForecast.temperature;
+                let high = todayForecast.isDaytime ? todayForecast.temperature : tomorrowForecast.temperature;
+                let low = !todayForecast.isDaytime ? todayForecast.temperature : tomorrowForecast.temperature;
 
-
-                $('#high-temp').html(`H:${high}&deg;`);
-                $('#low-temp').html(`L:${low}&deg;`);
+                $('#high-temp').html(`H:${convertTemp(high)}&deg;`);
+                $('#low-temp').html(`L:${convertTemp(low)}&deg;`);
                 
-                const skyconId = getSkyconIdentifier(current.icon);
+                const skyconId = getSkyconIdentifier(currentHour.icon);
                 setBackgroundImage(skyconId);
             }
 
@@ -431,15 +477,13 @@
                     const ampm = hour >= 12 ? 'PM' : 'AM';
                     hour = hour % 12 || 12;
                     const displayTime = (time.getHours() === now.getHours()) ? 'Now' : `${hour}${ampm}`;
-
-                    const skyconId = getSkyconIdentifier(period.icon);
-                    const iconClass = weatherIconMapping[skyconId] || 'wi-cloud';
+                    const iconClass = weatherIconMapping[getSkyconIdentifier(period.icon)] || 'wi-cloud';
 
                     const item = `
                         <div class="horizontal-forecast-item">
                             <span class="time">${displayTime}</span>
                             <i class="wi ${iconClass}"></i>
-                            <span class="temp">${period.temperature}&deg;</span>
+                            <span class="temp">${convertTemp(period.temperature)}&deg;</span>
                         </div>
                     `;
                     container.append(item);
@@ -451,14 +495,11 @@
                 container.empty();
                 
                 const processedDays = new Map();
-
                 periods.forEach(period => {
                     const dayName = new Date(period.startTime).toLocaleDateString('en-US', { weekday: 'short' });
-                    
                     if (!processedDays.has(dayName)) {
                         processedDays.set(dayName, { high: -273, low: 999, icon: period.icon });
                     }
-
                     let dayData = processedDays.get(dayName);
                     if (period.isDaytime) {
                         dayData.high = Math.max(dayData.high, period.temperature);
@@ -467,11 +508,10 @@
                     }
                 });
 
-                const firstPeriod = periods[0];
-                const firstDayName = new Date(firstPeriod.startTime).toLocaleDateString('en-US', { weekday: 'short' });
-                if (!firstPeriod.isDaytime) {
+                const firstDayName = new Date(periods[0].startTime).toLocaleDateString('en-US', { weekday: 'short' });
+                if (!periods[0].isDaytime) {
                     let todayHigh = -273;
-                    periods.slice(0,12).forEach(p => {
+                    hourlyDataCache.slice(0,12).forEach(p => {
                         if (new Date(p.startTime).getDate() === new Date().getDate()) {
                            todayHigh = Math.max(todayHigh, p.temperature);
                         }
@@ -481,115 +521,71 @@
                     }
                 }
                 
-                const chartLabels = [];
-                const highTemps = [];
-                const lowTemps = [];
+                const chartLabels = [], highTemps = [], lowTemps = [];
                 let dayCount = 0;
 
                 processedDays.forEach((data, day) => {
                     if (dayCount >= 7) return;
-                    
-                    const skyconId = getSkyconIdentifier(data.icon);
-                    const iconClass = weatherIconMapping[skyconId] || 'wi-cloud';
+                    const iconClass = weatherIconMapping[getSkyconIdentifier(data.icon)] || 'wi-cloud';
                     const isToday = day === new Date().toLocaleDateString('en-US', { weekday: 'short' });
-
                     const item = `
                         <div class="horizontal-forecast-item">
                             <span class="day-name">${isToday ? 'Now' : day}</span>
                             <i class="wi ${iconClass}"></i>
-                            <span class="temp">${data.high > -200 ? data.high : '--'}&deg;</span>
-                            <span class="temp" style="color: #9CA3AF;">${data.low < 900 ? data.low : '--'}&deg;</span>
+                            <span class="temp">${convertTemp(data.high)}&deg;</span>
+                            <span class="temp" style="color: #9CA3AF;">${convertTemp(data.low)}&deg;</span>
                         </div>
                     `;
                     container.append(item);
-                    
                     chartLabels.push(day);
-                    highTemps.push(data.high > -200 ? data.high : null);
-                    lowTemps.push(data.low < 900 ? data.low : null);
-
+                    highTemps.push(convertTemp(data.high));
+                    lowTemps.push(convertTemp(data.low));
                     dayCount++;
                 });
 
-                // Create or update the chart
                 const ctx = document.getElementById('daily-chart').getContext('2d');
-                if(dailyChartInstance) {
-                    dailyChartInstance.destroy();
-                }
+                if(dailyChartInstance) dailyChartInstance.destroy();
                 dailyChartInstance = new Chart(ctx, {
                     type: 'line',
                     data: {
                         labels: chartLabels,
-                        datasets: [
-                            {
-                                label: 'High',
-                                data: highTemps,
-                                borderColor: 'rgba(255, 159, 64, 1)',
-                                borderWidth: 2,
-                                fill: false,
-                                tension: 0.4,
-                                datalabels: {
-                                    align: 'top',
-                                    offset: 8
-                                }
-                            },
-                            {
-                                label: 'Low',
-                                data: lowTemps,
-                                borderColor: 'rgba(54, 162, 235, 1)',
-                                borderWidth: 2,
-                                fill: false,
-                                tension: 0.4,
-                                datalabels: {
-                                    align: 'bottom',
-                                    offset: 8
-                                }
-                            }
-                        ]
+                        datasets: [{
+                            label: 'High', data: highTemps, borderColor: 'rgba(255, 159, 64, 1)',
+                            borderWidth: 2, fill: false, tension: 0.4,
+                            datalabels: { align: 'top', offset: 8 }
+                        }, {
+                            label: 'Low', data: lowTemps, borderColor: 'rgba(54, 162, 235, 1)',
+                            borderWidth: 2, fill: false, tension: 0.4,
+                            datalabels: { align: 'bottom', offset: 8 }
+                        }]
                     },
                     options: {
-                        responsive: true,
-                        maintainAspectRatio: false,
+                        responsive: true, maintainAspectRatio: false,
                         plugins: {
-                            legend: { display: false },
-                            tooltip: { enabled: false },
+                            legend: { display: false }, tooltip: { enabled: false },
                             datalabels: {
-                                color: 'white',
-                                font: {
-                                    weight: 'bold'
-                                },
+                                color: 'white', font: { weight: 'bold' },
                                 formatter: (value) => value ? `${value}°` : ''
                             }
                         },
                         scales: {
-                            x: { 
-                                grid: { display: false },
-                                ticks: { color: 'white' }
-                            },
+                            x: { grid: { display: false }, ticks: { color: 'white', padding: 10 } },
                             y: { display: false }
                         },
-                        elements: {
-                            point: { radius: 3, backgroundColor: 'white' }
-                        },
-                        layout: {
-                            padding: { top: 20, bottom: 10 }
-                        }
+                        elements: { point: { radius: 3, backgroundColor: 'white' } },
+                        layout: { padding: { top: 20, bottom: 10 } }
                     }
                 });
             }
 
             function startWeatherApp() {
                 const urlParams = new URLSearchParams(window.location.search);
-                const zip = urlParams.get('zip');
-                const city = urlParams.get('city');
-
-                if (zip) {
+                const location = urlParams.get('zip') || urlParams.get('city');
+                if (location) {
                     $('#loading-submessage').addClass('hidden');
-                    getWeatherByCity(zip);
-                } else if (city) {
-                    $('#loading-submessage').addClass('hidden');
-                    getWeatherByCity(city);
+                    getWeatherByCity(location);
                 } else {
-                    getLocation(); // Fallback to geolocation
+                    getLocation();
                 }
             }
 
@@ -602,12 +598,8 @@
         if ('serviceWorker' in navigator) {
             window.addEventListener('load', () => {
                 navigator.serviceWorker.register('/sw.js')
-                    .then(registration => {
-                        console.log('ServiceWorker registration successful with scope: ', registration.scope);
-                    })
-                    .catch(err => {
-                        console.log('ServiceWorker registration failed: ', err);
-                    });
+                    .then(reg => console.log('SW registered.', reg))
+                    .catch(err => console.log('SW registration failed: ', err));
             });
         }
     </script>
