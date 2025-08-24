@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Slurm Can Ad - 3D Art - Andranik Shirinian</title>
+    <title>Slurm Can - 3D Art - Andranik Shirinian</title>
     
     <!-- Tailwind CSS for styling -->
     <script src="https://cdn.tailwindcss.com"></script>
@@ -11,7 +11,7 @@
     <!-- Google Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&family=Share+Tech&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Share+Tech&display=swap" rel="stylesheet">
     
     <!-- Vue.js -->
     <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
@@ -19,7 +19,7 @@
     <style>
         /* Shared styles from the main portfolio */
         body {
-            font-family: 'Poppins', sans-serif;
+            font-family: 'Share Tech', sans-serif;
             background-color: #121212;
             color: #E0E0E0;
             overflow-x: hidden;
@@ -110,9 +110,9 @@
          <!-- Header -->
         <header class="w-full z-30 top-0 bg-black bg-opacity-70 backdrop-blur-sm fixed">
             <div class="container mx-auto px-6 py-4 flex justify-between items-center">
-                <a href="index.html" class="text-2xl font-bold text-white">AS</a>
+                <a href="/" class="text-2xl font-bold text-white">AS</a>
                 <nav>
-                    <a href="index.html#portfolio" class="nav-link text-white hover:text-pink-500 transition duration-300">&larr; Back to Portfolio</a>
+                    <a href="/" class="nav-link text-white hover:text-pink-500 transition duration-300">&larr; Back to Portfolio</a>
                 </nav>
             </div>
         </header>
@@ -121,7 +121,7 @@
             <!-- Project Detail Section -->
             <section id="project-details" class="section">
                 <div class="text-center">
-                    <h1 class="section-title">Slurm Can Ad</h1>
+                    <h1 class="section-title">Slurm Can</h1>
                     <p class="max-w-3xl mx-auto text-lg leading-relaxed mb-8">
                         This project is a 3D visualization inspired by Slurm, the iconic soda from Futurama. Using Blender, I created a dynamic scene where a Slurm can is dramatically splashed by vibrant green liquid. To achieve a realistic and energetic effect, I leveraged Blender’s fluid simulation tools to model the splash and flow of the liquid, ensuring a natural sense of motion and weight. To enhance the visual impact, I applied studio lighting techniques that highlight the crisp metallic surface of the can and the translucency of the liquid. The bright, polished lighting setup gives the scene a clean, commercial look—similar to modern product photography—while the playful subject matter keeps it fun and eye-catching. This project was a great exercise in combining simulation, lighting, and rendering to produce a lively, high-quality 3D still inspired by pop culture.
                     </p>
@@ -141,7 +141,7 @@
                               <path stroke-linecap="round" stroke-linejoin="round" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
                               <path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
                             </svg>
-                            <span class="font-semibold">Vue.js, Tailwind CSS, Figma</span>
+                            <span class="font-semibold">Blender</span>
                         </div>
                     </div>
                 </div>
@@ -177,11 +177,8 @@
                 // Project Images Data
                 const projectImages = ref([
                     { src: '/media/slurm-can-1.jpg', alt: 'Final Render' },
-                    { src: 'https://placehold.co/600x400/e73c7e/ffffff?text=Project+Image+2', alt: 'Project Image 2' },
-                    { src: 'https://placehold.co/600x400/ee7752/ffffff?text=Project+Image+3', alt: 'Project Image 3' },
-                    { src: 'https://placehold.co/600x400/23d5ab/ffffff?text=Project+Image+4', alt: 'Project Image 4' },
-                    { src: 'https://placehold.co/600x400/9c27b0/ffffff?text=Project+Image+5', alt: 'Project Image 5' },
-                    { src: 'https://placehold.co/600x400/ff9800/ffffff?text=Project+Image+6', alt: 'Project Image 6' }
+                    { src: '/media/slurm-can-2.jpg', alt: 'Draft View 1' },
+                    { src: '/media/slurm-can-3.jpg', alt: 'Draft View 2' }
                 ]);
 
                 // Lightbox State
