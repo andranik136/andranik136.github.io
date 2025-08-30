@@ -5,192 +5,107 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Andranik Shirinian - Portfolio</title>
     
-    <!-- Tailwind CSS for styling -->
-    <script src="https://cdn.tailwindcss.com"></script>
-    
     <!-- Google Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Share+Tech&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Abel&family=Bebas+Neue&display=swap" rel="stylesheet">
     
+    <link href="/style.css" rel="stylesheet">
+
     <!-- Vue.js -->
     <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
 
-    <style>
-        /* Custom styles for the high-contrast, modern theme */
-        body {
-            font-family: 'Share Tech', sans-serif;
-            background-color: #121212;
-            color: #E0E0E0;
-            overflow-x: hidden;
-        }
-
-        h1, h2, h3, .nav-link {
-            font-family: 'Share Tech', sans-serif;
-            letter-spacing: 1.5px;
-        }
-
-        .hero-section {
-            background: linear-gradient(-45deg, #ee7752, #e73c7e, #23a6d5, #23d5ab);
-            background-size: 400% 400%;
-            animation: gradientBG 15s ease infinite;
-            height: 100vh;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
-
-        @keyframes gradientBG {
-            0% { background-position: 0% 50%; }
-            50% { background-position: 100% 50%; }
-            100% { background-position: 0% 50%; }
-        }
-
-        .section {
-            padding: 100px 0;
-            border-bottom: 1px solid #333;
-        }
-
-        .section-title {
-            font-size: 3rem;
-            margin-bottom: 2rem;
-            text-transform: uppercase;
-            color: #FFFFFF;
-        }
-
-        .portfolio-item {
-            transition: transform 0.3s ease, box-shadow 0.3s ease;
-            overflow: hidden;
-            display: flex;
-            flex-direction: column;
-        }
-
-        .portfolio-item:hover {
-            transform: translateY(-10px);
-            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.3), 0 10px 10px -5px rgba(0, 0, 0, 0.1);
-        }
-        
-        .portfolio-item img {
-            transition: transform 0.5s ease;
-        }
-
-        .portfolio-item:hover img {
-            transform: scale(1.1);
-        }
-        
-        .portfolio-content {
-            flex-grow: 1;
-            display: flex;
-            flex-direction: column;
-        }
-
-        .btn-primary {
-            background-color: #e73c7e;
-            color: #FFFFFF;
-            font-family: 'Share Tech', sans-serif;
-            padding: 12px 30px;
-            border-radius: 50px;
-            transition: background-color 0.3s ease, transform 0.3s ease;
-            text-transform: uppercase;
-            letter-spacing: 1px;
-        }
-
-        .btn-primary:hover {
-            background-color: #d62c6e;
-            transform: translateY(-3px);
-        }
-
-        .btn-secondary {
-            background-color: transparent;
-            border: 2px solid #e73c7e;
-            color: #e73c7e;
-        }
-        .btn-secondary:hover {
-             background-color: #e73c7e;
-             color: #FFFFFF;
-        }
-
-        /* Animation for elements on scroll */
-        .fade-in {
-            opacity: 0;
-            transform: translateY(30px);
-            transition: opacity 0.6s ease-out, transform 0.6s ease-out;
-        }
-
-        .fade-in.visible {
-            opacity: 1;
-            transform: translateY(0);
-        }
-    </style>
 </head>
-<body class="bg-gray-900 text-gray-200">
+<body>
 
     <div id="app">
         <!-- Header & Navigation -->
-        <header class="fixed w-full z-30 top-0 bg-black bg-opacity-50 backdrop-blur-sm transition-all duration-300" :class="{ 'bg-opacity-90': scrolled }">
-            <div class="container mx-auto px-6 py-4 flex justify-between items-center">
-                <a href="#" class="text-2xl font-bold text-white">AS</a>
-                <nav class="hidden md:flex space-x-8">
-                    <a v-for="link in navLinks" :key="link.id" :href="'#' + link.id" @click.prevent="scrollTo(link.id)" class="nav-link text-white hover:text-pink-500 transition duration-300">{{ link.text }}</a>
+        <header class="header" :class="{ 'scrolled': scrolled }">
+            <div class="container header-content">
+                <a href="#" class="logo">AS</a>
+                <nav class="main-nav">
+                    <a v-for="link in navLinks" :key="link.id" :href="'#' + link.id" @click.prevent="scrollTo(link.id)" class="nav-link">{{ link.text }}</a>
                 </nav>
-                <div class="md:hidden">
-                    <button @click="mobileMenuOpen = !mobileMenuOpen" class="text-white focus:outline-none">
-                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16m-7 6h7"></path></svg>
-                    </button>
-                </div>
+                <button @click="mobileMenuOpen = !mobileMenuOpen" class="mobile-menu-button">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16m-7 6h7"></path></svg>
+                </button>
             </div>
             <!-- Mobile Menu -->
-            <div v-show="mobileMenuOpen" class="md:hidden bg-black bg-opacity-80">
-                 <a v-for="link in navLinks" :key="link.id" :href="'#' + link.id" @click.prevent="scrollTo(link.id, true)" class="block py-2 px-4 text-sm text-white hover:bg-gray-800">{{ link.text }}</a>
+            <div v-show="mobileMenuOpen" class="mobile-nav">
+                 <a v-for="link in navLinks" :key="link.id" :href="'#' + link.id" @click.prevent="scrollTo(link.id, true)" class="nav-link">{{ link.text }}</a>
             </div>
         </header>
 
         <!-- Hero Section -->
-        <section class="hero-section text-white text-center">
-            <div class="bg-black bg-opacity-50 p-10 rounded-lg">
-                <h1 class="text-6xl md:text-8xl font-bold mb-4 uppercase">Andranik Shirinian</h1>
-                <p class="text-xl md:text-2xl">Web Developer | Graphic Designer | 3D Artist</p>
+        <section class="hero-section">
+            <div id="particles-js"></div>
+            <div class="hero-content">
+                <h1>Andranik Shirinian</h1>
+                <p>Web Developer | Graphic Designer | 3D Artist</p>
             </div>
+            <a href="#about" @click.prevent="scrollTo('about')" class="scroll-down-link">
+                <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"></line><polyline points="19 12 12 19 5 12"></polyline></svg>
+            </a>
         </section>
 
-        <main class="container mx-auto px-6">
+        <main class="container">
             <!-- About Section -->
-            <section id="about" class="section text-center">
-                <h2 class="section-title fade-in">About Me</h2>
-                <div class="max-w-3xl mx-auto fade-in">
-                    <img src="/media/my-profile-img.jpg" alt="Andranik Shirinian" class="rounded-full mx-auto mb-6 border-4 border-pink-500" style="max-width: 256px;">
-                    <p class="text-lg leading-relaxed">
-                        I'm a passionate and versatile creator with a deep love for technology and art. My journey has led me through the exciting worlds of web development, the creative challenges of graphic design, and the boundless possibilities of 3D art. I thrive on bringing ideas to life, whether it's through clean code, compelling visuals, or immersive digital environments. Let's build something amazing together.
-                    </p>
+            <section id="about" class="section">
+                <h2 class="section-title">About Me</h2>
+                <div class="about-content">
+                    <div class="about-text">
+                        <img src="https://placehold.co/150x150/64ffda/0a192f?text=AS" alt="Andranik Shirinian">
+                        <p>
+                            Hello! I'm Andranik Shirinian, a Los Angeles-based creative with over 10 years of experience bringing digital ideas to life. My passion lies at the dynamic intersection of front-end development, graphic design, and 3D art.
+                        </p>
+                        <p>
+                            My toolkit is built around creating polished and engaging experiences. I use HTML, CSS, and JavaScript to build intuitive web interfaces, the Adobe Creative Suite for sharp visuals, and Blender to model and render immersive 3D worlds.
+                        </p>
+                        <p>
+                           When I’m not at my computer, you can find me walking my dog or enjoying the California coast. I invite you to explore my work below. If you have a project in mind, please <a href="#contact">send me an email</a>. I look forward to hearing from you!
+                        </p>
+                    </div>
+                    <div class="about-skills">
+                        <h3>My Toolkit</h3>
+                        <ul class="skills-list">
+                            <li><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16"><path d="m12.14 8.753-5.482 4.796c-.646.566-1.658.106-1.658-.753V3.204a1 1 0 0 1 1.659-.753l5.48 4.796a1 1 0 0 1 0 1.506z"/></svg>HTML, CSS, and JavaScript</li>
+                            <li><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16"><path d="m12.14 8.753-5.482 4.796c-.646.566-1.658.106-1.658-.753V3.204a1 1 0 0 1 1.659-.753l5.48 4.796a1 1 0 0 1 0 1.506z"/></svg>VueJS</li>
+                            <li><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16"><path d="m12.14 8.753-5.482 4.796c-.646.566-1.658.106-1.658-.753V3.204a1 1 0 0 1 1.659-.753l5.48 4.796a1 1 0 0 1 0 1.506z"/></svg>Adobe Illustrator</li>
+                            <li><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16"><path d="m12.14 8.753-5.482 4.796c-.646.566-1.658.106-1.658-.753V3.204a1 1 0 0 1 1.659-.753l5.48 4.796a1 1 0 0 1 0 1.506z"/></svg>Adobe Photoshop</li>
+                            <li><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16"><path d="m12.14 8.753-5.482 4.796c-.646.566-1.658.106-1.658-.753V3.204a1 1 0 0 1 1.659-.753l5.48 4.796a1 1 0 0 1 0 1.506z"/></svg>Adobe After Effects</li>
+                            <li><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16"><path d="m12.14 8.753-5.482 4.796c-.646.566-1.658.106-1.658-.753V3.204a1 1 0 0 1 1.659-.753l5.48 4.796a1 1 0 0 1 0 1.506z"/></svg>Blender</li>
+                        </ul>
+                    </div>
                 </div>
             </section>
 
             <!-- Portfolio Section -->
             <section id="portfolio" class="section">
-                <h2 class="section-title text-center fade-in">My Work</h2>
-                <div class="flex justify-center mb-8 fade-in">
+                <h2 class="section-title">My Work</h2>
+                <div class="filter-buttons">
                     <button v-for="category in categories" :key="category" @click="activeCategory = category" 
-                            class="mx-2 px-4 py-2 rounded-full transition"
-                            :class="{'bg-pink-500 text-white': activeCategory === category, 'bg-gray-800 text-gray-300': activeCategory !== category}">
+                            class="filter-btn"
+                            :class="{ 'active': activeCategory === category }">
                         {{ category }}
                     </button>
                 </div>
 
-                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-                    <div v-for="item in filteredPortfolio" :key="item.id" class="portfolio-item bg-gray-800 rounded-lg shadow-lg fade-in">
-                        <a :href="item.link" class="block">
-                            <div class="overflow-hidden rounded-t-lg">
-                                <img :src="item.image" :alt="item.title" class="w-full h-56 object-cover">
+                <div class="portfolio-grid">
+                    <div v-for="item in filteredPortfolio" :key="item.id" class="portfolio-item">
+                        <a :href="item.link" target="_blank">
+                            <div class="portfolio-image-container">
+                                <div class="portfolio-image" :style="{ backgroundImage: 'url(' + item.image + ')' }"></div>
                             </div>
                         </a>
-                        <div class="p-6 portfolio-content">
+                        <div class="portfolio-content">
                             <div>
-                                <h3 class="text-xl font-bold mb-2">{{ item.title }}</h3>
-                                <p class="text-gray-400 mb-4">{{ item.description }}</p>
-                                <span class="inline-block bg-gray-700 text-pink-400 text-xs font-semibold px-2.5 py-0.5 rounded-full">{{ item.category }}</span>
+                                <h3>{{ item.title }}</h3>
+                                <p class="portfolio-date">{{ item.date }}</p>
+                                <p>{{ item.description }}</p>
+                                <span class="portfolio-category">{{ item.category }}</span>
                             </div>
-                            <div class="mt-auto pt-4">
-                                <a :href="item.link" class="btn-primary btn-secondary inline-block w-full text-center">
+                            <div class="portfolio-footer">
+                                <a :href="item.link" target="_blank" class="btn-primary view-project-btn">
                                     View Project
                                 </a>
                             </div>
@@ -201,12 +116,12 @@
 
             <!-- Contact Section -->
             <section id="contact" class="section">
-                <h2 class="section-title text-center fade-in">Get In Touch</h2>
-                <div class="max-w-xl mx-auto text-center fade-in">
-                    <p class="mb-8">
+                <h2 class="section-title">Get In Touch</h2>
+                <div class="contact-content">
+                    <p>
                         Have a project in mind or just want to say hello? My inbox is always open.
                     </p>
-                    <a href="mailto:andranik136@gmail.com" class="btn-primary inline-block">
+                    <a href="mailto:andranik136@gmail.com" class="btn-primary">
                         andranik136@gmail.com
                     </a>
                 </div>
@@ -214,7 +129,7 @@
         </main>
 
         <!-- Footer -->
-        <footer class="bg-gray-900 py-6 text-center text-gray-500">
+        <footer class="footer">
             <p>&copy; {{ new Date().getFullYear() }} Andranik Shirinian. All Rights Reserved.</p>
         </footer>
     </div>
@@ -224,7 +139,7 @@
 
         createApp({
             setup() {
-                // Navigation state
+                // ... Vue.js logic remains the same ...
                 const scrolled = ref(false);
                 const mobileMenuOpen = ref(false);
                 const navLinks = ref([
@@ -233,16 +148,14 @@
                     { id: 'contact', text: 'Contact' }
                 ]);
 
-                // Handle scroll event for header style change
                 const handleScroll = () => {
                     scrolled.value = window.scrollY > 50;
                 };
 
-                // Smooth scrolling function
                 const scrollTo = (id, isMobile = false) => {
                     const element = document.getElementById(id);
                     if (element) {
-                        const headerOffset = 80; // Adjust for fixed header height
+                        const headerOffset = 80;
                         const elementPosition = element.getBoundingClientRect().top;
                         const offsetPosition = elementPosition + window.pageYOffset - headerOffset;
                         
@@ -256,16 +169,31 @@
                     }
                 };
 
-                // Portfolio data and filtering
                 const activeCategory = ref('All');
-                const categories = ['All', 'Web Development', 'Graphic Design', '3D Art'];
+                const categories = ['All', 'Web Development', '3D Art'];
                 const portfolioItems = ref([
-                    { id: 1, title: 'Weather App', category: 'Web Development', description: 'A simple weather app with hourly and weekly forecast from the NWS.', image: '/media/weather-app-screen.jpg', link: '/webapps/Weather' },
-                    { id: 2, title: 'Corporate Branding', category: 'Graphic Design', description: 'Complete brand identity design for a tech startup.', image: 'https://placehold.co/600x400/e73c7e/ffffff?text=Design+Project', link: '#' },
-                    { id: 3, title: 'Slurm Can', category: '3D Art', description: 'This project is a 3D visualization inspired by Slurm, the iconic soda from Futurama.', image: '/media/slurm-can-1.jpg', link: '/projects/3d-art/slurm-can/' },
-                    { id: 4, title: 'Scoreboard for Table Tennis', category: 'Web Development', description: 'A score keeping app made just for table tennis.', image: '/media/scoreboard-app-screen.jpg', link: '/webapps/Score Keeper' },
-                    { id: 5, title: 'Product Packaging', category: 'Graphic Design', description: 'Eye-catching packaging design for a new beverage.', image: 'https://placehold.co/600x400/e73c7e/ffffff?text=Design+Project', link: '#' },
-                    { id: 6, title: 'Character Model', category: '3D Art', description: 'A stylized 3D character model for an animated short.', image: 'https://placehold.co/600x400/ee7752/ffffff?text=3D+Project', link: '#' }
+                    { id: 1, title: 'Weather App', date: 'August 2025', category: 'Web Development', description: 'A simple weather app with hourly and weekly forecast from the NWS.', image: '/media/project-previews/weather-app.jpg', link: '/webapps/Weather/' },
+                    { id: 2, title: 'Scoreboard for Table Tennis', date: 'July 2025', category: 'Web Development', description: 'A score keeping app made just for table tennis.', image: '/media/project-previews/scoreboard-app.jpg', link: '/webapps/Score Keeper/' },
+                    { id: 3, title: 'Slurm Can', date: 'June 2025', category: '3D Art', description: 'A 3D model of a Slurm can from Futurama, modeled and rendered.', image: '/media/project-previews/slurm-can.webp', link: 'project.html' },
+                    { id: 4, title: 'Red Wine', date: 'May 2025', category: '3D Art', description: 'A realistic render of a glass of red wine.', image: '/media/project-previews/wine.webp', link: 'project.html' },
+                    { id: 5, title: 'Folding Knife', date: 'April 2025', category: '3D Art', description: 'A detailed model of a modern folding knife.', image: '/media/project-previews/folding-knife.webp', link: 'project.html' },
+                    { id: 6, title: 'House Interior', date: 'March 2025', category: '3D Art', description: 'Architectural visualization of a cozy house interior.', image: '/media/project-previews/house-interior.webp', link: 'project.html' },
+                    { id: 7, title: 'Retro Video Game Room', date: 'February 2025', category: '3D Art', description: 'A nostalgic scene of a retro gaming setup.', image: '/media/project-previews/retro-game-room.webp', link: 'project.html' },
+                    { id: 8, title: 'Space Ship Interior', date: 'January 2025', category: '3D Art', description: 'Concept art for the inside of a sci-fi spaceship.', image: '/media/project-previews/spaceship.webp', link: 'project.html' },
+                    { id: 9, title: 'Modern Kitchen', date: 'December 2024', category: '3D Art', description: 'A clean and modern kitchen design visualization.', image: '/media/project-previews/kitchen.webp', link: 'project.html' },
+                    { id: 10, title: 'Retro Game Console', date: 'November 2024', category: '3D Art', description: 'A detailed model of a classic video game console.', image: '/media/project-previews/retro-console.webp', link: 'project.html' },
+                    { id: 11, title: 'VoIP Phone', date: 'October 2024', category: '3D Art', description: 'Product visualization of a VoIP office phone.', image: '/media/project-previews/voip-phone.webp', link: 'project.html' },
+                    { id: 12, title: 'Beach Bird Guy', date: 'September 2024', category: '3D Art', description: 'A stylized 3D character of a person at the beach.', image: '/media/project-previews/beach-bird.webp', link: 'project.html' },
+                    { id: 13, title: 'Robot', date: 'August 2024', category: '3D Art', description: 'A stylized 3D model of a friendly robot.', image: '/media/project-previews/robot.webp', link: 'project.html' },
+                    { id: 14, title: 'The Simpsons TV Room', date: 'July 2024', category: '3D Art', description: 'A 3D recreation of the iconic living room from The Simpsons.', image: '/media/project-previews/simpsons.webp', link: 'project.html' },
+                    { id: 15, title: 'Dingbat Apartment', date: 'June 2024', category: '3D Art', description: 'An architectural render of a stylish dingbat apartment.', image: '/media/project-previews/dingbat-apartment.webp', link: 'project.html' },
+                    { id: 16, title: 'Retro Office', date: 'May 2024', category: '3D Art', description: 'A 3D scene of a vintage-style office.', image: '/media/project-previews/retro-office.webp', link: 'project.html' },
+                    { id: 17, title: 'Office Chair', date: 'April 2024', category: '3D Art', description: 'A visualization of a contemporary office chair.', image: '/media/project-previews/office-chair.webp', link: 'project.html' },
+                    { id: 18, title: 'Keyboard', date: 'March 2024', category: '3D Art', description: 'A detailed 3D model of a mechanical keyboard.', image: '/media/project-previews/keyboard.webp', link: 'project.html' },
+                    { id: 19, title: 'Wristwatch', date: 'February 2024', category: '3D Art', description: 'A realistic product render of a luxury wristwatch.', image: '/media/project-previews/wrist-watch.webp', link: 'project.html' },
+                    { id: 20, title: 'Modern Living Room', date: 'January 2024', category: '3D Art', description: 'A visualization of a modern living room interior.', image: '/media/project-previews/modern-living-room.webp', link: 'project.html' },
+                    { id: 21, title: 'Chess Set', date: 'December 2023', category: '3D Art', description: 'A complete chess set modeled and rendered.', image: '/media/project-previews/chess.webp', link: 'project.html' },
+                    { id: 22, title: 'Bedroom', date: 'November 2023', category: '3D Art', description: 'A 3D render of a cozy bedroom interior.', image: '/media/project-previews/bedroom-interior.webp', link: 'project.html' }
                 ]);
 
                 const filteredPortfolio = computed(() => {
@@ -275,27 +203,12 @@
                     return portfolioItems.value.filter(item => item.category === activeCategory.value);
                 });
 
-                // Scroll animations
-                const handleScrollAnimations = () => {
-                    const elements = document.querySelectorAll('.fade-in');
-                    elements.forEach(el => {
-                        const rect = el.getBoundingClientRect();
-                        if (rect.top < window.innerHeight - 100) {
-                            el.classList.add('visible');
-                        }
-                    });
-                };
-
-                // Lifecycle hooks
                 onMounted(() => {
                     window.addEventListener('scroll', handleScroll);
-                    window.addEventListener('scroll', handleScrollAnimations);
-                    handleScrollAnimations(); // Initial check
                 });
 
                 onUnmounted(() => {
                     window.removeEventListener('scroll', handleScroll);
-                    window.removeEventListener('scroll', handleScrollAnimations);
                 });
 
                 return {
@@ -309,6 +222,30 @@
                 };
             }
         }).mount('#app');
+    </script>
+    
+    <!-- particles.js library -->
+    <script src="https://cdn.jsdelivr.net/npm/particles.js@2.0.0/particles.min.js"></script>
+    
+    <!-- particles.js config -->
+    <script>
+        particlesJS('particles-js', {
+          "particles": {
+            "number": { "value": 60, "density": { "enable": true, "value_area": 800 }},
+            "color": { "value": "#fff" },
+            "shape": { "type": "circle" },
+            "opacity": { "value": 0.8, "random": true },
+            "size": { "value": 3, "random": true },
+            "line_linked": { "enable": true, "distance": 150, "color": "#64ffda", "opacity": 0.2, "width": 1 },
+            "move": { "enable": true, "speed": 1, "direction": "none", "out_mode": "out" }
+          },
+          "interactivity": {
+            "detect_on": "canvas",
+            "events": { "onhover": { "enable": false, "mode": "repulse" }, "resize": true },
+            "modes": { "repulse": { "distance": 100, "duration": 0.4 } }
+          },
+          "retina_detect": true
+        });
     </script>
 
 </body>

@@ -11,98 +11,13 @@
     <!-- Google Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Share+Tech&display=swap" rel="stylesheet">
-    
+    <link href="https://fonts.googleapis.com/css2?family=Abel&family=Bebas+Neue&display=swap" rel="stylesheet">
+      
     <!-- Vue.js -->
     <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
+  
+    <link href="/style.css" rel="stylesheet">
 
-    <style>
-        /* Shared styles from the main portfolio */
-        body {
-            font-family: 'Share Tech', sans-serif;
-            background-color: #121212;
-            color: #E0E0E0;
-            overflow-x: hidden;
-        }
-
-        h1, h2, h3, .nav-link {
-            font-family: 'Share Tech', sans-serif;
-            letter-spacing: 1.5px;
-        }
-
-        .section {
-            padding: 100px 0;
-        }
-
-        .section-title {
-            font-size: 3rem;
-            margin-bottom: 2rem;
-            text-transform: uppercase;
-            color: #FFFFFF;
-        }
-        
-        .btn-primary {
-            background-color: #e73c7e;
-            color: #FFFFFF;
-            font-family: 'Share Tech', sans-serif;
-            padding: 12px 30px;
-            border-radius: 50px;
-            transition: background-color 0.3s ease, transform 0.3s ease;
-            text-transform: uppercase;
-            letter-spacing: 1px;
-        }
-
-        .btn-primary:hover {
-            background-color: #d62c6e;
-            transform: translateY(-3px);
-        }
-        
-        /* Lightbox Styles */
-        .lightbox-overlay {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background-color: rgba(0, 0, 0, 0.85);
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            z-index: 1000;
-            cursor: pointer;
-            transition: opacity 0.3s ease;
-        }
-        .lightbox-content {
-            max-width: 90vw;
-            max-height: 90vh;
-        }
-        .lightbox-content img {
-            width: auto;
-            height: auto;
-            max-width: 100%;
-            max-height: 100%;
-            border-radius: 8px;
-        }
-        .lightbox-close-btn {
-            position: absolute;
-            top: 2rem;
-            right: 2rem;
-            background: none;
-            border: none;
-            color: #fff;
-            font-size: 2.5rem;
-            cursor: pointer;
-            line-height: 1;
-        }
-        .grid-image {
-            cursor: pointer;
-            transition: transform 0.3s ease, opacity 0.3s ease;
-        }
-        .grid-image:hover {
-            transform: scale(1.05);
-            opacity: 0.8;
-        }
-    </style>
 </head>
 <body class="bg-gray-900 text-gray-200">
 
@@ -122,28 +37,29 @@
             <section id="project-details" class="section">
                 <div class="text-center">
                     <h1 class="section-title">Slurm Can</h1>
+                    <!-- Project Metadata -->
+                    <div class="flex justify-center items-center gap-8 md:gap-12 text-gray-400 mb-12">
+                      <div class="flex items-center gap-3">
+                        <!-- Calendar Icon -->
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-pink-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                          <path stroke-linecap="round" stroke-linejoin="round" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                        </svg>
+                        <span class="font-semibold">August 2025</span>
+                      </div>
+                      <div class="flex items-center gap-3">
+                        <!-- Tools Icon -->
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-pink-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                          <path stroke-linecap="round" stroke-linejoin="round" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
+                          <path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                        </svg>
+                        <span class="font-semibold">Blender</span>
+                      </div>
+                    </div>
                     <p class="max-w-3xl mx-auto text-lg leading-relaxed mb-8">
                         This project is a 3D visualization inspired by Slurm, the iconic soda from Futurama. Using Blender, I created a dynamic scene where a Slurm can is dramatically splashed by vibrant green liquid. To achieve a realistic and energetic effect, I leveraged Blender’s fluid simulation tools to model the splash and flow of the liquid, ensuring a natural sense of motion and weight. To enhance the visual impact, I applied studio lighting techniques that highlight the crisp metallic surface of the can and the translucency of the liquid. The bright, polished lighting setup gives the scene a clean, commercial look—similar to modern product photography—while the playful subject matter keeps it fun and eye-catching. This project was a great exercise in combining simulation, lighting, and rendering to produce a lively, high-quality 3D still inspired by pop culture.
                     </p>
                     
-                    <!-- Project Metadata -->
-                    <div class="flex justify-center items-center gap-8 md:gap-12 text-gray-400 mb-12">
-                        <div class="flex items-center gap-3">
-                            <!-- Calendar Icon -->
-                            <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-pink-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-                              <path stroke-linecap="round" stroke-linejoin="round" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
-                            </svg>
-                            <span class="font-semibold">August 2025</span>
-                        </div>
-                        <div class="flex items-center gap-3">
-                            <!-- Tools Icon -->
-                            <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-pink-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-                              <path stroke-linecap="round" stroke-linejoin="round" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
-                              <path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-                            </svg>
-                            <span class="font-semibold">Blender</span>
-                        </div>
-                    </div>
+                    
                 </div>
 
                 <!-- Image Grid -->
