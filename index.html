@@ -92,7 +92,7 @@
 
                 <div class="portfolio-grid">
                     <div v-for="item in filteredPortfolio" :key="item.id" class="portfolio-item">
-                        <a :href="item.link" target="_blank">
+                        <a :href="item.link">
                             <div class="portfolio-image-container">
                                 <div class="portfolio-image" :style="{ backgroundImage: 'url(' + item.image + ')' }"></div>
                             </div>
@@ -105,7 +105,7 @@
                                 <span class="portfolio-category">{{ item.category }}</span>
                             </div>
                             <div class="portfolio-footer">
-                                <a :href="item.link" target="_blank" class="btn-primary view-project-btn">
+                                <a :href="item.link" class="btn-primary view-project-btn">
                                     View Project
                                 </a>
                             </div>
@@ -172,30 +172,222 @@
                 const activeCategory = ref('All');
                 const categories = ['All', 'Web Development', '3D Art'];
                 const portfolioItems = ref([
-                    { id: 1, title: 'Weather App', date: 'August 2025', category: 'Web Development', description: 'A simple weather app with hourly and weekly forecast from the National Weather Service.', image: '/media/project-previews/weather-app.jpg', link: '/webapps/Weather/' },
-                    { id: 2, title: 'Scoreboard for Table Tennis', date: 'August 2025', category: 'Web Development', description: 'A score keeping app made just for table tennis.', image: '/media/project-previews/scoreboard-app.jpg', link: '/webapps/Score Keeper/' },
-                    { id: 3, title: 'Can of Slurm', date: 'August 2025', category: '3D Art', description: 'A 3D model of a can of Slurm from Futurama, splashed with green liquid.', image: '/media/project-previews/slurm-can.webp', link: '/projects/3d-art/slurm-can/' },
-                    { id: 4, title: 'Red Wine', date: 'August 2025', category: '3D Art', description: 'A realistic render of a glass of red wine.', image: '/media/project-previews/wine.webp', link: '/projects/3d-art/wine/' },
-                    { id: 5, title: 'Folding Knife', date: 'August 2025', category: '3D Art', description: 'A detailed model of a modern folding knife.', image: '/media/project-previews/folding-knife.webp', link: '/projects/3d-art/folding-knife/' },
-                    { id: 6, title: 'House Interior', date: 'July 2025', category: '3D Art', description: 'An isometric visualization of a cozy house interior reminiscent of The Sims video game.', image: '/media/project-previews/house-interior.webp', link: '/projects/3d-art/house/' },
-                    { id: 7, title: 'Retro Video Game Room', date: 'June 2025', category: '3D Art', description: 'A nostalgic scene of a retro gaming setup.', image: '/media/project-previews/retro-game-room.webp', link: 'project.html' },
-                    { id: 8, title: 'Space Ship Interior', date: 'May 2025', category: '3D Art', description: 'Concept art for the inside of a sci-fi spaceship.', image: '/media/project-previews/spaceship.webp', link: 'project.html' },
-                    { id: 9, title: 'Modern Kitchen', date: 'May 2025', category: '3D Art', description: 'A clean and modern kitchen design visualization.', image: '/media/project-previews/kitchen.webp', link: 'project.html' },
-                    { id: 10, title: 'Glass Rings', date: 'April 2025', category: '3D Art', description: 'An artistic visualization of glass rings with stylistic lighting.', image: '/media/project-previews/glass-rings.webp', link: 'project.html' },
-                    { id: 10, title: 'Retro Game Console', date: 'March 2025', category: '3D Art', description: 'A detailed model of a retro-inspired handheld game console.', image: '/media/project-previews/retro-console.webp', link: 'project.html' },
-                    { id: 12, title: 'Bird Guy at the Beach', date: 'February 2025', category: '3D Art', description: 'A stylized 3D character of a bird blowing bubbles at the beach.', image: '/media/project-previews/beach-bird.webp', link: 'project.html' },
-                    { id: 11, title: 'VoIP Phone', date: 'January 2025', category: '3D Art', description: 'Product visualization of a VoIP office phone.', image: '/media/project-previews/voip-phone.webp', link: 'project.html' },
-                    { id: 14, title: 'The Simpsons TV Room', date: 'January 2025', category: '3D Art', description: 'A 3D recreation of the iconic living room from The Simpsons.', image: '/media/project-previews/simpsons.webp', link: 'project.html' },
-                    { id: 15, title: 'Dingbat Apartment', date: 'November 2024', category: '3D Art', description: 'An architectural render of a stylish dingbat apartment.', image: '/media/project-previews/dingbat-apartment.webp', link: 'project.html' },
-                    { id: 16, title: 'Retro Office', date: 'October 2024', category: '3D Art', description: 'A 3D scene of a vintage-style office with cubicles and a water cooler.', image: '/media/project-previews/retro-office.webp', link: 'project.html' },
-                    { id: 17, title: 'Office Chair', date: 'September 2024', category: '3D Art', description: 'A visualization of a contemporary office chair.', image: '/media/project-previews/office-chair.webp', link: 'project.html' },
-                    { id: 18, title: 'Keyboard', date: 'September 2024', category: '3D Art', description: 'A detailed 3D model of a mechanical keyboard.', image: '/media/project-previews/keyboard.webp', link: 'project.html' },
-                    { id: 19, title: 'Wristwatch', date: 'August 2024', category: '3D Art', description: 'A realistic product render of a classy wristwatch.', image: '/media/project-previews/wrist-watch.webp', link: 'project.html' },
-                    { id: 21, title: 'Chess Set', date: 'August 2024', category: '3D Art', description: 'A complete chess set modeled and rendered.', image: '/media/project-previews/chess.webp', link: 'project.html' },
-                    { id: 22, title: 'Donut Stack', date: 'June 2024', category: '3D Art', description: 'A realistic stack of donuts with sprinkles.', image: '/media/project-previews/donuts.webp', link: 'project.html' },
-                    { id: 22, title: 'Bedroom', date: 'May 2024', category: '3D Art', description: 'A 3D render of a cozy bedroom interior.', image: '/media/project-previews/bedroom-interior.webp', link: 'project.html' },
-                    { id: 13, title: 'Robot', date: 'March 2024', category: '3D Art', description: 'A stylized 3D model of a friendly robot.', image: '/media/project-previews/robot.webp', link: 'project.html' },
-                    { id: 20, title: 'Modern Living Room', date: 'February 2024', category: '3D Art', description: 'A visualization of a modern living room interior.', image: '/media/project-previews/modern-living-room.webp', link: 'project.html' }
+                  {
+                    id: 1,
+                    title: 'Weather App',
+                    date: 'August 2025',
+                    category: 'Web Development',
+                    description: 'A simple weather app with hourly and weekly forecast from the National Weather Service.',
+                    image: '/media/project-previews/weather-app.jpg',
+                    link: '/webapps/Weather/'
+                  },
+                  {
+                    id: 2,
+                    title: 'Scoreboard for Table Tennis',
+                    date: 'August 2025',
+                    category: 'Web Development',
+                    description: 'A score keeping app made just for table tennis.',
+                    image: '/media/project-previews/scoreboard-app.jpg',
+                    link: '/webapps/Score Keeper/'
+                  },
+                  {
+                    id: 3,
+                    title: 'Can of Slurm',
+                    date: 'August 2025',
+                    category: '3D Art',
+                    description: 'A 3D model of a can of Slurm from Futurama, splashed with green liquid.',
+                    image: '/media/project-previews/slurm-can.webp',
+                    link: '/projects/3d-art/slurm-can/'
+                  },
+                  {
+                    id: 4,
+                    title: 'Red Wine',
+                    date: 'August 2025',
+                    category: '3D Art',
+                    description: 'A realistic render of a glass of red wine.',
+                    image: '/media/project-previews/wine.webp',
+                    link: '/projects/3d-art/wine/'
+                  },
+                  {
+                    id: 5,
+                    title: 'Folding Knife',
+                    date: 'August 2025',
+                    category: '3D Art',
+                    description: 'A detailed model of a modern folding knife.',
+                    image: '/media/project-previews/folding-knife.webp',
+                    link: '/projects/3d-art/folding-knife/'
+                  },
+                  {
+                    id: 6,
+                    title: 'House Interior',
+                    date: 'July 2025',
+                    category: '3D Art',
+                    description: 'An isometric visualization of a cozy house interior reminiscent of The Sims video game.',
+                    image: '/media/project-previews/house-interior.webp',
+                    link: '/projects/3d-art/house/'
+                  },
+                  {
+                    id: 7,
+                    title: 'Retro Video Game Room',
+                    date: 'June 2025',
+                    category: '3D Art',
+                    description: 'A nostalgic scene of a retro gaming setup.',
+                    image: '/media/project-previews/retro-game-room.webp',
+                    link: '/projects/3d-art/old-game-room/'
+                  },
+                  {
+                    id: 8,
+                    title: 'Space Ship Interior',
+                    date: 'May 2025',
+                    category: '3D Art',
+                    description: 'Concept art for the inside of a sci-fi spaceship.',
+                    image: '/media/project-previews/spaceship.webp',
+                    link: '/projects/3d-art/spaceship/'
+                  },
+                  {
+                    id: 9,
+                    title: 'Modern Kitchen',
+                    date: 'May 2025',
+                    category: '3D Art',
+                    description: 'A clean and modern kitchen design visualization.',
+                    image: '/media/project-previews/kitchen.webp',
+                    link: '/projects/3d-art/kitchen/'
+                  },
+                  {
+                    id: 10,
+                    title: 'Glass Rings',
+                    date: 'April 2025',
+                    category: '3D Art',
+                    description: 'An artistic visualization of glass rings with stylistic lighting.',
+                    image: '/media/project-previews/glass-rings.webp',
+                    link: '/projects/3d-art/glass-rings/'
+                  },
+                  {
+                    id: 10,
+                    title: 'Retro Game Console',
+                    date: 'March 2025',
+                    category: '3D Art',
+                    description: 'A detailed model of a retro-inspired handheld game console.',
+                    image: '/media/project-previews/retro-console.webp',
+                    link: '/projects/3d-art/game-console/'
+                  },
+                  {
+                    id: 12,
+                    title: 'Bird Guy at the Beach',
+                    date: 'February 2025',
+                    category: '3D Art',
+                    description: 'A stylized 3D character of a bird blowing bubbles at the beach.',
+                    image: '/media/project-previews/beach-bird.webp',
+                    link: '/projects/3d-art/bird-guy/'
+                  },
+                  {
+                    id: 11,
+                    title: 'VoIP Phone',
+                    date: 'January 2025',
+                    category: '3D Art',
+                    description: 'Product visualization of a VoIP office phone.',
+                    image: '/media/project-previews/voip-phone.webp',
+                    link: '/projects/3d-art/voip-phone/'
+                  },
+                  {
+                    id: 14,
+                    title: 'The Simpsons TV Room',
+                    date: 'January 2025',
+                    category: '3D Art',
+                    description: 'A 3D recreation of the iconic living room from The Simpsons.',
+                    image: '/media/project-previews/simpsons.webp',
+                    link: '/projects/3d-art/simpsons/'
+                  },
+                  {
+                    id: 15,
+                    title: 'Dingbat Apartment',
+                    date: 'November 2024',
+                    category: '3D Art',
+                    description: 'An architectural render of a stylish dingbat apartment.',
+                    image: '/media/project-previews/dingbat-apartment.webp',
+                    link: '/projects/3d-art/dingbat/'
+                  },
+                  {
+                    id: 16,
+                    title: 'Retro Office',
+                    date: 'October 2024',
+                    category: '3D Art',
+                    description: 'A 3D scene of a vintage-style office with cubicles and a water cooler.',
+                    image: '/media/project-previews/retro-office.webp',
+                    link: '/projects/3d-art/retro-office/'
+                  },
+                  {
+                    id: 17,
+                    title: 'Office Chair',
+                    date: 'September 2024',
+                    category: '3D Art',
+                    description: 'A visualization of a contemporary office chair.',
+                    image: '/media/project-previews/office-chair.webp',
+                    link: '/projects/3d-art/office-chair/'
+                  },
+                  {
+                    id: 18,
+                    title: 'Keyboard',
+                    date: 'September 2024',
+                    category: '3D Art',
+                    description: 'A detailed 3D model of a mechanical keyboard.',
+                    image: '/media/project-previews/keyboard.webp',
+                    link: '/projects/3d-art/keyboard/'
+                  },
+                  {
+                    id: 19,
+                    title: 'Wristwatch',
+                    date: 'August 2024',
+                    category: '3D Art',
+                    description: 'A realistic product render of a classy wristwatch.',
+                    image: '/media/project-previews/wrist-watch.webp',
+                    link: '/projects/3d-art/wristwatch/'
+                  },
+                  {
+                    id: 21,
+                    title: 'Chess Set',
+                    date: 'August 2024',
+                    category: '3D Art',
+                    description: 'A complete chess set modeled and rendered.',
+                    image: '/media/project-previews/chess.webp',
+                    link: '/projects/3d-art/chess/'
+                  },
+                  {
+                    id: 22,
+                    title: 'Donut Stack',
+                    date: 'June 2024',
+                    category: '3D Art',
+                    description: 'A realistic stack of donuts with sprinkles.',
+                    image: '/media/project-previews/donuts.webp',
+                    link: '/projects/3d-art/donut/'
+                  },
+                  {
+                    id: 22,
+                    title: 'Bedroom',
+                    date: 'May 2024',
+                    category: '3D Art',
+                    description: 'A 3D render of a cozy bedroom interior.',
+                    image: '/media/project-previews/bedroom-interior.webp',
+                    link: '/projects/3d-art/bedroom/'
+                  },
+                  {
+                    id: 13,
+                    title: 'Robot',
+                    date: 'March 2024',
+                    category: '3D Art',
+                    description: 'A stylized 3D model of a friendly robot.',
+                    image: '/media/project-previews/robot.webp',
+                    link: '/projects/3d-art/robot/'
+                  },
+                  {
+                    id: 20,
+                    title: 'Modern Living Room',
+                    date: 'February 2024',
+                    category: '3D Art',
+                    description: 'A visualization of a modern living room interior.',
+                    image: '/media/project-previews/modern-living-room.webp',
+                    link: '/projects/3d-art/living-room/'
+                  }
                 ]);
 
                 const filteredPortfolio = computed(() => {

@@ -1,0 +1,213 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Robot - Andranik Shirinian</title>
+    
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Abel&family=Bebas+Neue&display=swap" rel="stylesheet">
+
+    <!-- Vue.js -->
+    <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
+
+    
+    <link href="/page-style.css" rel="stylesheet">
+    
+</head>
+<body>
+    <div id="app">
+        <!-- Header & Navigation -->
+        <header class="header" :class="{ 'scrolled': scrolled }">
+            <div class="container header-content">
+                <a href="/" class="logo">AS</a>
+                <nav class="main-nav">
+                    <a v-for="link in navLinks" :key="link.id" :href="link.url" class="nav-link">{{ link.text }}</a>
+                </nav>
+                <button @click="mobileMenuOpen = !mobileMenuOpen" class="mobile-menu-button" :class="{ 'open': mobileMenuOpen }">
+                    <span class="hamburger-line top"></span>
+                    <span class="hamburger-line middle"></span>
+                    <span class="hamburger-line bottom"></span>
+                </button>
+            </div>
+            <!-- Mobile Menu -->
+            <transition name="slide-down">
+                <div v-if="mobileMenuOpen" class="mobile-nav">
+                     <a v-for="link in navLinks" :key="link.id" :href="link.url" @click="mobileMenuOpen = false" class="nav-link">{{ link.text }}</a>
+                </div>
+            </transition>
+        </header>
+
+        <main>
+            <section class="project-section">
+                <div class="container">
+                    <header class="project-header">
+                        <h1 class="project-title">Robot</h1>
+                        <div class="project-details">
+                            <div class="detail-item">
+                                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M6.75 3v2.25M17.25 3v2.25M3 18.75V7.5a2.25 2.25 0 012.25-2.25h13.5A2.25 2.25 0 0121 7.5v11.25m-18 0A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75m-18 0h18M-4.5 12h22.5" /></svg>
+                                <span>March 2024</span>
+                            </div>
+                            <div class="detail-item">
+                                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M3.75 6A2.25 2.25 0 016 3.75h2.25A2.25 2.25 0 0110.5 6v2.25a2.25 2.25 0 01-2.25 2.25H6a2.25 2.25 0 01-2.25-2.25V6zM3.75 15.75A2.25 2.25 0 016 13.5h2.25a2.25 2.25 0 012.25 2.25V18a2.25 2.25 0 01-2.25 2.25H6A2.25 2.25 0 013.75 18v-2.25zM13.5 6a2.25 2.25 0 012.25-2.25H18A2.25 2.25 0 0120.25 6v2.25A2.25 2.25 0 0118 10.5h-2.25a2.25 2.25 0 01-2.25-2.25V6zM13.5 15.75a2.25 2.25 0 012.25-2.25H18a2.25 2.25 0 012.25 2.25V18A2.25 2.25 0 0118 20.25h-2.25A2.25 2.25 0 0113.5 18v-2.25z" /></svg>
+                                <span>Blender</span>
+                            </div>
+                        </div>
+                        <p class="project-description">
+                            This Blender project was a dive into creating a space that feels utterly lived-in and full of history: the quintessential old-school game room. I wanted to capture that distinct grungy, cozy, and slightly forgotten atmosphere where countless hours were spent.</p>
+                            
+                        <p class="project-description">The challenge was in the details – not just modeling the core furniture like the chunky TV, and the coffee table, but in meticulously texturing everything to show its age. From the peeling wallpaper and the dusty CRT screen playing a PS2 classic, to the stack of games and old magazines, every element contributes to the narrative. The lighting, with its distinct shadows from the window blinds, really ties the whole nostalgic vibe together. This piece was a joy to create, focusing on texture work and environmental storytelling to build a believable, atmospheric scene.</p>
+                    </header>
+                    <div class="image-grid">
+                        <div class="grid-item" data-type="image" style="background-image: url('render-1.jpg')" data-src="render-1.jpg">
+                            <h3 class="grid-item-title">Render 1</h3>
+                        </div>
+                        <div class="grid-item" data-type="image" style="background-image: url('render-2.png')" data-src="render-2.png">
+                            <h3 class="grid-item-title">Render 2</h3>
+                        </div>
+<!--                     <div class="grid-item" data-type="video" data-src="https://test-videos.co.uk/vids/bigbuckbunny/mp4/h264/360/Big_Buck_Bunny_360_10s_1MB.mp4">-->
+<!--                        <video autoplay loop muted playsinline poster="https://placehold.co/600x400/0a192f/64ffda?text=Video+Preview">-->
+<!--                            <source src="https://test-videos.co.uk/vids/bigbuckbunny/mp4/h264/360/Big_Buck_Bunny_360_10s_1MB.mp4" type="video/mp4">-->
+<!--                            <source src="https://test-videos.co.uk/vids/bigbuckbunny/webm/360/Big_Buck_Bunny_360_10s_1MB.webm" type="video/webm">-->
+<!--                        </video>-->
+<!--                        <h3 class="grid-item-title">Process Video</h3>-->
+<!--                    </div>-->
+                    </div>
+                </div>
+            </section>
+        </main>
+
+        <!-- Lightbox container -->
+        <div id="lightbox" class="lightbox">
+            <span class="lightbox-close">&times;</span>
+            <img class="lightbox-content" id="lightbox-img">
+            <video class="lightbox-content" id="lightbox-video" controls></video>
+            <button class="lightbox-nav lightbox-prev">
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor" viewBox="0 0 16 16"><path fill-rule="evenodd" d="M11.354 1.646a.5.5 0 0 1 0 .708L5.707 8l5.647 5.646a.5.5 0 0 1-.708.708l-6-6a.5.5 0 0 1 0-.708l6-6a.5.5 0 0 1 .708 0z"/></svg>
+            </button>
+            <button class="lightbox-nav lightbox-next">
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor" viewBox="0 0 16 16"><path fill-rule="evenodd" d="M4.646 1.646a.5.5 0 0 1 .708 0l6 6a.5.5 0 0 1 0 .708l-6 6a.5.5 0 0 1-.708-.708L10.293 8 4.646 2.354a.5.5 0 0 1 0-.708z"/></svg>
+            </button>
+        </div>
+
+        <!-- Footer -->
+        <footer class="footer">
+            <p>&copy; {{ new Date().getFullYear() }} Andranik Shirinian. All Rights Reserved.</p>
+        </footer>
+    </div>
+
+    <script>
+        const { createApp, ref, onMounted, onUnmounted } = Vue;
+
+        createApp({
+            setup() {
+                const scrolled = ref(false);
+                const mobileMenuOpen = ref(false);
+                const navLinks = ref([
+                    { id: 'portfolio', text: 'Back to Portfolio', url: '/' },
+                    { id: 'contact', text: 'Contact', url: '/#contact' }
+                ]);
+
+                const handleScroll = () => {
+                    scrolled.value = window.scrollY > 50;
+                };
+
+                onMounted(() => {
+                    window.addEventListener('scroll', handleScroll);
+                });
+
+                onUnmounted(() => {
+                    window.removeEventListener('scroll', handleScroll);
+                });
+
+                return {
+                    scrolled,
+                    mobileMenuOpen,
+                    navLinks,
+                };
+            }
+        }).mount('#app');
+        
+        // Lightbox script
+        document.addEventListener('DOMContentLoaded', (event) => {
+            const lightbox = document.getElementById('lightbox');
+            const lightboxImg = document.getElementById('lightbox-img');
+            const lightboxVideo = document.getElementById('lightbox-video');
+            const gridItems = Array.from(document.querySelectorAll('.grid-item'));
+            const closeBtn = document.querySelector('.lightbox-close');
+            const prevBtn = document.querySelector('.lightbox-prev');
+            const nextBtn = document.querySelector('.lightbox-next');
+            let currentIndex = 0;
+
+            const showItem = (index) => {
+                const item = gridItems[index];
+                const itemType = item.dataset.type || 'image';
+                const itemSrc = item.dataset.src;
+                currentIndex = index;
+
+                if (itemType === 'video') {
+                    lightboxImg.style.display = 'none';
+                    lightboxVideo.style.display = 'block';
+                    if (lightboxVideo.src !== itemSrc) {
+                        lightboxVideo.src = itemSrc;
+                    }
+                    lightboxVideo.play();
+                } else {
+                    lightboxVideo.style.display = 'none';
+                    lightboxVideo.pause();
+                    lightboxImg.style.display = 'block';
+                    lightboxImg.src = itemSrc;
+                }
+            };
+            
+            gridItems.forEach((item, index) => {
+                item.addEventListener('click', () => {
+                    lightbox.style.display = 'flex';
+                    showItem(index);
+                });
+            });
+
+            const closeLightbox = () => {
+                lightbox.style.display = 'none';
+                lightboxVideo.pause();
+                lightboxVideo.src = "";
+            }
+
+            const showNextItem = () => {
+                const nextIndex = (currentIndex + 1) % gridItems.length;
+                showItem(nextIndex);
+            };
+
+            const showPrevItem = () => {
+                const prevIndex = (currentIndex - 1 + gridItems.length) % gridItems.length;
+                showItem(prevIndex);
+            };
+
+            closeBtn.addEventListener('click', closeLightbox);
+            prevBtn.addEventListener('click', showPrevItem);
+            nextBtn.addEventListener('click', showNextItem);
+
+            lightbox.addEventListener('click', (e) => {
+                if (e.target === lightbox) {
+                    closeLightbox();
+                }
+            });
+            
+            document.addEventListener('keydown', (e) => {
+                if(lightbox.style.display === 'flex') {
+                    if (e.key === 'ArrowRight') {
+                        showNextItem();
+                    } else if (e.key === 'ArrowLeft') {
+                        showPrevItem();
+                    } else if (e.key === 'Escape') {
+                        closeLightbox();
+                    }
+                }
+            });
+        });
+
+    </script>
+</body>
+</html>
