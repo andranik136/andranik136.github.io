@@ -1,0 +1,484 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>House Interior - Andranik Shirinian</title>
+    
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Abel&family=Bebas+Neue&display=swap" rel="stylesheet">
+
+    <!-- Vue.js -->
+    <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
+
+    <style>
+        /* CSS Reset */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        /* Base Styles */
+        body {
+            font-family: 'Abel', sans-serif;
+            background-color: #0a192f; /* Navy Blue */
+            color: #ccd6f6; /* Light Slate */
+            overflow-x: hidden;
+            line-height: 1.6;
+        }
+
+        h1, h2, h3 {
+            font-family: 'Bebas Neue', sans-serif;
+            letter-spacing: 1.5px;
+            color: #FFFFFF;
+        }
+
+        img, video {
+            max-width: 100%;
+            height: auto;
+            display: block;
+        }
+
+        a {
+            color: #64ffda;
+            text-decoration: none;
+            transition: color 0.3s ease;
+        }
+        
+        /* Container */
+        .container {
+            max-width: 1100px;
+            margin: 0 auto;
+            padding: 0 24px;
+        }
+
+        /* Header */
+        .header {
+            position: fixed;
+            width: 100%;
+            z-index: 30;
+            top: 0;
+            background-color: rgba(10, 25, 47, 0.85);
+            backdrop-filter: blur(10px);
+            transition: all 0.3s ease;
+        }
+        .header.scrolled {
+            box-shadow: 0 10px 30px -10px rgba(0,0,0,0.7);
+        }
+        .header-content {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 1rem;
+        }
+        .logo {
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: #FFFFFF;
+        }
+        .main-nav {
+            display: none;
+        }
+        .nav-link {
+            font-family: 'Bebas Neue', sans-serif;
+            letter-spacing: 1.5px;
+            color: #FFFFFF;
+            margin: 0 1rem;
+        }
+        .nav-link:hover {
+            color: #64ffda;
+        }
+        .mobile-menu-button {
+            display: block;
+            background: none;
+            border: none;
+            color: #FFFFFF;
+            cursor: pointer;
+        }
+        .mobile-nav {
+            background-color: rgba(10, 25, 47, 0.95);
+        }
+        .mobile-nav a {
+            display: block;
+            padding: 0.75rem 1.5rem;
+            font-size: 0.875rem;
+            color: #FFFFFF;
+        }
+        .mobile-nav a:hover {
+            background-color: #112240;
+        }
+        
+        /* Main Project Content */
+        .project-section {
+            padding-top: 120px; /* Offset for fixed header */
+            padding-bottom: 100px;
+        }
+
+        .project-header {
+            text-align: center;
+            margin-bottom: 3rem;
+        }
+        .project-title {
+            font-size: 3.5rem;
+            margin-bottom: 1rem;
+        }
+        .project-description {
+            font-size: 1.25rem;
+            max-width: 700px;
+            margin: 0 auto;
+            color: #a8b2d1;
+        }
+        .project-details {
+            display: flex;
+            justify-content: center;
+            gap: 2rem;
+            margin-bottom: 2rem;
+            font-family: 'Abel', sans-serif;
+            color: #8892b0;
+        }
+        .detail-item {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        .detail-item svg {
+            width: 20px;
+            height: 20px;
+            color: #64ffda;
+        }
+
+        /* Image Grid */
+        .image-grid {
+            margin-top: 3rem;
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 1.5rem;
+        }
+        .grid-item {
+            position: relative;
+            height: 250px;
+            background-size: cover;
+            background-position: center;
+            background-repeat: no-repeat;
+            background-color: #112240;
+            border-radius: 0.5rem;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            transition: box-shadow 0.3s ease;
+            cursor: pointer;
+            overflow: hidden;
+        }
+        .grid-item video {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            position: absolute;
+            top: 0;
+            left: 0;
+            z-index: 1;
+        }
+        .grid-item-title {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            color: #ffffff;
+            font-size: 1.75rem;
+            opacity: 0;
+            transition: opacity 0.3s ease 0.1s;
+            z-index: 3;
+            text-align: center;
+            width: 100%;
+            padding: 0 1rem;
+        }
+        .grid-item::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(100, 255, 218, 0.9);
+            transform: translateX(-101%);
+            transition: transform 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+            z-index: 2;
+        }
+        .grid-item:hover {
+            box-shadow: 0 10px 15px -3px rgba(0,0,0,0.2);
+        }
+        .grid-item:hover::after {
+            transform: translateX(0);
+        }
+        .grid-item:hover .grid-item-title {
+            opacity: 1;
+        }
+
+
+        /* Lightbox */
+        .lightbox {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            overflow: auto;
+            background-color: rgba(10, 25, 47, 0.9);
+            backdrop-filter: blur(5px);
+            align-items: center;
+            justify-content: center;
+        }
+        .lightbox-content {
+            margin: auto;
+            display: block;
+            max-width: 90vw;
+            max-height: 90vh;
+        }
+        #lightbox-video {
+            display: none;
+        }
+        .lightbox-close {
+            position: absolute;
+            top: 25px;
+            right: 35px;
+            color: #fff;
+            font-size: 40px;
+            font-weight: bold;
+            transition: 0.3s;
+            cursor: pointer;
+        }
+        .lightbox-nav {
+            position: absolute;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 44px;
+            height: 44px;
+            background: rgba(0,0,0,0.3);
+            color: white;
+            border: none;
+            cursor: pointer;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: background 0.3s ease;
+        }
+        .lightbox-nav:hover {
+            background: rgba(0,0,0,0.6);
+        }
+        .lightbox-prev {
+            left: 15px;
+        }
+        .lightbox-next {
+            right: 15px;
+        }
+
+
+        /* Footer */
+        .footer {
+            background-color: #0a192f;
+            padding: 1.5rem 0;
+            text-align: center;
+            color: #8892b0;
+            font-family: 'Abel', sans-serif;
+            border-top: 1px solid #112240;
+        }
+
+        /* Responsive Media Queries */
+        @media (min-width: 768px) {
+            .main-nav { display: flex; }
+            .mobile-menu-button { display: none; }
+            .project-title { font-size: 4.5rem; }
+        }
+    </style>
+</head>
+<body>
+    <div id="app">
+        <!-- Header & Navigation -->
+        <header class="header" :class="{ 'scrolled': scrolled }">
+            <div class="container header-content">
+                <a href="/" class="logo">AS</a>
+                <nav class="main-nav">
+                    <a v-for="link in navLinks" :key="link.id" :href="link.url" class="nav-link">{{ link.text }}</a>
+                </nav>
+                <button @click="mobileMenuOpen = !mobileMenuOpen" class="mobile-menu-button">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16m-7 6h7"></path></svg>
+                </button>
+            </div>
+            <!-- Mobile Menu -->
+            <div v-show="mobileMenuOpen" class="mobile-nav">
+                 <a v-for="link in navLinks" :key="link.id" :href="link.url" class="nav-link">{{ link.text }}</a>
+            </div>
+        </header>
+
+        <main>
+            <section class="project-section">
+                <div class="container">
+                    <header class="project-header">
+                        <h1 class="project-title">House Interior</h1>
+                        <div class="project-details">
+                            <div class="detail-item">
+                                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M6.75 3v2.25M17.25 3v2.25M3 18.75V7.5a2.25 2.25 0 012.25-2.25h13.5A2.25 2.25 0 0121 7.5v11.25m-18 0A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75m-18 0h18M-4.5 12h22.5" /></svg>
+                                <span>July 2025</span>
+                            </div>
+                            <div class="detail-item">
+                                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M3.75 6A2.25 2.25 0 016 3.75h2.25A2.25 2.25 0 0110.5 6v2.25a2.25 2.25 0 01-2.25 2.25H6a2.25 2.25 0 01-2.25-2.25V6zM3.75 15.75A2.25 2.25 0 016 13.5h2.25a2.25 2.25 0 012.25 2.25V18a2.25 2.25 0 01-2.25 2.25H6A2.25 2.25 0 013.75 18v-2.25zM13.5 6a2.25 2.25 0 012.25-2.25H18A2.25 2.25 0 0120.25 6v2.25A2.25 2.25 0 0118 10.5h-2.25a2.25 2.25 0 01-2.25-2.25V6zM13.5 15.75a2.25 2.25 0 012.25-2.25H18a2.25 2.25 0 012.25 2.25V18A2.25 2.25 0 0118 20.25h-2.25A2.25 2.25 0 0113.5 18v-2.25z" /></svg>
+                                <span>Blender</span>
+                            </div>
+                        </div>
+                        <p class="project-description">
+                            This architectural visualization was an exercise in precision, scale, and data translation. The challenge was to convert a raw LiDAR scan of a house into a clean, navigable 3D model. As one of the largest projects I've undertaken, it required careful management of complex geometry and a methodical approach to modeling.</p>
+                            
+                        <p class="project-description">Using the point cloud data as a blueprint in Blender, I constructed the entire building shell and all interior walls, ensuring every measurement was true to the real-world structure. This project showcases a professional workflow for creating accurate architectural assets from scan data, demonstrating skills in hard-surface modeling, spatial interpretation, and large-scale scene management.</p>
+                    </header>
+                    <div class="image-grid">
+                        <div class="grid-item" data-type="image" style="background-image: url('render.jpg')" data-src="render.jpg">
+                            <h3 class="grid-item-title">Final Render</h3>
+                        </div>
+                         <div class="grid-item" data-type="video" data-src="draft-flythrough.mp4">
+                            <video autoplay loop muted playsinline poster="/media/project-preview/house-interior.webp">
+                                <source src="draft-flythrough.mp4" type="video/mp4">
+                                <source src="draft-flythrough.webm" type="video/webm">
+                            </video>
+                            <h3 class="grid-item-title">Process Video</h3>
+                        </div>
+                    </div>
+                </div>
+            </section>
+        </main>
+
+        <!-- Lightbox container -->
+        <div id="lightbox" class="lightbox">
+            <span class="lightbox-close">&times;</span>
+            <img class="lightbox-content" id="lightbox-img">
+            <video class="lightbox-content" id="lightbox-video" controls></video>
+            <button class="lightbox-nav lightbox-prev">
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor" viewBox="0 0 16 16"><path fill-rule="evenodd" d="M11.354 1.646a.5.5 0 0 1 0 .708L5.707 8l5.647 5.646a.5.5 0 0 1-.708.708l-6-6a.5.5 0 0 1 0-.708l6-6a.5.5 0 0 1 .708 0z"/></svg>
+            </button>
+            <button class="lightbox-nav lightbox-next">
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor" viewBox="0 0 16 16"><path fill-rule="evenodd" d="M4.646 1.646a.5.5 0 0 1 .708 0l6 6a.5.5 0 0 1 0 .708l-6 6a.5.5 0 0 1-.708-.708L10.293 8 4.646 2.354a.5.5 0 0 1 0-.708z"/></svg>
+            </button>
+        </div>
+
+        <!-- Footer -->
+        <footer class="footer">
+            <p>&copy; {{ new Date().getFullYear() }} Andranik Shirinian. All Rights Reserved.</p>
+        </footer>
+    </div>
+
+    <script>
+        const { createApp, ref, onMounted, onUnmounted } = Vue;
+
+        createApp({
+            setup() {
+                const scrolled = ref(false);
+                const mobileMenuOpen = ref(false);
+                const navLinks = ref([
+                    { id: 'portfolio', text: 'Back to Portfolio', url: '/' },
+                    { id: 'contact', text: 'Contact', url: '/#contact' }
+                ]);
+
+                const handleScroll = () => {
+                    scrolled.value = window.scrollY > 50;
+                };
+
+                onMounted(() => {
+                    window.addEventListener('scroll', handleScroll);
+                });
+
+                onUnmounted(() => {
+                    window.removeEventListener('scroll', handleScroll);
+                });
+
+                return {
+                    scrolled,
+                    mobileMenuOpen,
+                    navLinks,
+                };
+            }
+        }).mount('#app');
+        
+        // Lightbox script
+        document.addEventListener('DOMContentLoaded', (event) => {
+            const lightbox = document.getElementById('lightbox');
+            const lightboxImg = document.getElementById('lightbox-img');
+            const lightboxVideo = document.getElementById('lightbox-video');
+            const gridItems = Array.from(document.querySelectorAll('.grid-item'));
+            const closeBtn = document.querySelector('.lightbox-close');
+            const prevBtn = document.querySelector('.lightbox-prev');
+            const nextBtn = document.querySelector('.lightbox-next');
+            let currentIndex = 0;
+
+            const showItem = (index) => {
+                const item = gridItems[index];
+                const itemType = item.dataset.type || 'image';
+                const itemSrc = item.dataset.src;
+                currentIndex = index;
+
+                if (itemType === 'video') {
+                    lightboxImg.style.display = 'none';
+                    lightboxVideo.style.display = 'block';
+                    if (lightboxVideo.src !== itemSrc) {
+                        lightboxVideo.src = itemSrc;
+                    }
+                    lightboxVideo.play();
+                } else {
+                    lightboxVideo.style.display = 'none';
+                    lightboxVideo.pause();
+                    lightboxImg.style.display = 'block';
+                    lightboxImg.src = itemSrc;
+                }
+            };
+            
+            gridItems.forEach((item, index) => {
+                item.addEventListener('click', () => {
+                    lightbox.style.display = 'flex';
+                    showItem(index);
+                });
+            });
+
+            const closeLightbox = () => {
+                lightbox.style.display = 'none';
+                lightboxVideo.pause();
+                lightboxVideo.src = "";
+            }
+
+            const showNextItem = () => {
+                const nextIndex = (currentIndex + 1) % gridItems.length;
+                showItem(nextIndex);
+            };
+
+            const showPrevItem = () => {
+                const prevIndex = (currentIndex - 1 + gridItems.length) % gridItems.length;
+                showItem(prevIndex);
+            };
+
+            closeBtn.addEventListener('click', closeLightbox);
+            prevBtn.addEventListener('click', showPrevItem);
+            nextBtn.addEventListener('click', showNextItem);
+
+            lightbox.addEventListener('click', (e) => {
+                if (e.target === lightbox) {
+                    closeLightbox();
+                }
+            });
+            
+            document.addEventListener('keydown', (e) => {
+                if(lightbox.style.display === 'flex') {
+                    if (e.key === 'ArrowRight') {
+                        showNextItem();
+                    } else if (e.key === 'ArrowLeft') {
+                        showPrevItem();
+                    } else if (e.key === 'Escape') {
+                        closeLightbox();
+                    }
+                }
+            });
+        });
+
+    </script>
+</body>
+</html>
