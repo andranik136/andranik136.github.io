@@ -26,7 +26,7 @@ img {
 }
 
 a {
-    color: #64ffda;
+    color: #00dbff;
     text-decoration: none;
     transition: color 0.3s ease;
 }
@@ -79,7 +79,7 @@ a {
     margin: 0 1rem;
 }
 .nav-link:hover {
-    color: #64ffda;
+    color: #00dbff;
 }
 .mobile-menu-button {
     display: block; /* Shown on mobile */
@@ -103,7 +103,7 @@ a {
 
 /* Hero Section */
 .hero-section {
-    background: radial-gradient(circle, #00b386, #0A192F);
+    background: radial-gradient(circle, #00dbff, #0a192f);
     background-size: 400% 400%;
     animation: gradientAnimation 15s ease infinite;
     height: 100vh;
@@ -203,7 +203,7 @@ a {
     align-items: center;
 }
 .skills-list svg {
-    color: #64ffda;
+    color: #00dbff;
     margin-right: 0.75rem;
     width: 16px;
     height: 16px;
@@ -214,7 +214,7 @@ a {
     height: 150px;
     border-radius: 50%;
     margin: 0 0 1.5rem;
-    border: 2px solid #64ffda;
+    border: 2px solid #00dbff;
     float: left;
     margin-right: 1.5rem;
     margin-bottom: 0.5rem;
@@ -239,7 +239,7 @@ a {
     border: none;
     font-family: 'Abel', sans-serif;
     background-color: #112240;
-    color: #64ffda;
+    color: #00dbff;
     position: relative;
     overflow: hidden;
     z-index: 1;
@@ -252,7 +252,7 @@ a {
     left: 0;
     width: 100%;
     height: 100%;
-    background-color: #64ffda;
+    background-color: #00dbff;
     transform: translateX(-101%);
     transition: transform 0.4s cubic-bezier(0.77, 0, 0.175, 1);
     z-index: -1;
@@ -328,7 +328,7 @@ a {
 .portfolio-category {
     display: inline-block;
     background-color: #0a192f;
-    color: #64ffda;
+    color: #00dbff;
     font-size: 0.75rem;
     font-weight: 600;
     padding: 0.25rem 0.625rem;
@@ -360,11 +360,11 @@ a {
 .btn-primary {
     display: inline-block;
     background-color: transparent;
-    color: #64ffda;
+    color: #00dbff;
     font-family: 'Bebas Neue', sans-serif;
     padding: 0.75rem 1.875rem;
     border-radius: 4px;
-    border: 1px solid #64ffda;
+    border: 1px solid #00dbff;
     text-transform: uppercase;
     letter-spacing: 1px;
     cursor: pointer;
@@ -380,7 +380,7 @@ a {
     left: 0;
     width: 100%;
     height: 100%;
-    background-color: rgba(100, 255, 218, 0.1);
+    background-color: rgb(100 216 255 / 10%);
     transform: translateX(-101%);
     transition: transform 0.4s cubic-bezier(0.77, 0, 0.175, 1);
     z-index: -1;

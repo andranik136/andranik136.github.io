@@ -27,7 +27,7 @@ img, video {
 }
 
 a {
-    color: #64ffda;
+    color: #00dbff;
     text-decoration: none;
     transition: color 0.3s ease;
 }
@@ -74,7 +74,7 @@ a {
     margin: 0 1rem;
 }
 .nav-link:hover {
-    color: #64ffda;
+    color: #00dbff;
 }
 .mobile-menu-button {
     display: block;
@@ -170,6 +170,7 @@ a {
     font-size: 1.25rem;
     max-width: 700px;
     margin: 0 auto;
+    margin-bottom: 15px;
     color: #a8b2d1;
 }
 .project-details {
@@ -188,7 +189,7 @@ a {
 .detail-item svg {
     width: 20px;
     height: 20px;
-    color: #64ffda;
+    color: #00dbff;
 }
 
 /* Image Grid */
@@ -241,7 +242,7 @@ a {
     left: 0;
     width: 100%;
     height: 100%;
-    background-color: rgba(100, 255, 218, 0.9);
+    background-color: rgb(100 222 255 / 90%);
     transform: translateX(-101%);
     transition: transform 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
     z-index: 2;
