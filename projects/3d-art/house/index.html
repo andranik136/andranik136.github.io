@@ -9,7 +9,8 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Abel&family=Bebas+Neue&display=swap" rel="stylesheet">
-
+    
+    <link rel="icon" href="/favicon.png" type="image/png">
     <!-- Vue.js -->
     <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
 
@@ -21,7 +22,7 @@
         <!-- Header & Navigation -->
         <header class="header" :class="{ 'scrolled': scrolled }">
             <div class="container header-content">
-                <a href="/" class="logo">AS</a>
+                <a href="/" class="logo">Andranik Shirinian</a>
                 <nav class="main-nav">
                     <a v-for="link in navLinks" :key="link.id" :href="link.url" class="nav-link">{{ link.text }}</a>
                 </nav>
