@@ -103,9 +103,9 @@ a {
 
 /* Hero Section */
 .hero-section {
-    background: radial-gradient(circle, #64ffda, #0A192F);
+    background: radial-gradient(circle, #00b386, #0A192F);
     background-size: 400% 400%;
-    animation: gradientAnimation 10s ease infinite;
+    animation: gradientAnimation 15s ease infinite;
     height: 100vh;
     display: flex;
     align-items: center;
