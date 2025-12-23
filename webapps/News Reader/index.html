@@ -1,0 +1,596 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>The Daily Chronicle</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Chomsky&family=Frank+Ruhl+Libre:wght@300;400;500;700&family=Playfair+Display:ital,wght@0,400;0,700;0,900;1,400&family=Roboto+Condensed:wght@300;400;700&display=swap"
+        rel="stylesheet">
+    <style>
+        :root {
+            --paper-bg: #fdfbf7;
+            --ink-color: #2a2a2a;
+            --accent-color: #8b0000;
+            --border-color: #dcdcdc;
+            --secondary-text: #555;
+            --font-headline: 'Playfair Display', serif;
+            --font-body: 'Frank Ruhl Libre', serif;
+            --font-meta: 'Roboto Condensed', sans-serif;
+            --sidebar-width: 250px;
+        }
+
+        /* Reset & Base */
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            background-color: #e0e0e0;
+            /* Desk background */
+            margin: 0;
+            padding: 0;
+            font-family: var(--font-body);
+            color: var(--ink-color);
+            height: 100vh;
+            display: flex;
+            justify-content: center;
+            overflow: hidden;
+        }
+
+        /* Layout Container */
+        .app-container {
+            display: flex;
+            width: 100%;
+            max-width: 1600px;
+            height: 100vh;
+            background-color: var(--paper-bg);
+            box-shadow: 0 0 50px rgba(0, 0, 0, 0.2);
+        }
+
+        /* Sidebar Styles */
+        .sidebar {
+            width: var(--sidebar-width);
+            border-right: 1px solid var(--border-color);
+            /* Single thin line */
+            padding: 2rem 1.5rem;
+            display: flex;
+            flex-direction: column;
+            background-color: #faf8f5;
+        }
+
+        .sidebar-header {
+            font-family: var(--font-headline);
+            font-size: 1.2rem;
+            font-weight: 700;
+            margin-bottom: 2rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            border-bottom: 2px solid var(--ink-color);
+            padding-bottom: 0.5rem;
+        }
+
+        .nav-list {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+
+        .nav-item {
+            margin-bottom: 0.5rem;
+        }
+
+        .nav-btn {
+            background: none;
+            border: none;
+            width: 100%;
+            text-align: left;
+            padding: 0.75rem 0;
+            font-family: var(--font-meta);
+            font-size: 1.1rem;
+            font-weight: 700;
+            /* Bold for categories */
+            color: var(--secondary-text);
+            cursor: pointer;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            border-bottom: 1px solid transparent;
+            transition: all 0.2s ease;
+        }
+
+        .nav-btn:hover,
+        .nav-btn.active {
+            color: var(--ink-color);
+            text-decoration: underline;
+            /* Classic link style */
+        }
+
+        .nav-btn.active {
+            font-weight: 900;
+        }
+
+
+        /* Main Content "The Newspaper" */
+        .main-content {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            height: 100%;
+            overflow-y: auto;
+            /* Scrollable paper */
+            padding: 0 2rem 2rem 2rem;
+        }
+
+        /* Newspaper Header */
+        .paper-header {
+            text-align: center;
+            padding: 2rem 0 1rem 0;
+            border-bottom: 4px double var(--ink-color);
+            /* Double line for header */
+            margin-bottom: 2rem;
+        }
+
+        .date-line {
+            display: flex;
+            justify-content: space-between;
+            border-top: 1px solid var(--border-color);
+            border-bottom: 1px solid var(--border-color);
+            padding: 0.5rem 0;
+            margin-top: 1rem;
+            font-family: var(--font-meta);
+            text-transform: uppercase;
+            font-size: 0.9rem;
+            color: var(--secondary-text);
+        }
+
+        .brand-title {
+            font-family: 'Chomsky', 'Playfair Display', serif;
+            /* Fallback if Chomsky fails */
+            font-size: 4rem;
+            margin: 0;
+            line-height: 1;
+            font-weight: 900;
+            letter-spacing: -2px;
+        }
+
+        /* Fallback for Chomsky if not loaded via Google Fonts (it's not there, using local feel) */
+        @font-face {
+            font-family: 'Chomsky';
+            src: local('Chomsky'), url('https://db.onlinewebfonts.com/t/01173b54e0c2ac8b42028148b6d8590c.woff2') format('woff2');
+            font-display: swap;
+        }
+
+        .weather-widget {
+            font-weight: bold;
+        }
+
+        /* News Grid Layout */
+        .news-grid {
+            display: grid;
+            grid-template-columns: repeat(12, 1fr);
+            gap: 2rem;
+            padding-bottom: 3rem;
+        }
+
+        /* Article Card Styles */
+        .article-card {
+            display: flex;
+            flex-direction: column;
+            border-bottom: 1px solid var(--border-color);
+            padding-bottom: 1rem;
+            margin-bottom: 1rem;
+        }
+
+        .article-card:last-child {
+            border-bottom: none;
+        }
+
+        .article-image {
+            width: 100%;
+            height: 200px;
+            object-fit: cover;
+            filter: grayscale(100%) contrast(1.1);
+            /* Newspaper effect */
+            transition: filter 0.3s ease;
+            margin-bottom: 1rem;
+            background-color: #ddd;
+        }
+
+        .article-card:hover .article-image {
+            filter: grayscale(0%) contrast(1);
+        }
+
+        .article-category {
+            font-family: var(--font-meta);
+            font-size: 0.75rem;
+            text-transform: uppercase;
+            font-weight: 700;
+            margin-bottom: 0.5rem;
+            color: var(--accent-color);
+        }
+
+        .article-title {
+            font-family: var(--font-headline);
+            font-size: 1.5rem;
+            font-weight: 700;
+            margin: 0 0 0.75rem 0;
+            line-height: 1.2;
+        }
+
+        .article-title a {
+            text-decoration: none;
+            color: var(--ink-color);
+            transition: color 0.2s;
+        }
+
+        .article-title a:hover {
+            color: var(--accent-color);
+        }
+
+        .article-excerpt {
+            font-size: 1rem;
+            line-height: 1.6;
+            color: var(--secondary-text);
+            margin-bottom: 1rem;
+            flex-grow: 1;
+            text-align: justify;
+        }
+
+        .article-meta {
+            font-family: var(--font-meta);
+            font-size: 0.8rem;
+            color: #888;
+            margin-top: auto;
+        }
+
+        /* Specific Grid Placements */
+
+        /* Hero Article (Top Left - Big) */
+        .hero-article {
+            grid-column: span 8;
+            border-right: 1px solid var(--border-color);
+            padding-right: 2rem;
+            border-bottom: none;
+        }
+
+        .hero-article .article-image {
+            height: 400px;
+        }
+
+        .hero-article .article-title {
+            font-size: 2.5rem;
+        }
+
+        .hero-article .article-excerpt {
+            font-size: 1.2rem;
+            column-count: 2;
+            /* Newspaper columns */
+            column-gap: 2rem;
+        }
+
+        /* Secondary Top (Right side stack) */
+        .top-sidebar-stories {
+            grid-column: span 4;
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+        }
+
+        .top-sidebar-stories .article-card {
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .top-sidebar-stories .article-card:last-child {
+            border-bottom: none;
+        }
+
+        /* Standard Cards (3 cols below) */
+        .standard-card {
+            grid-column: span 4;
+            border-right: 1px solid var(--border-color);
+            padding-right: 1rem;
+        }
+
+        .standard-card:nth-child(3n) {
+            /* Every 3rd card (end of row) remove border */
+            border-right: none;
+            padding-right: 0;
+        }
+
+        /* Loading State */
+        .loading-indicator {
+            grid-column: 1 / -1;
+            text-align: center;
+            padding: 3rem;
+            font-family: var(--font-headline);
+            font-size: 1.5rem;
+            font-style: italic;
+        }
+
+        /* Responsive */
+        @media (max-width: 1200px) {
+            .hero-article {
+                grid-column: span 12;
+                border-right: none;
+                padding-right: 0;
+                border-bottom: 2px solid var(--ink-color);
+                margin-bottom: 2rem;
+                padding-bottom: 2rem;
+            }
+
+            .hero-article .article-excerpt {
+                column-count: 1;
+            }
+
+            .top-sidebar-stories {
+                display: grid;
+                grid-template-columns: 1fr 1fr;
+                gap: 2rem;
+                grid-column: span 12;
+                border-bottom: 1px solid var(--ink-color);
+                padding-bottom: 2rem;
+            }
+
+            .top-sidebar-stories .article-card {
+                border-bottom: none;
+                border-right: 1px solid var(--border-color);
+                padding-right: 1rem;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .app-container {
+                flex-direction: column;
+                height: auto;
+                overflow: auto;
+            }
+
+            .sidebar {
+                width: 100%;
+                border-right: none;
+                border-bottom: 1px solid var(--ink-color);
+                flex-direction: row;
+                overflow-x: auto;
+                padding: 1rem;
+                align-items: center;
+                gap: 1rem;
+            }
+
+            .sidebar-header {
+                margin: 0;
+                padding: 0;
+                border: none;
+                white-space: nowrap;
+                margin-right: 1rem;
+            }
+
+            .nav-list {
+                display: flex;
+                gap: 1rem;
+            }
+
+            .nav-item {
+                margin: 0;
+            }
+
+            .nav-btn {
+                white-space: nowrap;
+                padding: 0.5rem;
+            }
+
+            .news-grid {
+                display: flex;
+                flex-direction: column;
+            }
+
+            .top-sidebar-stories {
+                display: flex;
+                flex-direction: column;
+            }
+
+            .hero-article .article-title {
+                font-size: 2rem;
+            }
+
+            .standard-card {
+                border-right: none;
+                padding-right: 0;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="app-container">
+        <!-- Sidebar -->
+        <aside class="sidebar">
+            <div class="sidebar-header">Sections</div>
+            <ul class="nav-list" id="category-list">
+                <!-- Categories injected here -->
+            </ul>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="main-content" id="main-scroll">
+            <header class="paper-header">
+                <h1 class="brand-title">The Daily Chronicle</h1>
+                <div class="date-line">
+                    <span id="current-date">Vol. 1, No. 1</span>
+                    <span>The World's News, Delivered Fresh</span>
+                    <span id="weather-display" class="weather-widget">Loading Weather...</span>
+                </div>
+            </header>
+
+            <div id="news-grid" class="news-grid">
+                <!-- Articles injected here -->
+            </div>
+        </main>
+    </div>
+
+    <script>
+        // --- Configuration ---
+        const RSS_FEEDS = {
+            'Top Stories': 'http://feeds.bbci.co.uk/news/rss.xml',
+            'World': 'http://feeds.bbci.co.uk/news/world/rss.xml',
+            'Business': 'http://feeds.bbci.co.uk/news/business/rss.xml',
+            'Technology': 'http://feeds.bbci.co.uk/news/technology/rss.xml',
+            'Science': 'http://feeds.bbci.co.uk/news/science_and_environment/rss.xml',
+            'Entertainment': 'http://feeds.bbci.co.uk/news/entertainment_and_arts/rss.xml',
+            'Health': 'http://feeds.bbci.co.uk/news/health/rss.xml'
+        };
+
+        const CORS_PROXY = "https://api.rss2json.com/v1/api.json?rss_url=";
+        const API_KEY_PARAM = ""; // Pubic generic usually works fine for demo, or we rely on rate limit
+
+        // --- State ---
+        let currentCategory = 'Top Stories';
+
+        // --- Elements ---
+        const categoryList = document.getElementById('category-list');
+        const newsGrid = document.getElementById('news-grid');
+        const dateDisplay = document.getElementById('current-date');
+        const weatherDisplay = document.getElementById('weather-display');
+
+        // --- Initialization ---
+        function init() {
+            renderSidebar();
+            updateDate();
+            // Simulate simple weather (static for now, could fetch real logic)
+            weatherDisplay.textContent = "22°C | Sunny";
+
+            loadCategory(currentCategory);
+        }
+
+        // --- Sidebar Logic ---
+        function renderSidebar() {
+            categoryList.innerHTML = '';
+            Object.keys(RSS_FEEDS).forEach(key => {
+                const li = document.createElement('li');
+                li.className = 'nav-item';
+
+                const btn = document.createElement('button');
+                btn.className = `nav-btn ${key === currentCategory ? 'active' : ''}`;
+                btn.textContent = key;
+                btn.onclick = () => loadCategory(key);
+
+                li.appendChild(btn);
+                categoryList.appendChild(li);
+            });
+        }
+
+        function loadCategory(category) {
+            currentCategory = category;
+            // Update active state in sidebar
+            Array.from(document.querySelectorAll('.nav-btn')).forEach(btn => {
+                if (btn.textContent === category) btn.classList.add('active');
+                else btn.classList.remove('active');
+            });
+
+            // Show loading
+            newsGrid.innerHTML = '<div class="loading-indicator">Fetching the latest headlines from the wires...</div>';
+
+            // Fetch
+            const feedUrl = RSS_FEEDS[category];
+            fetch(`${CORS_PROXY}${encodeURIComponent(feedUrl)}`)
+                .then(res => res.json())
+                .then(data => {
+                    if (data.status === 'ok') {
+                        renderArticles(data.items);
+                    } else {
+                        newsGrid.innerHTML = '<div class="loading-indicator">Extra! Extra! Failed to load news.</div>';
+                    }
+                })
+                .catch(err => {
+                    console.error(err);
+                    newsGrid.innerHTML = '<div class="loading-indicator">Communication breakdown with the wire service.</div>';
+                });
+        }
+
+        // --- Rendering Logic ---
+        function renderArticles(items) {
+            newsGrid.innerHTML = '';
+
+            // Filter items that have minimal content
+            const validItems = items.filter(item => item.title && item.title.trim() !== "");
+
+            if (validItems.length === 0) {
+                newsGrid.innerHTML = '<div class="loading-indicator">No stories found today.</div>';
+                return;
+            }
+
+            // 1. Hero Article (1st item)
+            if (validItems[0]) {
+                const heroCard = createCard(validItems[0], 'hero-article');
+                newsGrid.appendChild(heroCard);
+            }
+
+            // 2. Sidebar Stories (Next 3 items)
+            const sidebarWrapper = document.createElement('div');
+            sidebarWrapper.className = 'top-sidebar-stories';
+            for (let i = 1; i < 4 && i < validItems.length; i++) {
+                const card = createCard(validItems[i], 'article-card'); // standard card inside
+                sidebarWrapper.appendChild(card);
+            }
+            newsGrid.appendChild(sidebarWrapper);
+
+            // 3. Rest of the stories (Standard 3-col)
+            for (let i = 4; i < validItems.length; i++) {
+                const card = createCard(validItems[i], 'article-card standard-card');
+                newsGrid.appendChild(card);
+            }
+        }
+
+        function createCard(item, className) {
+            const div = document.createElement('div');
+            div.className = className;
+
+            // Clean up description (remove HTML tags for excerpt)
+            const dirtyDesc = item.description || "";
+            const cleanDesc = dirtyDesc.replace(/<[^>]*>?/gm, '').substring(0, 150) + "...";
+
+            // Attempt to find an image
+            let imageUrl = item.enclosure?.link || item.thumbnail;
+            // Fallback: try to regex image from description content if not in metadata
+            if (!imageUrl) {
+                const imgMatch = item.content ? item.content.match(/src="([^"]+)"/) : null;
+                if (imgMatch) imageUrl = imgMatch[1];
+            }
+
+            const imageHTML = imageUrl
+                ? `<img src="${imageUrl}" class="article-image" alt="Article Image" onerror="this.style.display='none'">`
+                : `<div class="article-image" style="background-color: #eee; display:flex; align-items:center; justify-content:center; color:#999; font-family:var(--font-meta);">No Image</div>`;
+
+            // Format Date
+            const date = new Date(item.pubDate).toLocaleDateString(undefined, {
+                weekday: 'short', month: 'short', day: 'numeric'
+            });
+
+            div.innerHTML = `
+            ${imageHTML}
+            <div class="article-category">${currentCategory}</div>
+            <h3 class="article-title"><a href="${item.link}" target="_blank">${item.title}</a></h3>
+            <div class="article-excerpt">${cleanDesc}</div>
+            <div class="article-meta">${date} • ${item.author || 'The Chronicle'}</div>
+        `;
+
+            return div;
+        }
+
+        function updateDate() {
+            const now = new Date();
+            const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
+            dateDisplay.textContent = now.toLocaleDateString('en-US', options);
+        }
+
+        // Run
+        init();
+
+    </script>
+
+</body>
+
+</html>
