@@ -40,7 +40,14 @@
 
         <!-- Hero Section -->
         <section class="hero-section">
-            <div id="particles-js"></div>
+            <div id="background-grid">
+                <div class="grid-column" v-for="(column, index) in shuffled3DArtColumns" :key="index">
+                    <div class="grid-item" v-for="item in column" :key="item.id" :style="{ backgroundImage: 'url(' + item.image + ')' }"></div>
+                    <!-- Duplicate for infinite scroll effect -->
+                    <div class="grid-item" v-for="item in column" :key="'dup-' + item.id" :style="{ backgroundImage: 'url(' + item.image + ')' }"></div>
+                </div>
+                <div class="grid-overlay"></div>
+            </div>
             <div class="hero-content">
                 <h1>Andranik Shirinian</h1>
                 <p>Web Developer | Graphic Designer | 3D Artist</p>
@@ -399,6 +406,19 @@
                     return portfolioItems.value.filter(item => item.category === activeCategory.value);
                 });
 
+                const shuffled3DArtColumns = computed(() => {
+                    const artItems = portfolioItems.value.filter(item => item.category === '3D Art');
+                    // Simple shuffle
+                    const shuffled = [...artItems].sort(() => 0.5 - Math.random());
+                    
+                    // Split into 3 columns
+                    const columns = [[], [], []];
+                    shuffled.forEach((item, index) => {
+                        columns[index % 3].push(item);
+                    });
+                    return columns;
+                });
+
                 onMounted(() => {
                     window.addEventListener('scroll', handleScroll);
                 });
@@ -414,35 +434,14 @@
                     scrollTo,
                     activeCategory,
                     categories,
-                    filteredPortfolio
+                    filteredPortfolio,
+                    shuffled3DArtColumns
                 };
             }
         }).mount('#app');
     </script>
     
     <!-- particles.js library -->
-    <script src="https://cdn.jsdelivr.net/npm/particles.js@2.0.0/particles.min.js"></script>
-    
-    <!-- particles.js config -->
-    <script>
-        particlesJS('particles-js', {
-          "particles": {
-            "number": { "value": 60, "density": { "enable": true, "value_area": 800 }},
-            "color": { "value": "#fff" },
-            "shape": { "type": "circle" },
-            "opacity": { "value": 0.8, "random": true },
-            "size": { "value": 3, "random": true },
-            "line_linked": { "enable": true, "distance": 150, "color": "#64ffda", "opacity": 0.2, "width": 1 },
-            "move": { "enable": true, "speed": 1, "direction": "none", "out_mode": "out" }
-          },
-          "interactivity": {
-            "detect_on": "canvas",
-            "events": { "onhover": { "enable": false, "mode": "repulse" }, "resize": true },
-            "modes": { "repulse": { "distance": 100, "duration": 0.4 } }
-          },
-          "retina_detect": true
-        });
-    </script>
 
 </body>
 </html>
