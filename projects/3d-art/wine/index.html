@@ -14,12 +14,12 @@
     <!-- Vue.js -->
     <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
     
-    <link href="/page-style.css" rel="stylesheet">
+    <link href="../../../page-style.css" rel="stylesheet">
     
     
 
 </head>
-<body>
+<body style="background-image: url('../../../media/project-previews/wine.webp')">
     <div id="app">
         <!-- Header & Navigation -->
         <header class="header" :class="{ 'scrolled': scrolled }">
@@ -59,13 +59,13 @@
                         <p class="project-description">Every element, from the subtle translucency of the wine to the soft reflections on the glass and the rustic texture of the wooden table, was brought to life in Blender. This piece was a deep dive into realistic liquid simulation, ensuring the wine behaved authentically as it poured and settled. Furthermore, I focused heavily on crafting studio-quality lighting to enhance the mood and bring out the rich details of the wine and its surroundings, creating a truly inviting visual experience.</p>
                     </header>
                     <div class="image-grid">
-                        <div class="grid-item" style="background-image: url('render.jpg')" data-src="render.jpg">
+                        <div class="grid-item" data-type="image" style="background-image: url('render.jpg')" data-src="render.jpg">
                             <h3 class="grid-item-title">Final Render</h3>
                         </div>
-                        <div class="grid-item" style="background-image: url('draft-1.jpg')" data-src="draft-1.jpg">
+                        <div class="grid-item" data-type="image" style="background-image: url('draft-1.jpg')" data-src="draft-1.jpg">
                             <h3 class="grid-item-title">Draft 1</h3>
                         </div>
-                        <div class="grid-item" style="background-image: url('draft-2.jpg')" data-src="draft-2.jpg">
+                        <div class="grid-item" data-type="image" style="background-image: url('draft-2.jpg')" data-src="draft-2.jpg">
                             <h3 class="grid-item-title">Draft 2</h3>
                         </div>
                     </div>
