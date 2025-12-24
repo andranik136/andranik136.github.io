@@ -266,43 +266,60 @@ a {
 .about-content {
     max-width: 900px;
     margin: 0 auto;
-    display: flex;
-    gap: 3rem;
-    align-items: flex-start;
+    /* Removed flex layout as skills are now below */
 }
 
 .about-text {
-    flex: 2;
+    /* Full width text */
+    text-align: left;
 }
 
 .about-skills {
-    flex: 1;
-    padding-left: 2rem;
-    border-left: 1px solid #112240;
+    margin-top: 4rem;
+    text-align: center;
 }
 
 .about-skills h3 {
-    font-size: 1.5rem;
-    margin-bottom: 1rem;
+    font-size: 2rem;
+    margin-bottom: 2rem;
+    text-align: center;
 }
 
 .skills-list {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+    gap: 2rem;
+    justify-content: center;
+    max-width: 900px;
+    margin: 0 auto;
     list-style: none;
+    padding: 0;
 }
 
 .skills-list li {
-    margin-bottom: 0.75rem;
     font-family: 'Abel', sans-serif;
     display: flex;
+    flex-direction: column;
     align-items: center;
+    justify-content: center;
+    background-color: #112240;
+    padding: 1.5rem;
+    border-radius: 8px;
+    transition: transform 0.3s ease, background-color 0.3s ease;
+}
+
+.skills-list li:hover {
+    transform: translateY(-5px);
+    background-color: #1a3055;
 }
 
 .skills-list svg {
     color: #00dbff;
-    margin-right: 0.75rem;
-    width: 16px;
-    height: 16px;
-    flex-shrink: 0;
+    width: 48px;
+    height: 48px;
+    margin-bottom: 1rem;
+    margin-right: 0;
+    /* Reset previous margin */
 }
 
 .about-content img {
@@ -546,21 +563,14 @@ a {
 }
 
 @media (max-width: 767px) {
-    .about-content {
-        flex-direction: column;
-        gap: 2rem;
-    }
-
-    .about-skills {
-        padding-left: 0;
-        border-left: none;
-        width: 100%;
-    }
-
     .about-content img {
         float: none;
         display: block;
         margin: 0 auto 1.5rem;
+    }
+
+    .skills-list {
+        grid-template-columns: repeat(2, 1fr);
     }
 }
 
