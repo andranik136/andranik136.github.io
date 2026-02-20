@@ -1,0 +1,442 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Home Screen</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+    <div class="desktop">
+        <!-- Desktop Icons -->
+        <div class="desktop-icons">
+            <div class="icon">
+                <img src="https://win98icons.alexmeub.com/icons/png/computer_explorer-5.png" alt="My Computer">
+                <span>My Computer</span>
+            </div>
+            <div class="icon">
+                <img src="https://win98icons.alexmeub.com/icons/png/recycle_bin_empty-4.png" alt="Recycle Bin">
+                <span>Recycle Bin</span>
+            </div>
+            <div class="icon">
+                <img src="https://win98icons.alexmeub.com/icons/png/msie1-4.png" alt="Internet Explorer">
+                <span>Internet Explorer</span>
+            </div>
+        </div>
+
+        <!-- Internet Explorer Window -->
+        <div class="window active" id="ie6-window" style="left: 40px; top: 30px; z-index: 101;">
+            <div class="title-bar">
+                <div class="title-bar-text">
+                    <img src="https://win98icons.alexmeub.com/icons/png/msie1-1.png" alt="IE logo" class="window-icon">
+                    Ars Technica - Microsoft Internet Explorer
+                </div>
+                <div class="title-bar-controls">
+                    <button aria-label="Minimize" class="win-btn minimize-btn"></button>
+                    <button aria-label="Maximize" class="win-btn maximize-btn"></button>
+                    <button aria-label="Close" class="win-btn close-btn"></button>
+                </div>
+            </div>
+
+            <div class="ie-toolbars">
+                <div class="menu-bar-row">
+                    <div class="drag-handle"></div>
+                    <div class="menu-bar">
+                        <span><u>F</u>ile</span>
+                        <span><u>E</u>dit</span>
+                        <span><u>V</u>iew</span>
+                        <span>F<u>a</u>vorites</span>
+                        <span><u>T</u>ools</span>
+                        <span><u>H</u>elp</span>
+                    </div>
+                    <div class="windows-flag-anim">
+                        <img src="https://win98icons.alexmeub.com/icons/png/windows_slanted-1.png" alt="Windows Logo">
+                    </div>
+                </div>
+
+                <div class="standard-buttons-row">
+                    <div class="drag-handle"></div>
+                    <div class="standard-buttons">
+                        <button class="tool-btn">
+                            <span class="icon-replacement" style="color: #4CAF50;">&#129044;</span>
+                            <span>Back</span>
+                            <span class="dropdown-arrow">▼</span>
+                        </button>
+                        <button class="tool-btn">
+                            <span class="icon-replacement" style="color: #4CAF50;">&#129046;</span>
+                            <span class="dropdown-arrow">▼</span>
+                        </button>
+                        <button class="tool-btn">
+                            <span class="icon-replacement" style="color: #e66a4f;">&#10006;</span>
+                        </button>
+                        <button class="tool-btn">
+                            <span class="icon-replacement" style="color: #4CAF50;">&#128472;</span>
+                        </button>
+                        <button class="tool-btn">
+                            <span class="icon-replacement" style="color: #2196F3;">&#8962;</span>
+                        </button>
+                        <div class="tool-separator"></div>
+                        <button class="tool-btn">
+                            <img src="https://win98icons.alexmeub.com/icons/png/search_web-0.png" alt="">
+                            <span>Search</span>
+                        </button>
+                        <button class="tool-btn">
+                            <img src="https://win98icons.alexmeub.com/icons/png/directory_favorites-0.png" alt="">
+                            <span>Favorites</span>
+                        </button>
+                        <button class="tool-btn">
+                            <img src="https://win98icons.alexmeub.com/icons/png/multimedia-0.png" alt="">
+                            <span>Media</span>
+                        </button>
+                        <div class="tool-separator"></div>
+                        <button class="tool-btn">
+                            <span class="icon-replacement" style="color: #f4b400;">&#128338;</span>
+                        </button>
+                        <button class="tool-btn">
+                            <span class="icon-replacement" style="color: #2196F3;">&#128231;</span>
+                            <span class="dropdown-arrow">▼</span>
+                        </button>
+                        <button class="tool-btn">
+                            <span class="icon-replacement" style="color: #555;">&#128438;</span>
+                        </button>
+                        <button class="tool-btn">
+                            <img src="https://win98icons.alexmeub.com/icons/png/notepad_file-0.png" alt="">
+                        </button>
+                    </div>
+                </div>
+
+                <div class="address-bar-row">
+                    <div class="drag-handle"></div>
+                    <div class="address-bar">
+                        <span class="address-label">Address</span>
+                        <div class="address-input-wrapper">
+                            <img src="https://win98icons.alexmeub.com/icons/png/msie1-1.png" alt=""
+                                class="address-icon">
+                            <input type="text" value="https://arstechnica.com/" readonly>
+                            <div class="dropdown-arrow-box">▼</div>
+                        </div>
+                        <button class="go-btn">
+                            <span style="color: #4CAF50; font-weight: bold; margin-right: 4px;">&#10140;</span> Go
+                        </button>
+                    </div>
+                    <div class="links-bar">
+                        <div class="drag-handle"></div>
+                        <span class="links-label">Links</span>
+                        <span class="dropdown-arrow">»</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="window-body">
+                <div class="content-area" id="news-content">
+                    <div class="loading">Loading latest news...</div>
+                </div>
+            </div>
+
+            <div class="status-bar">
+                <div class="status-left">Done</div>
+                <div class="status-right">
+                    <img src="https://win98icons.alexmeub.com/icons/png/msie1-1.png" class="status-icon" alt="">
+                    Internet
+                </div>
+            </div>
+        </div>
+
+        <!-- MS Paint Window -->
+        <div class="window active" id="paint-window"
+            style="left: 360px; top: 180px; width: 600px; height: 450px; z-index: 100;">
+            <div class="title-bar">
+                <div class="title-bar-text">
+                    <img src="https://win98icons.alexmeub.com/icons/png/paint_file-2.png" alt="Paint logo"
+                        class="window-icon">
+                    untitled - Paint
+                </div>
+                <div class="title-bar-controls">
+                    <button aria-label="Minimize" class="win-btn minimize-btn"></button>
+                    <button aria-label="Maximize" class="win-btn maximize-btn"></button>
+                    <button aria-label="Close" class="win-btn close-btn"></button>
+                </div>
+            </div>
+
+            <div class="menu-barPaint"
+                style="background-color: #ece9d8; border-bottom: 1px solid #dcdcdc; padding: 2px 4px; display: flex; align-items: center; font-size: 11px;">
+                <span class="paint-menu-item" style="padding: 2px 6px; cursor: default;"><u>F</u>ile</span>
+                <span class="paint-menu-item" style="padding: 2px 6px; cursor: default;"><u>E</u>dit</span>
+                <span class="paint-menu-item" style="padding: 2px 6px; cursor: default;"><u>V</u>iew</span>
+                <span class="paint-menu-item" style="padding: 2px 6px; cursor: default;"><u>I</u>mage</span>
+                <span class="paint-menu-item" style="padding: 2px 6px; cursor: default;"><u>C</u>olors</span>
+                <span class="paint-menu-item" style="padding: 2px 6px; cursor: default;"><u>H</u>elp</span>
+            </div>
+
+            <div class="paint-body" style="display: flex; flex: 1; background-color: #808080; padding: 2px;">
+                <!-- Tools Panel -->
+                <div
+                    style="width: 54px; background-color: #ece9d8; display: flex; flex-direction: column; align-items: center; padding: 2px 0;">
+                    <!-- Toolbox grid -->
+                    <div style="display: grid; grid-template-columns: 24px 24px; gap: 0px;">
+                        <!-- 16 Standard Tools (using simple text/symbols for approximation) -->
+                        <div class="paint-tool"><span style="font-size: 14px;">&#9734;</span></div>
+                        <div class="paint-tool"><span
+                                style="font-size: 14px; border: 1px dashed black; width: 12px; height: 12px; display: inline-block;"></span>
+                        </div>
+                        <div class="paint-tool"><span style="font-size: 14px;">&#9003;</span></div>
+                        <div class="paint-tool"><span style="font-size: 14px;">&#128396;</span></div>
+                        <div class="paint-tool"><span style="font-size: 14px;">&#128391;</span></div>
+                        <div class="paint-tool"><span style="font-size: 14px;">&#128269;</span></div>
+                        <div class="paint-tool active-tool"><span style="font-size: 14px;">&#9998;</span></div>
+                        <div class="paint-tool"><span style="font-size: 14px;">&#128396;</span></div>
+                        <div class="paint-tool"><span style="font-size: 14px;">&#10052;</span></div>
+                        <div class="paint-tool"><span
+                                style="font-weight: bold; font-family: serif; font-size: 16px;">A</span></div>
+                        <div class="paint-tool"><span
+                                style="font-size: 16px; transform: rotate(45deg); display: inline-block;">&#8213;</span>
+                        </div>
+                        <div class="paint-tool"><span style="font-size: 16px;">&#8765;</span></div>
+                        <div class="paint-tool">
+                            <div style="border: 1px solid black; width: 12px; height: 10px;"></div>
+                        </div>
+                        <div class="paint-tool">
+                            <div style="border: 1px solid black; width: 12px; height: 12px; transform: rotate(45deg);">
+                            </div>
+                        </div>
+                        <div class="paint-tool">
+                            <div style="border: 1px solid black; border-radius: 50%; width: 12px; height: 10px;"></div>
+                        </div>
+                        <div class="paint-tool">
+                            <div style="border: 1px solid black; border-radius: 3px; width: 12px; height: 10px;"></div>
+                        </div>
+                    </div>
+                    <!-- Tool Options Box -->
+                    <div
+                        style="margin-top: 4px; width: 44px; height: 60px; background: white; border: 1px solid #888; border-bottom-color: #fff; border-right-color: #fff; display: flex; flex-direction: column; align-items: center; justify-content: space-evenly; box-shadow: inset 1px 1px 0px #000, inset -1px -1px 0px #dfdfdf;">
+                        <img src="https://win98icons.alexmeub.com/icons/png/paint_file-1.png"
+                            style="width: 32px; height: auto;">
+                    </div>
+                </div>
+
+                <!-- Canvas Area -->
+                <div style="flex: 1; overflow: auto; background-color: #808080; padding: 2px;">
+                    <div style="display: inline-block; background-color: #808080; position: relative;">
+                        <!-- Resize handles -->
+                        <canvas id="paint-canvas" width="400" height="280"
+                            style="background-color: white; cursor: crosshair; display: block;"></canvas>
+                        <div
+                            style="position: absolute; right: -4px; top: 50%; width: 3px; height: 3px; background: black; cursor: e-resize;">
+                        </div>
+                        <div
+                            style="position: absolute; bottom: -4px; left: 50%; width: 3px; height: 3px; background: black; cursor: s-resize;">
+                        </div>
+                        <div
+                            style="position: absolute; right: -4px; bottom: -4px; width: 3px; height: 3px; background: black; cursor: se-resize;">
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Colors Palette -->
+            <div
+                style="height: 44px; background-color: #ece9d8; border-top: 1px solid #dcdcdc; display: flex; align-items: center; padding: 2px 4px;">
+                <div
+                    style="width: 30px; height: 30px; border: 1px solid #888; border-bottom-color: #fff; border-right-color: #fff; margin-right: 5px; position: relative; box-shadow: inset 1px 1px 0px #000, inset -1px -1px 0px #dfdfdf;">
+                    <!-- Active colors -->
+                    <div
+                        style="position: absolute; width: 14px; height: 14px; background: white; border: 1px solid #888; border-bottom-color: #fff; border-right-color: #fff; bottom: 2px; right: 2px; box-shadow: inset 1px 1px 0px #000, inset -1px -1px 0px #dfdfdf;">
+                    </div>
+                    <div
+                        style="position: absolute; width: 14px; height: 14px; background: black; border: 1px solid #888; border-bottom-color: #fff; border-right-color: #fff; top: 2px; left: 2px; z-index: 2; box-shadow: inset 1px 1px 0px #000, inset -1px -1px 0px #dfdfdf;">
+                    </div>
+                </div>
+                <!-- Color swatches -->
+                <div
+                    style="display: grid; grid-template-columns: repeat(14, 15px); grid-template-rows: 15px 15px; gap: 1px; width: auto; height: 31px;">
+                    <!-- Top Row -->
+                    <div class="color-swatch box-shadow-in" style="background: #000000;"></div>
+                    <div class="color-swatch box-shadow-in" style="background: #808080;"></div>
+                    <div class="color-swatch box-shadow-in" style="background: #800000;"></div>
+                    <div class="color-swatch box-shadow-in" style="background: #808000;"></div>
+                    <div class="color-swatch box-shadow-in" style="background: #008000;"></div>
+                    <div class="color-swatch box-shadow-in" style="background: #008080;"></div>
+                    <div class="color-swatch box-shadow-in" style="background: #000080;"></div>
+                    <div class="color-swatch box-shadow-in" style="background: #800080;"></div>
+                    <div class="color-swatch box-shadow-in" style="background: #808040;"></div>
+                    <div class="color-swatch box-shadow-in" style="background: #004040;"></div>
+                    <div class="color-swatch box-shadow-in" style="background: #0080FF;"></div>
+                    <div class="color-swatch box-shadow-in" style="background: #004080;"></div>
+                    <div class="color-swatch box-shadow-in" style="background: #4000FF;"></div>
+                    <div class="color-swatch box-shadow-in" style="background: #804000;"></div>
+                    <!-- Bottom Row -->
+                    <div class="color-swatch box-shadow-in" style="background: #FFFFFF;"></div>
+                    <div class="color-swatch box-shadow-in" style="background: #C0C0C0;"></div>
+                    <div class="color-swatch box-shadow-in" style="background: #FF0000;"></div>
+                    <div class="color-swatch box-shadow-in" style="background: #FFFF00;"></div>
+                    <div class="color-swatch box-shadow-in" style="background: #00FF00;"></div>
+                    <div class="color-swatch box-shadow-in" style="background: #00FFFF;"></div>
+                    <div class="color-swatch box-shadow-in" style="background: #0000FF;"></div>
+                    <div class="color-swatch box-shadow-in" style="background: #FF00FF;"></div>
+                    <div class="color-swatch box-shadow-in" style="background: #FFFF80;"></div>
+                    <div class="color-swatch box-shadow-in" style="background: #40FF00;"></div>
+                    <div class="color-swatch box-shadow-in" style="background: #80FFFF;"></div>
+                    <div class="color-swatch box-shadow-in" style="background: #8080FF;"></div>
+                    <div class="color-swatch box-shadow-in" style="background: #FF0080;"></div>
+                    <div class="color-swatch box-shadow-in" style="background: #FF8040;"></div>
+                </div>
+            </div>
+
+            <div class="status-bar">
+                <div class="status-left">For Help, click Help Topics on the Help Menu.</div>
+                <div class="status-right" style="width: 100px;">
+                    500,350
+                </div>
+            </div>
+        </div>
+
+        <!-- Start Menu -->
+        <div class="start-menu" id="start-menu">
+            <div class="start-menu-header">
+                <img src="https://win98icons.alexmeub.com/icons/png/user_computer_1-0.png" alt="User"
+                    class="user-avatar">
+                <span class="username">Guest</span>
+            </div>
+            <div class="start-menu-body">
+                <div class="start-menu-left">
+                    <div class="start-menu-item bold">
+                        <img src="https://win98icons.alexmeub.com/icons/png/msie1-4.png" alt="IE">
+                        <div>
+                            <div class="title">Internet</div>
+                            <div style="font-size: 9px; color: #666;">Internet Explorer</div>
+                        </div>
+                    </div>
+                    <div class="start-menu-item bold">
+                        <img src="https://win98icons.alexmeub.com/icons/png/outlook_express-4.png" alt="Email">
+                        <div>
+                            <div class="title">E-mail</div>
+                            <div style="font-size: 9px; color: #666;">Outlook Express</div>
+                        </div>
+                    </div>
+                    <div class="start-separator"></div>
+                    <div class="start-menu-item">
+                        <img src="https://win98icons.alexmeub.com/icons/png/paint_file-2.png" alt="Paint">
+                        <span class="title">Paint</span>
+                    </div>
+                    <div class="start-menu-item">
+                        <img src="https://win98icons.alexmeub.com/icons/png/ms_dos_window-1.png" alt="Command Prompt">
+                        <span class="title">Command Prompt</span>
+                    </div>
+                    <div class="start-menu-item">
+                        <img src="https://win98icons.alexmeub.com/icons/png/directory_explorer-4.png" alt="Explorer">
+                        <span class="title">Windows Explorer</span>
+                    </div>
+                    <div class="start-menu-item">
+                        <img src="https://win98icons.alexmeub.com/icons/png/notepad-1.png" alt="Notepad">
+                        <span class="title">Notepad</span>
+                    </div>
+                    <div class="start-menu-item">
+                        <img src="https://win98icons.alexmeub.com/icons/png/calculator-1.png" alt="Calculator">
+                        <span class="title">Calculator</span>
+                    </div>
+                    <div class="start-separator"></div>
+                    <div class="start-menu-item" style="justify-content: center; margin-top: auto;">
+                        <span class="title" style="font-weight: bold;">All Programs</span>
+                        <span style="color: #378a23; font-weight: bold; margin-left: 5px; font-size: 14px;">▶</span>
+                    </div>
+                </div>
+                <div class="start-menu-right">
+                    <div class="start-menu-item bold-right">
+                        <img src="https://win98icons.alexmeub.com/icons/png/directory_open_file_mydocs-4.png"
+                            alt="Docs">
+                        <span class="title">My Documents</span>
+                    </div>
+                    <div class="start-menu-item bold-right">
+                        <img src="https://win98icons.alexmeub.com/icons/png/directory_open-4.png" alt="Recent">
+                        <span class="title">My Recent Documents</span>
+                        <span style="margin-left: auto;">▶</span>
+                    </div>
+                    <div class="start-menu-item bold-right">
+                        <img src="https://win98icons.alexmeub.com/icons/png/directory_pictures-4.png" alt="Pics">
+                        <span class="title">My Pictures</span>
+                    </div>
+                    <div class="start-menu-item bold-right">
+                        <img src="https://win98icons.alexmeub.com/icons/png/cd_audio_cd_a-3.png" alt="Music">
+                        <span class="title">My Music</span>
+                    </div>
+                    <div class="start-menu-item bold-right">
+                        <img src="https://win98icons.alexmeub.com/icons/png/computer_explorer-5.png" alt="Computer">
+                        <span class="title">My Computer</span>
+                    </div>
+                    <div class="start-separator-right"></div>
+                    <div class="start-menu-item">
+                        <img src="https://win98icons.alexmeub.com/icons/png/settings_gear-0.png" alt="Control Panel">
+                        <span class="title">Control Panel</span>
+                    </div>
+                    <div class="start-menu-item">
+                        <img src="https://win98icons.alexmeub.com/icons/png/directory_program_groups-0.png"
+                            alt="Defaults">
+                        <span class="title">Set Program Access and Defaults</span>
+                    </div>
+                    <div class="start-menu-item">
+                        <img src="https://win98icons.alexmeub.com/icons/png/network_connection_control-0.png"
+                            alt="Connect To">
+                        <span class="title">Connect To</span>
+                        <span style="margin-left: auto;">▶</span>
+                    </div>
+                    <div class="start-menu-item">
+                        <img src="https://win98icons.alexmeub.com/icons/png/printer-0.png" alt="Printers">
+                        <span class="title">Printers and Faxes</span>
+                    </div>
+                    <div class="start-separator-right"></div>
+                    <div class="start-menu-item">
+                        <img src="https://win98icons.alexmeub.com/icons/png/help_book_computer-0.png" alt="Help">
+                        <span class="title">Help and Support</span>
+                    </div>
+                    <div class="start-menu-item">
+                        <img src="https://win98icons.alexmeub.com/icons/png/search_computer-2.png" alt="Search">
+                        <span class="title">Search</span>
+                    </div>
+                    <div class="start-menu-item">
+                        <img src="https://win98icons.alexmeub.com/icons/png/application_hourglass-2.png" alt="Run">
+                        <span class="title">Run...</span>
+                    </div>
+                </div>
+            </div>
+            <div class="start-menu-footer">
+                <div class="footer-action">
+                    <img src="https://win98icons.alexmeub.com/icons/png/key_win-0.png" alt="Log Off">
+                    Log Off
+                </div>
+                <div class="footer-action">
+                    <img src="https://win98icons.alexmeub.com/icons/png/shut_down_normal-0.png" alt="Turn Off">
+                    Turn Off Computer
+                </div>
+            </div>
+        </div>
+
+        <!-- Taskbar -->
+        <div class="taskbar">
+            <button class="start-button" id="start-btn">
+                <img src="/media/start.png" class="windows-logo" alt="Start">
+                <span class="start-text">start</span>
+            </button>
+            <div class="taskbar-divider"></div>
+            <div class="task-items">
+                <div class="task-item active">
+                    <img src="https://win98icons.alexmeub.com/icons/png/msie1-1.png" alt="IE logo">
+                    <span class="task-title">Ars Technica - Microsoft In...</span>
+                </div>
+                <div class="task-item">
+                    <img src="https://win98icons.alexmeub.com/icons/png/paint_file-2.png" alt="Paint logo">
+                    <span class="task-title">untitled - Paint</span>
+                </div>
+            </div>
+            <div class="system-tray">
+                <img src="https://win98icons.alexmeub.com/icons/png/loudspeaker_rays-0.png" class="tray-icon"
+                    alt="Volume">
+                <span id="clock">12:00 PM</span>
+            </div>
+        </div>
+    </div>
+    <script src="script.js"></script>
+</body>
+
+</html>
