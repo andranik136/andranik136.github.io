@@ -9,8 +9,6 @@ import { ScheduleView } from './features/views/ScheduleView';
 import { ChartsView } from './features/views/ChartsView';
 import { MyDayView } from './features/views/MyDayView';
 
-import { Plus } from 'lucide-react';
-
 function App() {
   const { initApp, activePlanId, currentView, buckets, addTask, setSelectedTask } = usePlannerStore();
 
@@ -18,27 +16,28 @@ function App() {
     initApp();
   }, [initApp]);
 
-  const handleAddNewTask = async () => {
+  if (!activePlanId) {
+    return <div className="flex h-screen items-center justify-center bg-planner-bg text-planner-textMuted">Loading workspace...</div>;
+  }
+
+  const handleNewTask = async () => {
     if (!activePlanId || buckets.length === 0) return;
+    const firstBucketId = [...buckets].sort((a, b) => a.orderIndex - b.orderIndex)[0].id;
     const newTaskId = await addTask({
       planId: activePlanId,
-      bucketId: buckets[0].id,
+      bucketId: firstBucketId,
       title: 'New Task',
       description: '',
       status: 'Not Started',
       priority: 'Medium',
       labels: [],
-      orderIndex: 0
+      orderIndex: 0,
     });
     setSelectedTask(newTaskId);
   };
 
-  if (!activePlanId) {
-    return <div className="flex h-screen items-center justify-center bg-planner-bg text-planner-textMuted">Loading workspace...</div>;
-  }
-
   return (
-    <div className="flex h-screen w-full bg-planner-bg overflow-hidden text-planner-text">
+    <div className="flex h-screen w-full bg-planner-bg overflow-hidden text-planner-text relative">
       <Sidebar />
       <div className="flex-1 flex flex-col overflow-hidden">
         <Header />
@@ -49,17 +48,17 @@ function App() {
           {currentView === 'Charts' && <ChartsView />}
           {currentView === 'MyDay' && <MyDayView />}
         </main>
-
-        {/* Floating Action Button */}
-        <button
-          onClick={handleAddNewTask}
-          className="fixed bottom-8 right-8 w-14 h-14 bg-planner-primary text-white rounded-full flex items-center justify-center shadow-lg hover:bg-blue-700 transition-all z-40 hover:scale-105 active:scale-95"
-          title="Create New Task"
-        >
-          <Plus size={24} />
-        </button>
       </div>
       <TaskModal />
+
+      <button
+        onClick={handleNewTask}
+        className="fixed bottom-8 right-8 bg-blue-600 text-white rounded-full flex items-center shadow-lg hover:bg-blue-700 hover:shadow-xl hover:-translate-y-0.5 transition-all px-5 py-3.5 group z-50"
+      >
+        <span className="text-xl font-bold mr-2 leading-none group-hover:scale-110 transition-transform">+</span>
+        <span className="font-semibold tracking-wide">New Task</span>
+      </button>
+
     </div>
   );
 }

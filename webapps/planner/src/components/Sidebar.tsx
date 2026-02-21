@@ -1,34 +1,32 @@
-import { useState, type KeyboardEvent } from 'react';
-import { Calendar, LayoutTemplate, Sun, Plus, Edit2, Check, X } from 'lucide-react';
+import { Calendar, LayoutTemplate, Sun, Plus, Edit2, Check } from 'lucide-react';
 import { usePlannerStore } from '../store/usePlannerStore';
+import { useState } from 'react';
 import clsx from 'clsx';
 
 export function Sidebar() {
     const { currentView, setCurrentView, activePlan, updatePlan } = usePlannerStore();
+    const [isEditingTitle, setIsEditingTitle] = useState(false);
+    const [titleInput, setTitleInput] = useState('');
 
-    const [isEditing, setIsEditing] = useState(false);
-    const [editName, setEditName] = useState('');
+    const handleEditStart = () => {
+        setTitleInput(activePlan?.title || '');
+        setIsEditingTitle(true);
+    };
 
-    const handleStartEdit = () => {
-        if (activePlan) {
-            setEditName(activePlan.title);
-            setIsEditing(true);
+    const handleEditSave = async () => {
+        if (activePlan && titleInput.trim()) {
+            await updatePlan(activePlan.id, { title: titleInput.trim() });
+        }
+        setIsEditingTitle(false);
+    };
+
+    const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
+        if (e.key === 'Enter') {
+            handleEditSave();
+        } else if (e.key === 'Escape') {
+            setIsEditingTitle(false);
         }
     };
-
-    const handleSaveEdit = async () => {
-        if (activePlan && editName.trim()) {
-            await updatePlan(activePlan.id, editName.trim());
-        }
-        setIsEditing(false);
-    };
-
-    const handleKeyDown = (e: KeyboardEvent) => {
-        if (e.key === 'Enter') handleSaveEdit();
-        if (e.key === 'Escape') setIsEditing(false);
-    };
-
-    // Dummy plans list for navigation showcase (in a real app, fetch from db)
     // For now, we'll just have the global actions
 
     return (
@@ -42,7 +40,7 @@ export function Sidebar() {
                 <SidebarItem icon={<Sun size={18} />} label="My Day" active={currentView === 'MyDay'} onClick={() => setCurrentView('MyDay')} />
                 <SidebarItem icon={<Calendar size={18} />} label="Schedule" active={currentView === 'Schedule'} onClick={() => setCurrentView('Schedule')} />
 
-                <div className="pt-6 pb-2 break-all">
+                <div className="pt-6 pb-2">
                     <p className="px-3 text-xs font-semibold text-planner-textMuted uppercase tracking-wider">
                         Task Lists
                     </p>
@@ -51,35 +49,41 @@ export function Sidebar() {
                 {activePlan && (
                     <div className={clsx(
                         "w-full flex items-center justify-between px-3 py-2 text-sm font-medium rounded-md transition-colors",
-                        "bg-blue-50 text-planner-primary"
+                        "bg-blue-50 text-planner-primary group"
                     )}>
-                        {isEditing ? (
-                            <div className="flex items-center w-full gap-1">
+                        <div className="flex items-center space-x-3 flex-1 overflow-hidden">
+                            <span className="w-2 h-2 rounded-full bg-blue-500 flex-shrink-0"></span>
+                            {isEditingTitle ? (
                                 <input
-                                    autoFocus
-                                    className="flex-1 bg-white border border-blue-300 rounded px-1.5 py-0.5 text-sm text-gray-900 outline-none focus:border-blue-500 min-w-0"
-                                    value={editName}
-                                    onChange={e => setEditName(e.target.value)}
+                                    type="text"
+                                    value={titleInput}
+                                    onChange={(e) => setTitleInput(e.target.value)}
+                                    onBlur={handleEditSave}
                                     onKeyDown={handleKeyDown}
-                                    onBlur={() => setIsEditing(false)}
+                                    autoFocus
+                                    className="flex-1 min-w-0 bg-transparent border-b border-blue-300 focus:outline-none focus:border-blue-500 text-planner-primary px-1"
                                 />
-                                <button type="button" onMouseDown={(e) => { e.preventDefault(); handleSaveEdit(); }} className="p-1 hover:bg-blue-100 rounded text-blue-600 shrink-0"><Check size={14} /></button>
-                                <button type="button" onMouseDown={(e) => { e.preventDefault(); setIsEditing(false); }} className="p-1 hover:bg-blue-100 rounded text-gray-500 shrink-0"><X size={14} /></button>
-                            </div>
-                        ) : (
-                            <>
-                                <div className="flex items-center flex-1 overflow-hidden" title={activePlan.title}>
-                                    <span className="w-2 h-2 shrink-0 rounded-full bg-blue-500 mr-3"></span>
-                                    <span className="truncate">{activePlan.title}</span>
-                                </div>
-                                <button
-                                    onClick={handleStartEdit}
-                                    className="p-1 ml-2 text-planner-primary opacity-60 hover:opacity-100 hover:bg-blue-100 rounded shrink-0 transition-all"
-                                    title="Rename Task List"
-                                >
-                                    <Edit2 size={14} />
-                                </button>
-                            </>
+                            ) : (
+                                <span className="truncate">{activePlan.title}</span>
+                            )}
+                        </div>
+                        {!isEditingTitle && (
+                            <button
+                                onClick={(e) => { e.stopPropagation(); handleEditStart(); }}
+                                className="opacity-0 group-hover:opacity-100 p-1 hover:bg-blue-100 rounded text-blue-600 transition-opacity"
+                                title="Rename Task List"
+                            >
+                                <Edit2 size={14} />
+                            </button>
+                        )}
+                        {isEditingTitle && (
+                            <button
+                                onMouseDown={(e) => { e.preventDefault(); handleEditSave(); }}
+                                className="p-1 hover:bg-blue-100 rounded text-blue-600"
+                                title="Save"
+                            >
+                                <Check size={14} />
+                            </button>
                         )}
                     </div>
                 )}

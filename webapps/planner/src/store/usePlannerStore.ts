@@ -25,7 +25,7 @@ interface PlannerState {
     // Actions
     setActivePlan: (planId: ID) => Promise<void>;
     createPlan: (title: string, theme: string) => Promise<string>;
-    updatePlan: (planId: ID, title: string) => Promise<void>;
+    updatePlan: (planId: ID, updates: Partial<Plan>) => Promise<void>;
 
     addBucket: (bucket: Omit<Bucket, 'id'>) => Promise<void>;
     updateBucket: (bucketId: ID, updates: Partial<Bucket>) => Promise<void>;
@@ -120,11 +120,12 @@ export const usePlannerStore = create<PlannerState>((set, get) => ({
         return newPlan.id;
     },
 
-    updatePlan: async (planId: ID, title: string) => {
-        await db.plans.update(planId, { title });
-        set((state) => ({
-            activePlan: state.activePlan?.id === planId ? { ...state.activePlan, title } : state.activePlan
-        }));
+    updatePlan: async (planId: ID, updates: Partial<Plan>) => {
+        await db.plans.update(planId, updates);
+        const { activePlan } = get();
+        if (activePlan?.id === planId) {
+            set({ activePlan: { ...activePlan, ...updates } });
+        }
     },
 
     addBucket: async (bucket: Omit<Bucket, 'id'>) => {
