@@ -1,11 +1,23 @@
-import { Filter, MoreHorizontal, Download, Upload } from 'lucide-react';
+import { Filter, MoreHorizontal, Download, Upload, Trash2 } from 'lucide-react';
 import { usePlannerStore } from '../store/usePlannerStore';
 import { exportData, importData } from '../utils/exportImport';
-import { useRef } from 'react';
+import { useRef, useState, useEffect } from 'react';
 
 export function Header() {
-    const { activePlan, currentView, setCurrentView, initApp } = usePlannerStore();
+    const { activePlan, currentView, setCurrentView, initApp, deletePlan } = usePlannerStore();
     const fileInputRef = useRef<HTMLInputElement>(null);
+    const [isMenuOpen, setIsMenuOpen] = useState(false);
+    const menuRef = useRef<HTMLDivElement>(null);
+
+    useEffect(() => {
+        function handleClickOutside(event: MouseEvent) {
+            if (menuRef.current && !menuRef.current.contains(event.target as Node)) {
+                setIsMenuOpen(false);
+            }
+        }
+        document.addEventListener('mousedown', handleClickOutside);
+        return () => document.removeEventListener('mousedown', handleClickOutside);
+    }, []);
 
     const handleImport = async (e: React.ChangeEvent<HTMLInputElement>) => {
         const file = e.target.files?.[0];
@@ -17,6 +29,15 @@ export function Header() {
         } catch (error) {
             console.error('Import failed', error);
             alert('Failed to import data. Check console for details.');
+        }
+    };
+
+    const handleDeletePlan = async () => {
+        setIsMenuOpen(false);
+        if (!activePlan) return;
+        const confirmDelete = window.confirm(`Are you sure you want to delete the task list "${activePlan.title}"? This action cannot be undone.`);
+        if (confirmDelete) {
+            await deletePlan(activePlan.id);
         }
     };
 
@@ -68,9 +89,28 @@ export function Header() {
                     accept=".json,application/json"
                     onChange={handleImport}
                 />
-                <button className="w-8 h-8 flex items-center justify-center text-planner-textMuted hover:text-planner-text rounded-full hover:bg-gray-50 transition-colors">
-                    <MoreHorizontal size={20} />
-                </button>
+                <div className="relative" ref={menuRef}>
+                    <button
+                        onClick={() => setIsMenuOpen(!isMenuOpen)}
+                        className="w-8 h-8 flex items-center justify-center text-planner-textMuted hover:text-planner-text rounded-full hover:bg-gray-50 transition-colors"
+                    >
+                        <MoreHorizontal size={20} />
+                    </button>
+
+                    {isMenuOpen && (
+                        <div className="absolute right-0 mt-2 w-48 bg-white rounded-md shadow-lg border border-gray-200 z-50 overflow-hidden">
+                            <div className="py-1">
+                                <button
+                                    onClick={handleDeletePlan}
+                                    className="w-full text-left px-4 py-2 text-sm text-red-600 hover:bg-red-50 flex items-center space-x-2 transition-colors"
+                                >
+                                    <Trash2 size={16} />
+                                    <span>Delete Task List</span>
+                                </button>
+                            </div>
+                        </div>
+                    )}
+                </div>
             </div>
         </header>
     );

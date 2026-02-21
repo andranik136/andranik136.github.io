@@ -1,11 +1,11 @@
-import { useMemo } from 'react';
-import { Calendar, dateFnsLocalizer, type Event as CalendarEvent } from 'react-big-calendar';
+import { useMemo, useState } from 'react';
+import { Calendar, dateFnsLocalizer, type Event as CalendarEvent, type View } from 'react-big-calendar';
 import { format, parse, startOfWeek, getDay } from 'date-fns';
 import { enUS } from 'date-fns/locale';
+import { ChevronLeft, ChevronRight } from 'lucide-react';
 import 'react-big-calendar/lib/css/react-big-calendar.css';
 
 import { usePlannerStore } from '../../store/usePlannerStore';
-// We'll render here if we want or let App.tsx handle it since it's global
 
 const locales = {
     'en-US': enUS,
@@ -21,10 +21,12 @@ const localizer = dateFnsLocalizer({
 
 export function ScheduleView() {
     const { tasks, setSelectedTask } = usePlannerStore();
+    const [currentDate, setCurrentDate] = useState(new Date());
+    const [currentView, setCurrentView] = useState<View>('month');
 
     const events = useMemo(() => {
         return tasks
-            .filter(task => task.dueDate || task.startDate) // Only map tasks that have a date
+            .filter(task => task.dueDate || task.startDate)
             .map(task => {
                 const start = task.startDate ? new Date(task.startDate) : new Date(task.dueDate!);
                 const end = task.dueDate ? new Date(task.dueDate) : new Date(task.startDate!);
@@ -40,7 +42,6 @@ export function ScheduleView() {
     }, [tasks]);
 
     const handleSelectEvent = (event: CalendarEvent) => {
-        // We added resource mapping which contains the task
         const task = (event as any).resource;
         if (task) {
             setSelectedTask(task.id as string);
@@ -56,10 +57,17 @@ export function ScheduleView() {
                     startAccessor="start"
                     endAccessor="end"
                     views={['month', 'week', 'agenda']}
-                    defaultView="month"
+                    view={currentView}
+                    date={currentDate}
+                    onView={(view) => setCurrentView(view)}
+                    onNavigate={(date) => setCurrentDate(date)}
                     onSelectEvent={handleSelectEvent}
                     style={{ height: '100%' }}
-                    eventPropGetter={(event) => {
+                    messages={{
+                        previous: <span className="flex items-center justify-center"><ChevronLeft size={18} /></span> as any,
+                        next: <span className="flex items-center justify-center"><ChevronRight size={18} /></span> as any,
+                    }}
+                    eventPropGetter={(event: any) => {
                         const isCompleted = event.resource.status === 'Completed';
                         return {
                             className: isCompleted ? 'opacity-60 bg-gray-500 line-through' : 'bg-blue-600',

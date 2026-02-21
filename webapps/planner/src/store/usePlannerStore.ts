@@ -8,6 +8,7 @@ export type ViewMode = 'Board' | 'Grid' | 'Charts' | 'Schedule' | 'MyDay' | 'Hub
 interface PlannerState {
     activePlanId: ID | null;
     activePlan: Plan | null;
+    allPlans: Plan[];
     buckets: Bucket[];
     tasks: Task[];
     checklistItems: ChecklistItem[];
@@ -21,11 +22,13 @@ interface PlannerState {
 
     // App initialization
     initApp: () => Promise<void>;
+    loadPlans: () => Promise<void>;
 
     // Actions
     setActivePlan: (planId: ID) => Promise<void>;
     createPlan: (title: string, theme: string) => Promise<string>;
     updatePlan: (planId: ID, updates: Partial<Plan>) => Promise<void>;
+    deletePlan: (planId: ID) => Promise<void>;
 
     addBucket: (bucket: Omit<Bucket, 'id'>) => Promise<void>;
     updateBucket: (bucketId: ID, updates: Partial<Bucket>) => Promise<void>;
@@ -53,6 +56,7 @@ const generateId = () => crypto.randomUUID();
 export const usePlannerStore = create<PlannerState>((set, get) => ({
     activePlanId: null,
     activePlan: null,
+    allPlans: [],
     buckets: [],
     tasks: [],
     checklistItems: [],
@@ -64,12 +68,17 @@ export const usePlannerStore = create<PlannerState>((set, get) => ({
     currentView: 'Board',
     setCurrentView: (view) => set({ currentView: view }),
 
-    initApp: async () => {
+    loadPlans: async () => {
         const plans = await db.plans.toArray();
-        if (plans.length > 0) {
+        set({ allPlans: plans.sort((a, b) => b.createdAt - a.createdAt) });
+    },
+
+    initApp: async () => {
+        await get().loadPlans();
+        const { allPlans } = get();
+        if (allPlans.length > 0) {
             // Load the most recently created or first plan
-            const latestPlan = plans.sort((a, b) => b.createdAt - a.createdAt)[0];
-            await get().setActivePlan(latestPlan.id);
+            await get().setActivePlan(allPlans[0].id);
         } else {
             // Create a default plan if none exists
             const newPlanId = await get().createPlan('My First Project', '#2563eb');
@@ -117,6 +126,8 @@ export const usePlannerStore = create<PlannerState>((set, get) => ({
         ];
         await db.buckets.bulkAdd(defaultBuckets);
 
+        await get().loadPlans();
+
         return newPlan.id;
     },
 
@@ -125,6 +136,33 @@ export const usePlannerStore = create<PlannerState>((set, get) => ({
         const { activePlan } = get();
         if (activePlan?.id === planId) {
             set({ activePlan: { ...activePlan, ...updates } });
+        }
+        await get().loadPlans();
+    },
+
+    deletePlan: async (planId: ID) => {
+        // Delete from DB
+        await db.plans.delete(planId);
+
+        // Delete associated buckets, tasks, checklist items, and notes
+        const buckets = await db.buckets.where('planId').equals(planId).toArray();
+        const tasks = await db.tasks.where('planId').equals(planId).toArray();
+        const taskIds = tasks.map(t => t.id);
+
+        await db.buckets.bulkDelete(buckets.map(b => b.id));
+        await db.tasks.bulkDelete(taskIds);
+        if (taskIds.length > 0) {
+            await db.checklistItems.where('taskId').anyOf(taskIds).delete();
+            await db.notes.where('taskId').anyOf(taskIds).delete();
+        }
+
+        await get().loadPlans();
+
+        // If we deleted the active plan, initialize app to load the next one or create default
+        const { activePlanId } = get();
+        if (activePlanId === planId) {
+            set({ activePlanId: null, activePlan: null, buckets: [], tasks: [], checklistItems: [], notes: [] });
+            await get().initApp();
         }
     },
 

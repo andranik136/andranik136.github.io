@@ -4,30 +4,36 @@ import { useState } from 'react';
 import clsx from 'clsx';
 
 export function Sidebar() {
-    const { currentView, setCurrentView, activePlan, updatePlan } = usePlannerStore();
-    const [isEditingTitle, setIsEditingTitle] = useState(false);
+    const { currentView, setCurrentView, activePlanId, allPlans, updatePlan, createPlan, setActivePlan } = usePlannerStore();
+    const [editingPlanId, setEditingPlanId] = useState<string | null>(null);
     const [titleInput, setTitleInput] = useState('');
 
-    const handleEditStart = () => {
-        setTitleInput(activePlan?.title || '');
-        setIsEditingTitle(true);
+    const handleEditStart = (plan: any) => {
+        setTitleInput(plan.title || '');
+        setEditingPlanId(plan.id);
     };
 
-    const handleEditSave = async () => {
-        if (activePlan && titleInput.trim()) {
-            await updatePlan(activePlan.id, { title: titleInput.trim() });
+    const handleEditSave = async (planId: string) => {
+        if (titleInput.trim()) {
+            await updatePlan(planId, { title: titleInput.trim() });
         }
-        setIsEditingTitle(false);
+        setEditingPlanId(null);
     };
 
-    const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
+    const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>, planId: string) => {
         if (e.key === 'Enter') {
-            handleEditSave();
+            handleEditSave(planId);
         } else if (e.key === 'Escape') {
-            setIsEditingTitle(false);
+            setEditingPlanId(null);
         }
     };
-    // For now, we'll just have the global actions
+
+    const handleCreateNewPlan = async () => {
+        const newPlanId = await createPlan('New Plan', '#2563eb');
+        await setActivePlan(newPlanId);
+        setTitleInput('New Plan');
+        setEditingPlanId(newPlanId);
+    };
 
     return (
         <aside className="w-64 flex-shrink-0 border-r border-planner-border bg-planner-surface flex flex-col h-full transition-all">
@@ -46,51 +52,69 @@ export function Sidebar() {
                     </p>
                 </div>
 
-                {activePlan && (
-                    <div className={clsx(
-                        "w-full flex items-center justify-between px-3 py-2 text-sm font-medium rounded-md transition-colors",
-                        "bg-blue-50 text-planner-primary group"
-                    )}>
-                        <div className="flex items-center space-x-3 flex-1 overflow-hidden">
-                            <span className="w-2 h-2 rounded-full bg-blue-500 flex-shrink-0"></span>
-                            {isEditingTitle ? (
-                                <input
-                                    type="text"
-                                    value={titleInput}
-                                    onChange={(e) => setTitleInput(e.target.value)}
-                                    onBlur={handleEditSave}
-                                    onKeyDown={handleKeyDown}
-                                    autoFocus
-                                    className="flex-1 min-w-0 bg-transparent border-b border-blue-300 focus:outline-none focus:border-blue-500 text-planner-primary px-1"
-                                />
-                            ) : (
-                                <span className="truncate">{activePlan.title}</span>
-                            )}
-                        </div>
-                        {!isEditingTitle && (
-                            <button
-                                onClick={(e) => { e.stopPropagation(); handleEditStart(); }}
-                                className="opacity-0 group-hover:opacity-100 p-1 hover:bg-blue-100 rounded text-blue-600 transition-opacity"
-                                title="Rename Task List"
+                <div className="space-y-1">
+                    {allPlans.map((plan) => {
+                        const isActive = activePlanId === plan.id;
+                        const isEditing = editingPlanId === plan.id;
+
+                        return (
+                            <div
+                                key={plan.id}
+                                onClick={() => setActivePlan(plan.id)}
+                                className={clsx(
+                                    "w-full flex items-center justify-between px-3 py-2 text-sm font-medium rounded-md transition-colors cursor-pointer group",
+                                    isActive ? "bg-blue-50 text-planner-primary" : "text-planner-textMuted hover:bg-gray-50 hover:text-planner-text"
+                                )}
                             >
-                                <Edit2 size={14} />
-                            </button>
-                        )}
-                        {isEditingTitle && (
-                            <button
-                                onMouseDown={(e) => { e.preventDefault(); handleEditSave(); }}
-                                className="p-1 hover:bg-blue-100 rounded text-blue-600"
-                                title="Save"
-                            >
-                                <Check size={14} />
-                            </button>
-                        )}
-                    </div>
-                )}
+                                <div className="flex items-center space-x-3 flex-1 overflow-hidden">
+                                    <span className={clsx(
+                                        "w-2 h-2 rounded-full flex-shrink-0",
+                                        isActive ? "bg-blue-500" : "bg-gray-400 group-hover:bg-gray-500"
+                                    )}></span>
+                                    {isEditing ? (
+                                        <input
+                                            type="text"
+                                            value={titleInput}
+                                            onChange={(e) => setTitleInput(e.target.value)}
+                                            onBlur={() => handleEditSave(plan.id)}
+                                            onKeyDown={(e) => handleKeyDown(e, plan.id)}
+                                            autoFocus
+                                            className="flex-1 min-w-0 bg-transparent border-b border-blue-300 focus:outline-none focus:border-blue-500 text-planner-primary px-1"
+                                            onClick={(e) => e.stopPropagation()}
+                                        />
+                                    ) : (
+                                        <span className="truncate">{plan.title}</span>
+                                    )}
+                                </div>
+                                {!isEditing && isActive && (
+                                    <button
+                                        onClick={(e) => { e.stopPropagation(); handleEditStart(plan); }}
+                                        className="opacity-0 group-hover:opacity-100 p-1 hover:bg-blue-100 rounded text-blue-600 transition-opacity"
+                                        title="Rename Task List"
+                                    >
+                                        <Edit2 size={14} />
+                                    </button>
+                                )}
+                                {isEditing && (
+                                    <button
+                                        onMouseDown={(e) => { e.preventDefault(); handleEditSave(plan.id); e.stopPropagation(); }}
+                                        className="p-1 hover:bg-blue-100 rounded text-blue-600"
+                                        title="Save"
+                                    >
+                                        <Check size={14} />
+                                    </button>
+                                )}
+                            </div>
+                        );
+                    })}
+                </div>
             </nav>
 
             <div className="p-4 border-t border-planner-border">
-                <button className="flex items-center w-full px-3 py-2 text-sm font-medium text-planner-textMuted hover:text-planner-text hover:bg-gray-50 rounded-md transition-colors">
+                <button
+                    onClick={handleCreateNewPlan}
+                    className="flex items-center w-full px-3 py-2 text-sm font-medium text-planner-textMuted hover:text-planner-text hover:bg-gray-50 rounded-md transition-colors"
+                >
                     <Plus size={18} className="mr-2" />
                     New Task List
                 </button>
