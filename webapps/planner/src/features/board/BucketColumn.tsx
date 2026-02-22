@@ -2,7 +2,7 @@ import { useMemo, useState } from 'react';
 import { useSortable } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
 import { SortableContext, verticalListSortingStrategy } from '@dnd-kit/sortable';
-import { MoreHorizontal, Plus, Trash2 } from 'lucide-react';
+import { MoreHorizontal, Plus, Trash2, Edit2 } from 'lucide-react';
 import type { Bucket } from '../../db/db';
 import { usePlannerStore } from '../../store/usePlannerStore';
 import { TaskCard } from './TaskCard';
@@ -137,6 +137,21 @@ export function BucketColumn({ bucket, isOverlay }: BucketColumnProps) {
                                 >
                                     <Trash2 size={16} className="mr-2" />
                                     Delete Bucket
+                                </button>
+
+                                <button
+                                    onClick={(e) => {
+                                        e.stopPropagation();
+                                        const newTitle = prompt('Enter new bucket name:', bucket.title);
+                                        if (newTitle && newTitle.trim() && newTitle.trim() !== bucket.title) {
+                                            updateBucket(bucket.id, { title: newTitle.trim() });
+                                        }
+                                        setIsMenuOpen(false);
+                                    }}
+                                    className="w-full flex items-center px-3 py-2 text-sm text-gray-700 hover:bg-gray-100 rounded-md transition-colors mt-1"
+                                >
+                                    <Edit2 size={16} className="mr-2 text-gray-400" />
+                                    Rename Bucket
                                 </button>
 
                                 <div className="mt-2 pt-2 border-t border-gray-100">

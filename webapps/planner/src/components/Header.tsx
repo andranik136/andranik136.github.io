@@ -1,4 +1,4 @@
-import { Filter, MoreHorizontal, Download, Upload, Trash2 } from 'lucide-react';
+import { MoreHorizontal, Download, Upload, Trash2 } from 'lucide-react';
 import { usePlannerStore } from '../store/usePlannerStore';
 import { exportData, importData } from '../utils/exportImport';
 import { useRef, useState, useEffect } from 'react';
@@ -63,11 +63,7 @@ export function Header() {
             </div>
 
             <div className="flex items-center space-x-3">
-                <button className="flex items-center space-x-2 text-sm font-medium text-planner-textMuted hover:text-planner-text px-3 py-1.5 rounded-md hover:bg-gray-50 transition-colors">
-                    <Filter size={16} />
-                    <span>Filter</span>
-                </button>
-                <div className="w-px h-5 bg-gray-200"></div>
+
                 <button
                     onClick={() => exportData()}
                     className="flex items-center space-x-1.5 text-sm font-medium text-planner-textMuted hover:text-planner-text px-2 py-1.5 rounded-md hover:bg-gray-50 transition-colors"
@@ -112,6 +108,6 @@ export function Header() {
                     )}
                 </div>
             </div>
-        </header>
+        </header >
     );
 }
