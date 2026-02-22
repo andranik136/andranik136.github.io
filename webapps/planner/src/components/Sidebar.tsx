@@ -7,6 +7,13 @@ export function Sidebar() {
     const { currentView, setCurrentView, activePlanId, allPlans, updatePlan, createPlan, setActivePlan } = usePlannerStore();
     const [editingPlanId, setEditingPlanId] = useState<string | null>(null);
     const [titleInput, setTitleInput] = useState('');
+    const [activeColorMenuId, setActiveColorMenuId] = useState<string | null>(null);
+
+    const PLAN_COLORS = [
+        '#ef4444', '#f97316', '#f59e0b', '#eab308',
+        '#84cc16', '#22c55e', '#10b981', '#14b8a6',
+        '#06b6d4', '#0ea5e9', '#3b82f6', '#8b5cf6'
+    ];
 
     const handleEditStart = (plan: any) => {
         setTitleInput(plan.title || '');
@@ -66,11 +73,49 @@ export function Sidebar() {
                                     isActive ? "bg-blue-50 text-planner-primary" : "text-planner-textMuted hover:bg-gray-50 hover:text-planner-text"
                                 )}
                             >
-                                <div className="flex items-center space-x-3 flex-1 overflow-hidden">
-                                    <span className={clsx(
-                                        "w-2 h-2 rounded-full flex-shrink-0",
-                                        isActive ? "bg-blue-500" : "bg-gray-400 group-hover:bg-gray-500"
-                                    )}></span>
+                                <div className="flex items-center space-x-3 flex-1 min-w-0">
+                                    <div className="relative flex items-center">
+                                        <button
+                                            onClick={(e) => {
+                                                e.stopPropagation();
+                                                setActiveColorMenuId(activeColorMenuId === plan.id ? null : plan.id);
+                                            }}
+                                            className="focus:outline-none flex items-center justify-center p-1 -ml-1 hover:bg-black/5 rounded group/color"
+                                            title="Change Color"
+                                        >
+                                            <span
+                                                className="w-2.5 h-2.5 rounded-full flex-shrink-0 transition-transform group-hover/color:scale-110"
+                                                style={{ backgroundColor: plan.theme || '#3b82f6' }}
+                                            ></span>
+                                        </button>
+
+                                        {activeColorMenuId === plan.id && (
+                                            <>
+                                                <div
+                                                    className="fixed inset-0 z-40"
+                                                    onClick={(e) => { e.stopPropagation(); setActiveColorMenuId(null); }}
+                                                />
+                                                <div className="absolute left-0 top-full mt-2 w-48 bg-white rounded-lg shadow-xl border border-gray-100 p-3 z-50 grid grid-cols-4 gap-2 cursor-auto" onClick={(e) => e.stopPropagation()}>
+                                                    {PLAN_COLORS.map(color => (
+                                                        <button
+                                                            key={color}
+                                                            onClick={(e) => {
+                                                                e.stopPropagation();
+                                                                updatePlan(plan.id, { theme: color });
+                                                                setActiveColorMenuId(null);
+                                                            }}
+                                                            className={clsx(
+                                                                "w-8 h-8 rounded-full shadow-sm hover:scale-110 transition-transform focus:outline-none border-2",
+                                                                plan.theme === color ? "border-gray-900" : "border-transparent"
+                                                            )}
+                                                            style={{ backgroundColor: color }}
+                                                            title={color}
+                                                        />
+                                                    ))}
+                                                </div>
+                                            </>
+                                        )}
+                                    </div>
                                     {isEditing ? (
                                         <input
                                             type="text"

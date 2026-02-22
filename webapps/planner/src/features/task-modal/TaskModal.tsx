@@ -1,6 +1,6 @@
-import React, { useState, useRef } from 'react';
+import React, { useState } from 'react';
 import { usePlannerStore } from '../../store/usePlannerStore';
-import { X, CheckSquare, AlignLeft, Paperclip, MessageSquare, Clock, Trash2 } from 'lucide-react';
+import { X, CheckSquare, AlignLeft, MessageSquare, Clock, Trash2, Save } from 'lucide-react';
 import clsx from 'clsx';
 import type { Task } from '../../db/db';
 
@@ -15,7 +15,6 @@ export function TaskModal() {
     const [newNoteText, setNewNoteText] = useState('');
     const [isEditingDesc, setIsEditingDesc] = useState(false);
     const [descEditValue, setDescEditValue] = useState('');
-    const fileInputRef = useRef<HTMLInputElement>(null);
 
     const task = tasks.find(t => t.id === selectedTaskId);
 
@@ -63,31 +62,6 @@ export function TaskModal() {
         }
     };
 
-    const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
-        const file = e.target.files?.[0];
-        if (!file) return;
-
-        if (file.size > 5 * 1024 * 1024) {
-            alert("File is too large! Please select a file under 5MB for local storage.");
-            return;
-        }
-
-        const reader = new FileReader();
-        reader.onload = (event) => {
-            const dataUrl = event.target?.result as string;
-            const newAttachment = { name: file.name, type: file.type, dataUrl };
-            const currentAttachments = task.attachments || [];
-            updateTask(task.id, { attachments: [...currentAttachments, newAttachment] });
-        };
-        reader.readAsDataURL(file);
-    };
-
-    const removeAttachment = (indexToRemove: number) => {
-        if (!task.attachments) return;
-        const newAttachments = task.attachments.filter((_, idx) => idx !== indexToRemove);
-        updateTask(task.id, { attachments: newAttachments });
-    };
-
     return (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm p-4 sm:p-6">
             <div className="bg-white rounded-2xl shadow-2xl w-full max-w-3xl max-h-full flex flex-col overflow-hidden relative">
@@ -104,6 +78,9 @@ export function TaskModal() {
                         <span className="text-xs font-medium text-gray-500 mt-1">in bucket <span className="underline decoration-gray-300">{bucketName}</span></span>
                     </div>
                     <div className="flex items-center space-x-2">
+                        <button onClick={handleClose} className="p-2 text-red-500 hover:text-red-600 hover:bg-red-50 rounded-full transition-colors" title="Save Task">
+                            <Save size={18} />
+                        </button>
                         <button onClick={handleDelete} className="p-2 text-gray-400 hover:text-red-500 hover:bg-red-50 rounded-full transition-colors" title="Delete Task">
                             <Trash2 size={18} />
                         </button>
@@ -212,59 +189,6 @@ export function TaskModal() {
                             </form>
                         </section>
 
-                        {/* Attachments */}
-                        <section>
-                            <div className="flex items-center justify-between mb-3">
-                                <div className="flex items-center space-x-3 text-gray-700">
-                                    <Paperclip size={18} />
-                                    <h3 className="font-semibold text-sm tracking-wide">Attachments</h3>
-                                </div>
-                                <button
-                                    onClick={() => fileInputRef.current?.click()}
-                                    className="text-xs font-medium bg-gray-100 hover:bg-gray-200 text-gray-700 px-3 py-1.5 rounded-md transition-colors"
-                                >
-                                    Add File
-                                </button>
-                                <input
-                                    type="file"
-                                    ref={fileInputRef}
-                                    className="hidden"
-                                    onChange={handleFileUpload}
-                                    accept="image/*,application/pdf"
-                                />
-                            </div>
-
-                            {task.attachments && task.attachments.length > 0 ? (
-                                <div className="grid grid-cols-2 gap-3">
-                                    {task.attachments.map((file, idx) => (
-                                        <div key={idx} className="relative group border border-gray-200 rounded-lg overflow-hidden flex items-center bg-gray-50 h-16">
-                                            {file.type.startsWith('image/') ? (
-                                                <div className="w-16 h-full bg-gray-200 flex-shrink-0">
-                                                    <img src={file.dataUrl} alt={file.name} className="w-full h-full object-cover" />
-                                                </div>
-                                            ) : (
-                                                <div className="w-16 h-full bg-blue-100 flex items-center justify-center text-blue-600 flex-shrink-0">
-                                                    <Paperclip size={20} />
-                                                </div>
-                                            )}
-                                            <div className="p-2 flex-1 min-w-0">
-                                                <p className="text-xs font-semibold text-gray-800 truncate" title={file.name}>{file.name}</p>
-                                                <p className="text-[10px] text-gray-500 uppercase mt-0.5" title="Local file">Local File</p>
-                                            </div>
-                                            <button
-                                                onClick={() => removeAttachment(idx)}
-                                                className="absolute top-1 right-1 p-1 bg-white/90 hover:bg-red-50 text-gray-500 hover:text-red-500 rounded shadow-sm opacity-0 group-hover:opacity-100 transition-all"
-                                            >
-                                                <Trash2 size={12} />
-                                            </button>
-                                        </div>
-                                    ))}
-                                </div>
-                            ) : (
-                                <p className="text-sm text-gray-400 italic">No attachments added yet.</p>
-                            )}
-                        </section>
-
                     </div>
 
                     {/* Sidebar / Metadata Column */}
@@ -300,18 +224,74 @@ export function TaskModal() {
                             </div>
 
                             <div>
-                                <label className="text-xs font-bold text-gray-500 uppercase tracking-wider mb-1.5 block flex items-center">
+                                <label className="text-xs font-bold text-gray-500 uppercase tracking-wider mb-1.5 flex items-center">
                                     <Clock size={12} className="mr-1" /> Due Date
                                 </label>
-                                <input
-                                    type="date"
-                                    value={task.dueDate ? new Date(task.dueDate).toISOString().split('T')[0] : ''}
-                                    onChange={(e) => {
-                                        const date = e.target.value ? new Date(e.target.value).getTime() : undefined;
-                                        updateTask(task.id, { dueDate: date });
-                                    }}
-                                    className="w-full text-sm bg-white border border-gray-200 rounded-md p-1.5 focus:ring-2 focus:ring-blue-500 outline-none text-gray-800"
-                                />
+                                <div className="flex flex-col space-y-2">
+                                    <input
+                                        type="date"
+                                        value={
+                                            task.dueDate
+                                                ? (() => {
+                                                    const d = new Date(task.dueDate);
+                                                    const year = d.getFullYear();
+                                                    const month = String(d.getMonth() + 1).padStart(2, '0');
+                                                    const day = String(d.getDate()).padStart(2, '0');
+                                                    return `${year.toString().padStart(4, '0')}-${month}-${day}`;
+                                                })()
+                                                : ''
+                                        }
+                                        onChange={(e) => {
+                                            const dateStr = e.target.value;
+                                            if (!dateStr) {
+                                                updateTask(task.id, { dueDate: undefined });
+                                                return;
+                                            }
+                                            const newDate = new Date(dateStr);
+                                            // Handle potential "invalid date" if they are midway typing
+                                            if (isNaN(newDate.getTime())) return;
+
+                                            // Preserve existing time if any
+                                            if (task.dueDate) {
+                                                const existingDate = new Date(task.dueDate);
+                                                newDate.setHours(existingDate.getHours());
+                                                newDate.setMinutes(existingDate.getMinutes());
+                                                newDate.setSeconds(existingDate.getSeconds());
+                                            }
+                                            updateTask(task.id, { dueDate: newDate.getTime() });
+                                        }}
+                                        className="w-full text-sm bg-white border border-gray-200 rounded-md p-1.5 focus:ring-2 focus:ring-blue-500 outline-none text-gray-800"
+                                    />
+                                    <input
+                                        type="time"
+                                        value={
+                                            task.dueDate
+                                                ? (() => {
+                                                    const d = new Date(task.dueDate);
+                                                    const hours = String(d.getHours()).padStart(2, '0');
+                                                    const minutes = String(d.getMinutes()).padStart(2, '0');
+                                                    return `${hours}:${minutes}`;
+                                                })()
+                                                : ''
+                                        }
+                                        onChange={(e) => {
+                                            const timeStr = e.target.value;
+                                            const baseDate = task.dueDate ? new Date(task.dueDate) : new Date();
+
+                                            if (!timeStr) {
+                                                // If they clear the time, default back to midnight of whatever day it is
+                                                baseDate.setHours(0, 0, 0, 0);
+                                                updateTask(task.id, { dueDate: baseDate.getTime() });
+                                                return;
+                                            }
+
+                                            const [hours, minutes] = timeStr.split(':').map(Number);
+                                            baseDate.setHours(hours, minutes, 0, 0);
+                                            updateTask(task.id, { dueDate: baseDate.getTime() });
+                                        }}
+                                        className="w-full text-sm bg-white border border-gray-200 rounded-md p-1.5 focus:ring-2 focus:ring-blue-500 outline-none text-gray-800"
+                                    />
+                                </div>
                             </div>
                         </div>
 
