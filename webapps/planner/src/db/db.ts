@@ -12,6 +12,7 @@ export interface Bucket {
     planId: string;
     title: string;
     orderIndex: number; // for manual sorting
+    color?: string; // custom color for bucket and its tasks
 }
 
 export interface Task {

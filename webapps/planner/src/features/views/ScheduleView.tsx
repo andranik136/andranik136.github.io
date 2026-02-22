@@ -20,7 +20,7 @@ const localizer = dateFnsLocalizer({
 });
 
 export function ScheduleView() {
-    const { tasks, setSelectedTask } = usePlannerStore();
+    const { tasks, buckets, setSelectedTask } = usePlannerStore();
     const [currentDate, setCurrentDate] = useState(new Date());
     const [currentView, setCurrentView] = useState<View>('month');
 
@@ -69,8 +69,15 @@ export function ScheduleView() {
                     }}
                     eventPropGetter={(event: any) => {
                         const isCompleted = event.resource.status === 'Completed';
+                        const bucket = buckets.find(b => b.id === event.resource.bucketId);
+                        const baseColor = bucket?.color || '#2563eb'; // default blue-600
+
                         return {
-                            className: isCompleted ? 'opacity-60 bg-gray-500 line-through' : 'bg-blue-600',
+                            className: isCompleted ? 'opacity-60 line-through' : '',
+                            style: {
+                                backgroundColor: isCompleted ? '#6b7280' : baseColor,
+                                border: 'none'
+                            }
                         };
                     }}
                 />
