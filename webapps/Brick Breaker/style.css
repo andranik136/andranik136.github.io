@@ -1,0 +1,580 @@
+/* Reset & Base Styles */
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+  user-select: none;
+  -webkit-user-select: none;
+}
+
+:root {
+  --bg-dark: #0a0b10;
+  --bg-card: #141622;
+  --primary: #00ffff;
+  --primary-glow: rgba(0, 255, 255, 0.4);
+  --secondary: #ff00ff;
+  --secondary-glow: rgba(255, 0, 255, 0.4);
+  --accent: #ffff00;
+  --text-white: #ffffff;
+  --text-gray: #8f9cae;
+  --red: #ff3b30;
+  --green: #4cd964;
+  --bezel-color: #242838;
+}
+
+body {
+  background-color: var(--bg-dark);
+  color: var(--text-white);
+  font-family: 'Outfit', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  min-height: 100vh;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  overflow: hidden;
+  position: relative;
+  /* Retro background grid pattern */
+  background-image: 
+    radial-gradient(circle at 50% 50%, rgba(20, 25, 45, 0.8) 0%, var(--bg-dark) 100%),
+    linear-gradient(rgba(255, 255, 255, 0.02) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255, 255, 255, 0.02) 1px, transparent 1px);
+  background-size: 100% 100%, 32px 32px, 32px 32px;
+}
+
+/* Screen container */
+.game-container {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  max-width: 900px;
+  height: 96vh;
+  max-height: 700px;
+  padding: 10px;
+  justify-content: space-between;
+  align-items: center;
+  position: relative;
+}
+
+/* Header HUD styling */
+.hud-header {
+  width: 100%;
+  background: var(--bg-card);
+  border: 3px solid #32384e;
+  border-radius: 8px;
+  padding: 10px 20px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.5), inset 0 0 10px rgba(0, 0, 0, 0.3);
+}
+
+.hud-item {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+}
+
+.score-box {
+  min-width: 150px;
+}
+
+.highscore-box {
+  min-width: 150px;
+  align-items: flex-end;
+}
+
+.hud-label {
+  font-family: 'Press Start 2P', monospace;
+  font-size: 10px;
+  color: var(--text-gray);
+  margin-bottom: 5px;
+  letter-spacing: 1px;
+}
+
+.hud-value {
+  font-family: 'Press Start 2P', monospace;
+  font-size: 18px;
+  color: var(--text-white);
+  letter-spacing: 2px;
+  text-shadow: 0 0 5px rgba(255, 255, 255, 0.5);
+}
+
+.highscore-box .hud-value {
+  color: var(--accent);
+  text-shadow: 0 0 5px rgba(255, 255, 0, 0.3);
+}
+
+.hud-title-zone {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.game-title {
+  font-family: 'Press Start 2P', monospace;
+  font-size: 16px;
+  font-weight: 800;
+  letter-spacing: 2px;
+  background: linear-gradient(to bottom, #fff, #88d0ff);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  filter: drop-shadow(0 2px 4px rgba(0,0,0,0.5));
+}
+
+.hatch-indicators {
+  display: flex;
+  gap: 8px;
+  margin-top: 4px;
+}
+
+.hatch-light {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background-color: #3a1e1e;
+  box-shadow: inset 0 1px 1px rgba(0,0,0,0.5);
+  transition: background-color 0.1s ease;
+}
+
+.hatch-light.active {
+  background-color: var(--red);
+  box-shadow: 0 0 6px var(--red), inset 0 1px 0 rgba(255,255,255,0.4);
+}
+
+.hatch-light.green {
+  background-color: var(--green);
+  box-shadow: 0 0 6px var(--green), inset 0 1px 0 rgba(255,255,255,0.4);
+}
+
+/* CRT Monitor styling */
+.monitor-frame {
+  width: 100%;
+  flex-grow: 1;
+  margin: 12px 0;
+  background-color: var(--bezel-color);
+  border-radius: 16px;
+  border: 12px solid #2d3246;
+  border-bottom-width: 16px;
+  box-shadow: 
+    0 15px 35px rgba(0,0,0,0.8),
+    inset 0 4px 6px rgba(255,255,255,0.1),
+    inset 0 -10px 20px rgba(0,0,0,0.6);
+  position: relative;
+  overflow: hidden;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 8px;
+}
+
+/* Curved bulb simulation */
+.monitor-frame::after {
+  content: " ";
+  display: block;
+  position: absolute;
+  top: 0; left: 0; bottom: 0; right: 0;
+  background: radial-gradient(circle, transparent 60%, rgba(0, 0, 0, 0.45) 100%);
+  pointer-events: none;
+  z-index: 10;
+  border-radius: 8px;
+}
+
+.crt-screen {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  background-color: #000;
+  border-radius: 6px;
+  overflow: hidden;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  box-shadow: inset 0 0 40px rgba(0,0,0,1);
+}
+
+canvas {
+  width: 100%;
+  height: 100%;
+  max-width: 100%;
+  max-height: 100%;
+  object-fit: contain;
+  image-rendering: -moz-crisp-edges;
+  image-rendering: -webkit-crisp-edges;
+  image-rendering: pixelated;
+  image-rendering: crisp-edges;
+  display: block;
+  z-index: 1;
+}
+
+/* Scanline Effect overlay */
+.scanlines {
+  position: absolute;
+  top: 0; left: 0; width: 100%; height: 100%;
+  background: linear-gradient(
+    rgba(18, 16, 16, 0) 50%, 
+    rgba(0, 0, 0, 0.18) 50%
+  );
+  background-size: 100% 4px;
+  z-index: 2;
+  pointer-events: none;
+}
+
+/* Screen Glass Flicker Effect */
+.screen-flicker {
+  position: absolute;
+  top: 0; left: 0; width: 100%; height: 100%;
+  background: rgba(18, 16, 16, 0.015);
+  opacity: 0.15;
+  z-index: 3;
+  pointer-events: none;
+  animation: crt-flicker 0.15s infinite;
+}
+
+@keyframes crt-flicker {
+  0% { opacity: 0.15; }
+  50% { opacity: 0.18; }
+  100% { opacity: 0.14; }
+}
+
+/* UI Canvas Overlay Panels (Menus) */
+.ui-overlay {
+  position: absolute;
+  top: 0; left: 0; width: 100%; height: 100%;
+  z-index: 5;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background-color: rgba(0, 0, 80, 0.3);
+  backdrop-filter: blur(2px);
+  -webkit-backdrop-filter: blur(2px);
+  transition: opacity 0.3s ease;
+}
+
+.menu-content {
+  background: rgba(10, 12, 22, 0.95);
+  border: 4px solid #00ffff;
+  box-shadow: 
+    0 0 30px rgba(0, 255, 255, 0.4),
+    inset 0 0 15px rgba(0, 255, 255, 0.2);
+  border-radius: 12px;
+  padding: 30px 40px;
+  width: 90%;
+  max-width: 500px;
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 15px;
+  animation: menu-slide 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+@keyframes menu-slide {
+  from { transform: translateY(30px) scale(0.9); opacity: 0; }
+  to { transform: translateY(0) scale(1); opacity: 1; }
+}
+
+.menu-logo {
+  font-family: 'Press Start 2P', monospace;
+  font-size: 28px;
+  letter-spacing: 3px;
+  background: linear-gradient(to bottom, #00ffff, #ff00ff);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  filter: drop-shadow(0 4px 6px rgba(0,0,0,0.6));
+  margin-bottom: 5px;
+}
+
+.menu-logo.text-red {
+  background: linear-gradient(to bottom, #ff5b5b, #990000);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  filter: drop-shadow(0 0 10px rgba(255,0,0,0.5));
+}
+
+.menu-logo.text-gold {
+  background: linear-gradient(to bottom, #ffeb3b, #f57f17);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  filter: drop-shadow(0 0 10px rgba(255,235,59,0.5));
+}
+
+.menu-tagline {
+  font-family: 'Press Start 2P', monospace;
+  font-size: 9px;
+  color: var(--text-gray);
+  letter-spacing: 1px;
+}
+
+.menu-buttons {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  width: 100%;
+  margin-top: 15px;
+}
+
+.retro-btn {
+  width: 100%;
+  padding: 14px 20px;
+  font-family: 'Press Start 2P', monospace;
+  font-size: 11px;
+  color: #000;
+  background: #00ffff;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  font-weight: bold;
+  letter-spacing: 1px;
+  box-shadow: 
+    0 4px 0 #008888,
+    0 6px 12px rgba(0, 0, 0, 0.4);
+  transition: all 0.1s ease;
+  position: relative;
+}
+
+.retro-btn:hover {
+  background: #73ffff;
+  transform: translateY(-1px);
+  box-shadow: 
+    0 5px 0 #008888,
+    0 8px 16px rgba(0, 255, 255, 0.3);
+}
+
+.retro-btn:active {
+  transform: translateY(3px);
+  box-shadow: 
+    0 1px 0 #008888,
+    0 2px 4px rgba(0, 0, 0, 0.4);
+}
+
+.retro-btn.secondary {
+  background: #ff00ff;
+  color: #fff;
+  box-shadow: 
+    0 4px 0 #880088,
+    0 6px 12px rgba(0, 0, 0, 0.4);
+}
+
+.retro-btn.secondary:hover {
+  background: #ff73ff;
+  box-shadow: 
+    0 5px 0 #880088,
+    0 8px 16px rgba(255, 0, 255, 0.3);
+}
+
+.retro-btn.secondary:active {
+  transform: translateY(3px);
+  box-shadow: 
+    0 1px 0 #880088,
+    0 2px 4px rgba(0, 0, 0, 0.4);
+}
+
+.menu-instructions {
+  margin-top: 15px;
+  font-size: 12px;
+  color: var(--text-gray);
+  line-height: 1.6;
+}
+
+.score-summary {
+  font-family: 'Press Start 2P', monospace;
+  font-size: 12px;
+  color: var(--text-white);
+  margin: 10px 0;
+}
+
+.score-summary span {
+  color: var(--accent);
+}
+
+.hidden {
+  display: none !important;
+}
+
+/* Footer Controls Styling */
+.controls-bar {
+  width: 100%;
+  background: var(--bg-card);
+  border: 3px solid #32384e;
+  border-radius: 8px;
+  padding: 10px 20px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.5), inset 0 0 10px rgba(0, 0, 0, 0.3);
+}
+
+.control-group {
+  display: flex;
+  gap: 10px;
+}
+
+.icon-btn {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: #242838;
+  border: 2px solid #3c425c;
+  color: var(--text-white);
+  padding: 8px 14px;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  font-weight: 600;
+  font-size: 12px;
+}
+
+.icon-btn:hover {
+  background: #2d3247;
+  border-color: var(--primary);
+  box-shadow: 0 0 8px rgba(0, 255, 255, 0.2);
+}
+
+.icon-btn:active {
+  background: #1c1e2b;
+}
+
+.icon {
+  width: 16px;
+  height: 16px;
+  fill: currentColor;
+}
+
+.btn-text {
+  font-family: 'Outfit', sans-serif;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.5px;
+}
+
+.instructions {
+  font-size: 11px;
+  color: var(--text-gray);
+  display: flex;
+  gap: 15px;
+  font-weight: 500;
+}
+
+.lives-container {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.lives-display {
+  display: flex;
+  gap: 6px;
+}
+
+/* Life Counter Paddles */
+.life-paddle {
+  width: 24px;
+  height: 7px;
+  background: #b0b5be;
+  border: 1px solid #787c85;
+  border-radius: 3px;
+  position: relative;
+  box-shadow: inset 0 2px 0 rgba(255,255,255,0.4);
+}
+
+.life-paddle::before, .life-paddle::after {
+  content: "";
+  position: absolute;
+  top: -1px;
+  width: 4px;
+  height: 7px;
+  background: #ff1a1a;
+  border: 1px solid #990000;
+  border-radius: 2px;
+}
+
+.life-paddle::before { left: -1px; }
+.life-paddle::after { right: -1px; }
+
+/* Mobile Track Bar */
+.mobile-trackbar {
+  display: none;
+  width: 100%;
+  background: rgba(20, 22, 34, 0.9);
+  border: 2px dashed #00ffff;
+  border-radius: 8px;
+  padding: 15px;
+  text-align: center;
+  font-family: 'Press Start 2P', monospace;
+  font-size: 8px;
+  color: var(--primary);
+  margin-top: 10px;
+  touch-action: none;
+  box-shadow: 0 0 10px rgba(0, 255, 255, 0.1);
+}
+
+/* Pulsing highlight effect */
+.animate-pulse {
+  animation: pulse-glow 2s infinite alternate;
+}
+
+@keyframes pulse-glow {
+  0% { text-shadow: 0 0 8px rgba(0, 255, 255, 0.4); }
+  100% { text-shadow: 0 0 22px rgba(255, 0, 255, 0.8), 0 0 35px rgba(0, 255, 255, 0.8); }
+}
+
+/* Media Queries for Responsive Design */
+@media (max-width: 768px) {
+  .hud-header {
+    padding: 8px 12px;
+  }
+  
+  .hud-value {
+    font-size: 14px;
+  }
+  
+  .game-title {
+    font-size: 12px;
+  }
+  
+  .score-box, .highscore-box {
+    min-width: 90px;
+  }
+  
+  .instructions {
+    display: none; /* Hide bottom instructions text on mobile */
+  }
+  
+  .controls-bar {
+    padding: 8px 12px;
+  }
+  
+  .btn-text {
+    display: none; /* Hide button labels to save space */
+  }
+  
+  .icon-btn {
+    padding: 8px;
+  }
+
+  .mobile-trackbar {
+    display: block; /* Show mobile drag controller */
+  }
+  
+  .menu-logo {
+    font-size: 20px;
+  }
+  
+  .retro-btn {
+    font-size: 9px;
+    padding: 12px;
+  }
+}
+
+@media (max-height: 600px) {
+  .game-container {
+    height: 98vh;
+  }
+  
+  .hud-header, .controls-bar {
+    padding: 6px 12px;
+  }
+  
+  .monitor-frame {
+    margin: 6px 0;
+  }
+}
