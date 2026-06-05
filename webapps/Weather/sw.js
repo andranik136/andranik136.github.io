@@ -2,8 +2,12 @@
     const CACHE_NAME = 'weather-app-cache-v1';
     // Add the path to your HTML file here. If it's the root, index.html is common.
     const URLS_TO_CACHE = [
-        '/',
-        '/index.html', // Or whatever your HTML file is named
+        'index.html',
+        'manifest.json',
+        'favicon.png',
+        'apple-touch-icon.png',
+        'weather-icon-192.png',
+        'weather-icon-512.png',
         'https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js',
         'https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css',
         'https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/webfonts/fa-solid-900.woff2'
