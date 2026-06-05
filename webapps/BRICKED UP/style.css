@@ -120,6 +120,15 @@ body {
   filter: drop-shadow(0 2px 4px rgba(0,0,0,0.5));
 }
 
+.hud-level-label {
+  font-family: 'Press Start 2P', monospace;
+  font-size: 8px;
+  color: var(--primary);
+  margin-top: 4px;
+  letter-spacing: 1px;
+  text-shadow: 0 0 4px var(--primary-glow);
+}
+
 .hatch-indicators {
   display: flex;
   gap: 8px;

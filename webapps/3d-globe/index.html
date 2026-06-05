@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="An interactive, high-performance 3D Earth globe simulation utilizing WebGL, Three.js, custom atmosphere shaders, real-time day/night blending, and interactive geospatial markers.">
+    <title>3D Globe - Interactive Earth</title>
+    
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&family=Orbitron:wght@500;700;900&display=swap" rel="stylesheet">
+    
+    <!-- Stylesheet -->
+    <link rel="stylesheet" href="style.css">
+
+    <!-- Three.js Import Map -->
+    <script type="importmap">
+        {
+            "imports": {
+                "three": "https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js",
+                "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/"
+            }
+        }
+    </script>
+</head>
+<body>
+    <!-- Main 3D Canvas -->
+    <div id="canvas-container"></div>
+
+    <!-- Loading Screen Overlay -->
+    <div id="loading-screen" class="loading-overlay">
+        <div class="loader-content">
+            <h1 class="loader-title">INITIALIZING GLOBE</h1>
+            <div class="loader-bar-container">
+                <div id="loader-bar" class="loader-bar"></div>
+            </div>
+            <p id="loader-status" class="loader-status">Loading planet textures...</p>
+        </div>
+    </div>
+
+    <!-- UI Container (Overlays) -->
+    <div id="ui-container">
+        
+        <!-- Left Sidebar: Controls & Settings -->
+        <aside id="control-sidebar" class="sidebar left-sidebar glass-panel">
+            <h2 class="section-title">Controls</h2>
+            
+            <!-- Simulation Mode -->
+            <div class="control-group">
+                <label class="control-label">View Mode</label>
+                <div class="mode-buttons">
+                    <button id="mode-realistic" class="btn-mode active" onclick="setEarthMode('realistic')">Realistic</button>
+                    <button id="mode-night" class="btn-mode" onclick="setEarthMode('night')">Night Only</button>
+                    <button id="mode-topology" class="btn-mode" onclick="setEarthMode('topology')">Topographic</button>
+                </div>
+            </div>
+
+            <!-- Focus Object -->
+            <div class="control-group">
+                <label class="control-label">Focus Object</label>
+                <div class="mode-buttons">
+                    <button id="focus-earth" class="btn-mode active" onclick="setFocusObject('earth')">Earth</button>
+                    <button id="focus-moon" class="btn-focus btn-mode" onclick="setFocusObject('moon')">Moon</button>
+                    <button id="focus-sun" class="btn-focus btn-mode" onclick="setFocusObject('sun')">Sun</button>
+                </div>
+            </div>
+
+            <!-- Toggles -->
+            <div class="control-group">
+                <label class="control-label">Visual Layers</label>
+                <div class="toggle-row">
+                    <span class="toggle-name">Atmosphere Glow</span>
+                    <label class="switch">
+                        <input type="checkbox" id="toggle-atmosphere" checked>
+                        <span class="slider round"></span>
+                    </label>
+                </div>
+                <div class="toggle-row">
+                    <span class="toggle-name">Cloud Layer</span>
+                    <label class="switch">
+                        <input type="checkbox" id="toggle-clouds" checked>
+                        <span class="slider round"></span>
+                    </label>
+                </div>
+                <div class="toggle-row">
+                    <span class="toggle-name">Milky Way Skybox</span>
+                    <label class="switch">
+                        <input type="checkbox" id="toggle-skybox" checked>
+                        <span class="slider round"></span>
+                    </label>
+                </div>
+            </div>
+
+            <!-- Rotation Control -->
+            <div class="control-group">
+                <div class="toggle-row">
+                    <label class="control-label">Auto-Rotation</label>
+                    <label class="switch">
+                        <input type="checkbox" id="toggle-rotate" checked>
+                        <span class="slider round"></span>
+                    </label>
+                </div>
+                <div class="slider-row">
+                    <span class="slider-label">Speed</span>
+                    <input type="range" id="slider-speed" min="0.1" max="3" step="0.1" value="1.0" class="range-slider">
+                </div>
+            </div>
+
+            <!-- Lighting / Earth Orbit Position -->
+            <div class="control-group">
+                <label class="control-label">Earth Orbital Position (Angle)</label>
+                <div class="slider-row">
+                    <input type="range" id="slider-sun" min="0" max="360" step="1" value="180" class="range-slider">
+                </div>
+                <div class="toggle-row">
+                    <span class="toggle-name">Earth Orbiting Sun</span>
+                    <label class="switch">
+                        <input type="checkbox" id="toggle-sun-orbit" checked>
+                        <span class="slider round"></span>
+                    </label>
+                </div>
+            </div>
+
+            <!-- Stats display -->
+            <div class="stats-panel">
+                <div class="stat-row">
+                    <span class="stat-label">Cam Distance:</span>
+                    <span id="stat-distance" class="stat-val">-- km</span>
+                </div>
+                <div class="stat-row">
+                    <span class="stat-label">Orbit Speed:</span>
+                    <span id="stat-speed" class="stat-val">-- km/s</span>
+                </div>
+                <div class="stat-row">
+                    <span class="stat-label">UTC Time:</span>
+                    <span id="stat-utc" class="stat-val">--:--:--</span>
+                </div>
+            </div>
+
+            <!-- Sound Panel -->
+            <div class="control-group">
+                <div class="toggle-row">
+                    <span class="toggle-name">Cosmic Ambient Audio</span>
+                    <label class="switch">
+                        <input type="checkbox" id="toggle-audio">
+                        <span class="slider round"></span>
+                    </label>
+                </div>
+            </div>
+
+        </aside>
+
+        <!-- Floating Footer: Coordinate and Hover Stats -->
+        <footer id="footer-coordinates" class="coord-display glass-panel">
+            <span class="coord-item">LAT: <span id="coord-lat">--</span>°</span>
+            <span class="coord-item">LON: <span id="coord-lon">--</span>°</span>
+            <span class="coord-item">HEADING: <span id="coord-heading">--</span>°</span>
+        </footer>
+
+    </div>
+
+    <!-- Application Script (ES Module) -->
+    <script type="module" src="app.js"></script>
+</body>
+</html>

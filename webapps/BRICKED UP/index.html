@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <title>Brick Breaker - Classic Retro Arcade</title>
+  <title>BRICKED UP - Classic Retro Arcade</title>
   
   <!-- Retro Pixel Font -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -22,7 +22,8 @@
         <span id="score" class="hud-value">00000000</span>
       </div>
       <div class="hud-title-zone">
-        <h1 class="game-title">BRICK BREAKER</h1>
+        <h1 class="game-title">BRICKED UP</h1>
+        <div id="level-display" class="hud-level-label">LEVEL 1</div>
         <div class="hatch-indicators">
           <span class="hatch-light active"></span>
           <span class="hatch-light active"></span>
@@ -31,7 +32,7 @@
       </div>
       <div class="hud-item highscore-box">
         <span class="hud-label">HI-SCORE</span>
-        <span id="highscore" class="hud-value">00050000</span>
+        <span id="highscore" class="hud-value">00000000</span>
       </div>
     </header>
 
@@ -45,15 +46,14 @@
         <!-- Overlay HUD (Inside Game Area) -->
         <div id="ui-overlay" class="ui-overlay">
           <div id="start-menu" class="menu-content">
-            <h2 class="menu-logo animate-pulse">ARKANOID</h2>
+            <h2 class="menu-logo animate-pulse">BRICKED UP</h2>
             <p class="menu-tagline">CLASSIC RETRO BREAKOUT</p>
             <div class="menu-buttons">
-              <button id="btn-classic" class="retro-btn">CLASSIC MODE</button>
-              <button id="btn-random" class="retro-btn secondary">RANDOM MODE</button>
+              <button id="btn-classic" class="retro-btn">START GAME</button>
             </div>
             <div class="menu-instructions">
               <p>Move mouse / swipe to move paddle</p>
-              <p>Left-click / tap screen to launch ball / shoot lasers</p>
+              <p>Left-click / tap screen to launch ball</p>
             </div>
           </div>
           
@@ -67,13 +67,6 @@
             <h2 class="menu-logo text-red">GAME OVER</h2>
             <p class="score-summary">FINAL SCORE: <span id="final-score">00000000</span></p>
             <button id="btn-retry" class="retro-btn">PLAY AGAIN</button>
-          </div>
-
-          <div id="victory-menu" class="menu-content hidden">
-            <h2 class="menu-logo text-gold">VICTORY!</h2>
-            <p class="score-summary">YOU BEAT THE GAME!</p>
-            <p class="score-summary">FINAL SCORE: <span id="victory-score">00000000</span></p>
-            <button id="btn-victory-retry" class="retro-btn">PLAY AGAIN</button>
           </div>
         </div>
       </div>
@@ -96,14 +89,13 @@
 
       <div class="instructions">
         <span>[MOUSE] Move Paddle</span>
-        <span>[CLICK] Launch Ball / Shoot Laser</span>
+        <span>[CLICK] Launch Ball</span>
         <span>[ESC] Pause</span>
       </div>
 
       <div class="lives-container">
         <span class="hud-label">LIVES:</span>
         <div id="lives-display" class="lives-display">
-          <!-- Tiny paddles will be generated here -->
           <div class="life-paddle"></div>
           <div class="life-paddle"></div>
           <div class="life-paddle"></div>

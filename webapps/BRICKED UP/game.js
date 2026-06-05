@@ -1,7 +1,12 @@
 /**
- * Brick Breaker (Arkanoid Clone) Game Engine
- * Highly polished retro canvas breakout game with pixel-art sprites,
- * advanced physics, lasers, multiple powerups, particles, and floating enemies.
+ * BRICKED UP - Retro Breakout Game Engine
+ * Streamlined, optimized infinite stage breakout engine featuring:
+ * - Procedural symmetrical level layouts with seeded bomb bricks.
+ * - Progressive difficulty scaling (ball speed increases 10% per level).
+ * - Ball light trail: A glowing cyan comet-like path trailing the ball.
+ * - Persistent high score starting at 0 (LocalStorage saved).
+ * - Retro sound effects synthesizer (Web Audio API).
+ * - Colored particle explosions on brick breaks.
  */
 
 // Canvas Setup
@@ -13,8 +18,7 @@ const STATES = {
   MENU: 'MENU',
   PLAYING: 'PLAYING',
   PAUSED: 'PAUSED',
-  GAMEOVER: 'GAMEOVER',
-  VICTORY: 'VICTORY'
+  GAMEOVER: 'GAMEOVER'
 };
 
 // Global Config & Constants
@@ -23,7 +27,7 @@ const HATCH_Y = BORDER_WIDTH;
 const BRICK_COLS = 13;
 const BRICK_HEIGHT = 18;
 const BALL_SPEED_INIT = 4.5;
-const BALL_SPEED_MAX = 8;
+const BALL_SPEED_MAX = 9.0; // Prevent tunneling through walls at extreme speeds
 
 // Colors
 const COLORS = {
@@ -48,29 +52,23 @@ const COLORS = {
 
 // Core Game Variables
 let gameState = STATES.MENU;
-let gameMode = 'classic'; // 'classic' or 'random'
 let score = 0;
-let highscore = parseInt(localStorage.getItem('brick_breaker_hiscore')) || 50000;
+let highscore = parseInt(localStorage.getItem('bricked_up_hiscore')) || 0;
 let lives = 3;
 let currentLevel = 1;
-let totalLevels = 3;
+let currentBallSpeed = BALL_SPEED_INIT;
 
 // Objects
 let paddle = null;
 let balls = [];
 let bricks = [];
-let capsules = [];
-let lasers = [];
-let enemies = [];
 let particles = [];
 let spawnHatches = [];
 let bgPattern = null;
 
 // Animation & Loops
 let lastTime = 0;
-let enemySpawnTimer = 0;
 let bgScrollOffset = 0;
-let isMuted = false;
 
 // DOM Elements
 const scoreVal = document.getElementById('score');
@@ -80,18 +78,18 @@ const uiOverlay = document.getElementById('ui-overlay');
 const startMenu = document.getElementById('start-menu');
 const pauseMenu = document.getElementById('pause-menu');
 const gameOverMenu = document.getElementById('game-over-menu');
-const victoryMenu = document.getElementById('victory-menu');
 const finalScoreSpan = document.getElementById('final-score');
-const victoryScoreSpan = document.getElementById('victory-score');
 const btnSound = document.getElementById('btn-sound');
 const btnFullscreen = document.getElementById('btn-fullscreen');
 const soundOnIcon = document.getElementById('sound-on-icon');
 const soundOffIcon = document.getElementById('sound-off-icon');
+const levelDisplay = document.getElementById('level-display');
 
 // Hatch lights DOM indicators
 const hatchLights = document.querySelectorAll('.hatch-light');
 
-// Initial High Score Render
+// Initial score renders
+scoreVal.textContent = '00000000';
 highscoreVal.textContent = String(highscore).padStart(8, '0');
 
 // Input state
@@ -156,28 +154,10 @@ class Paddle {
     this.x = (canvas.width - this.width) / 2;
     this.y = canvas.height - 35;
     this.speed = 8;
-    
-    // States
-    this.targetWidth = 90;
-    this.laserActive = false;
-    this.catchActive = false;
-    this.caughtBalls = []; // Balls currently stuck to paddle
-    
-    // Visual anims
-    this.laserFlash = 0;
+    this.caughtBalls = []; // Used solely for holding the starting ball
   }
 
   update(dt) {
-    // Width animation interpolation
-    if (this.width !== this.targetWidth) {
-      const diff = this.targetWidth - this.width;
-      if (Math.abs(diff) < 1) {
-        this.width = this.targetWidth;
-      } else {
-        this.width += diff * 0.15;
-      }
-    }
-
     // Keyboard inputs
     if (keys['ArrowLeft'] || keys['KeyA']) {
       this.x -= this.speed;
@@ -186,19 +166,16 @@ class Paddle {
       this.x += this.speed;
     }
 
-    // Mouse control takes priority
+    // Mouse control
     if (mouseX !== undefined) {
       this.x = mouseX - this.width / 2;
     }
 
-    // Clamp paddle to inside borders
+    // Clamp paddle inside borders
     const leftLimit = BORDER_WIDTH + 4;
     const rightLimit = canvas.width - BORDER_WIDTH - this.width - 4;
     if (this.x < leftLimit) this.x = leftLimit;
     if (this.x > rightLimit) this.x = rightLimit;
-
-    // Laser flashing cooldown
-    if (this.laserFlash > 0) this.laserFlash -= dt;
 
     // Update position of caught balls to move with paddle
     this.caughtBalls.forEach(cb => {
@@ -221,9 +198,8 @@ class Paddle {
     ctx.fillStyle = 'rgba(0, 0, 0, 0.4)';
     ctx.fillRect(x + 4, y + 4, w, h);
 
-    // Red capsule ends or Silver body depending on Laser powerup
-    const capColors = this.laserActive ? COLORS.PADDLE_RED : COLORS.PADDLE_RED;
-    const bodyColors = this.laserActive ? COLORS.PADDLE_RED : COLORS.PADDLE_METAL;
+    const capColors = COLORS.PADDLE_RED;
+    const bodyColors = COLORS.PADDLE_METAL;
 
     // Left Cap (Red rounded dome)
     ctx.fillStyle = capColors[1];
@@ -253,7 +229,7 @@ class Paddle {
     ctx.fillStyle = bodyColors[2];
     ctx.fillRect(x + rCap, y, w - rCap * 2, h);
 
-    // Shiny highlights (horizontal lines)
+    // Shiny highlights
     ctx.fillStyle = bodyColors[1];
     ctx.fillRect(x + rCap, y + 2, w - rCap * 2, 3);
     ctx.fillStyle = bodyColors[0];
@@ -261,20 +237,6 @@ class Paddle {
 
     ctx.fillStyle = bodyColors[3];
     ctx.fillRect(x + rCap, y + h - 4, w - rCap * 2, 3);
-
-    // Laser nozzles visual indicators (if Laser active)
-    if (this.laserActive) {
-      ctx.fillStyle = '#00ffff';
-      ctx.fillRect(x + rCap + 5, y - 2, 4, 3);
-      ctx.fillRect(x + w - rCap - 9, y - 2, 4, 3);
-      
-      // Laser core glow
-      if (this.laserFlash > 0) {
-        ctx.fillStyle = '#ffffff';
-        ctx.fillRect(x + rCap + 3, y - 4, 8, 4);
-        ctx.fillRect(x + w - rCap - 11, y - 4, 8, 4);
-      }
-    }
 
     // Outer dark outline
     ctx.strokeStyle = '#000000';
@@ -290,33 +252,11 @@ class Paddle {
     ctx.restore();
   }
 
-  shoot() {
-    if (!this.laserActive || lasers.length >= 6) return;
-    
-    // Spawn two lasers from left and right side of paddle
-    const rCap = 10;
-    const laserLeftX = this.x + rCap + 7;
-    const laserRightX = this.x + this.width - rCap - 11;
-    const laserY = this.y - 6;
-
-    lasers.push(new Laser(laserLeftX, laserY));
-    lasers.push(new Laser(laserRightX, laserY));
-
-    this.laserFlash = 0.08; // Flash animation duration
-    window.audio.playLaser();
-  }
-
-  catchBall(ball, force = false) {
-    if (!this.catchActive && !force) return false;
-    
-    // Check if this ball is already caught
-    if (this.caughtBalls.some(cb => cb.ball === ball)) return true;
-
-    // Calculate stick offset
+  catchBall(ball) {
+    if (this.caughtBalls.some(cb => cb.ball === ball)) return;
     const offset = ball.x - this.x;
     this.caughtBalls.push({ ball, offset });
     ball.isStuck = true;
-    return true;
   }
 
   releaseBalls() {
@@ -325,12 +265,12 @@ class Paddle {
     this.caughtBalls.forEach(cb => {
       cb.ball.isStuck = false;
       
-      // Steer ball angle relative to release point
+      // Launch straight or steer ball angle slightly relative to offset
       const relativeHit = cb.offset / this.width;
-      const angle = (relativeHit - 0.5) * 1.2; // Angle sweep
+      const angle = (relativeHit - 0.5) * 1.2;
       cb.ball.dx = cb.ball.speed * Math.sin(angle);
       cb.ball.dy = -cb.ball.speed * Math.cos(angle);
-      if (Math.abs(cb.ball.dy) < 1.5) cb.ball.dy = -1.5; // Prevent too flat horizontal bounces
+      if (Math.abs(cb.ball.dy) < 1.5) cb.ball.dy = -1.5;
     });
     this.caughtBalls = [];
     window.audio.playPaddleBounce();
@@ -343,14 +283,27 @@ class Ball {
     this.x = x;
     this.y = y;
     this.radius = 7;
-    this.speed = BALL_SPEED_INIT;
+    this.speed = currentBallSpeed;
     this.dx = dx;
     this.dy = dy;
     this.isStuck = false;
+    
+    // Glowing light trail
+    this.trail = [];
+    this.maxTrailLength = 10;
   }
 
   update(dt) {
-    if (this.isStuck) return;
+    if (this.isStuck) {
+      this.trail = [];
+      return;
+    }
+
+    // Capture trail coordinate history
+    this.trail.push({ x: this.x, y: this.y });
+    if (this.trail.length > this.maxTrailLength) {
+      this.trail.shift();
+    }
 
     // Apply movement
     this.x += this.dx;
@@ -386,12 +339,26 @@ class Ball {
   }
 
   draw() {
+    ctx.save();
+    
+    // Draw glowing cyan light trail behind the ball
+    if (!this.isStuck && this.trail.length > 0) {
+      this.trail.forEach((pos, index) => {
+        const ratio = (index + 1) / this.trail.length;
+        const opacity = ratio * 0.35; // Fades out towards tail
+        const size = this.radius * (0.3 + ratio * 0.7); // Shrinks towards tail
+        
+        ctx.fillStyle = `rgba(0, 212, 255, ${opacity})`;
+        ctx.beginPath();
+        ctx.arc(Math.round(pos.x), Math.round(pos.y), size, 0, Math.PI * 2);
+        ctx.fill();
+      });
+    }
+
     const rx = Math.round(this.x);
     const ry = Math.round(this.y);
     const r = Math.round(this.radius);
 
-    ctx.save();
-    
     // Draw ball shadow
     ctx.fillStyle = 'rgba(0, 0, 0, 0.4)';
     ctx.beginPath();
@@ -448,11 +415,6 @@ class Brick {
       // Spawn colored particles
       const colors = COLORS.BRICKS[this.type.toUpperCase()];
       createBrickParticles(this.x + this.width/2, this.y + this.height/2, colors[0], colors[1]);
-      
-      // Roll chance for powerup (15% drop rate, bombs do not drop powerups to avoid overlaps)
-      if (this.type !== 'bomb' && Math.random() < 0.15) {
-        spawnCapsule(this.x + this.width / 2, this.y + this.height / 2);
-      }
       return true; // Destroyed
     } else {
       // Silver brick cracked state
@@ -522,15 +484,15 @@ class Brick {
     ctx.fillStyle = colors[1];
     ctx.fillRect(rx, ry, rw, rh);
 
-    // Bevel highlights (top and left borders)
+    // Bevel highlights
     ctx.fillStyle = colors[0];
-    ctx.fillRect(rx, ry, rw, 2); // Top highlights
-    ctx.fillRect(rx, ry, 2, rh); // Left highlights
+    ctx.fillRect(rx, ry, rw, 2);
+    ctx.fillRect(rx, ry, 2, rh);
 
-    // Bevel shadows (bottom and right borders)
+    // Bevel shadows
     ctx.fillStyle = colors[2];
-    ctx.fillRect(rx, ry + rh - 2, rw, 2); // Bottom shadow
-    ctx.fillRect(rx + rw - 2, ry, 2, rh); // Right shadow
+    ctx.fillRect(rx, ry + rh - 2, rw, 2);
+    ctx.fillRect(rx + rw - 2, ry, 2, rh);
 
     ctx.fillStyle = colors[3];
     ctx.fillRect(rx, ry + rh - 1, rw, 1);
@@ -549,7 +511,6 @@ class Brick {
       ctx.strokeStyle = 'rgba(0,0,0,0.6)';
       ctx.lineWidth = 1.5;
       ctx.beginPath();
-      // Drawn pixelated crack lines
       ctx.moveTo(rx + 10, ry + 3);
       ctx.lineTo(rx + 18, ry + 9);
       ctx.lineTo(rx + 15, ry + 14);
@@ -564,192 +525,6 @@ class Brick {
     ctx.strokeStyle = '#000000';
     ctx.lineWidth = 1;
     ctx.strokeRect(rx, ry, rw, rh);
-
-    ctx.restore();
-  }
-}
-
-// --- Power-up Capsule Class ---
-const CAPSULE_TYPES = {
-  S: { letter: 'S', color: '#ff8800', desc: 'Slow Ball' },     // Orange
-  E: { letter: 'E', color: '#0055ff', desc: 'Expand Paddle' }, // Blue
-  C: { letter: 'C', color: '#00cc00', desc: 'Catch Ball' },    // Green
-  L: { letter: 'L', color: '#cc0000', desc: 'Laser Paddle' },  // Red
-  D: { letter: 'D', color: '#00ffff', desc: 'Divide Balls' },  // Cyan
-  P: { letter: 'P', color: '#ff00ff', desc: 'Player Extra' },  // Magenta
-  B: { letter: 'B', color: '#a0a0a0', desc: 'Break Exit' }     // Silver/Gray
-};
-
-class Capsule {
-  constructor(x, y, typeKey) {
-    this.x = x;
-    this.y = y;
-    this.width = 24;
-    this.height = 12;
-    this.typeKey = typeKey;
-    this.speed = 2.0;
-    this.rotVal = 0; // Rotational cycle animations
-  }
-
-  update(dt) {
-    this.y += this.speed;
-    this.rotVal += 0.15; // Speed of spin
-  }
-
-  draw() {
-    const rx = Math.round(this.x);
-    const ry = Math.round(this.y);
-    const capInfo = CAPSULE_TYPES[this.typeKey];
-
-    ctx.save();
-    
-    // Draw rotation compressing/spinning effect
-    const spinWidth = this.width * Math.abs(Math.sin(this.rotVal));
-    const leftOffset = (this.width - spinWidth) / 2;
-
-    // Draw Shadow
-    ctx.fillStyle = 'rgba(0, 0, 0, 0.4)';
-    ctx.fillRect(rx - this.width / 2 + 3, ry - this.height / 2 + 3, this.width, this.height);
-
-    // Pill body drawing
-    ctx.fillStyle = '#ffffff';
-    ctx.fillRect(rx - spinWidth / 2, ry - this.height / 2, spinWidth, this.height);
-
-    // Draw color band in middle
-    ctx.fillStyle = capInfo.color;
-    ctx.fillRect(rx - spinWidth / 4, ry - this.height / 2, spinWidth / 2, this.height);
-
-    // Pill round outline
-    ctx.strokeStyle = '#000000';
-    ctx.lineWidth = 1;
-    ctx.strokeRect(rx - spinWidth / 2, ry - this.height / 2, spinWidth, this.height);
-
-    // Draw Letter inside (only when capsule is front-facing)
-    if (Math.abs(Math.sin(this.rotVal)) > 0.4) {
-      ctx.fillStyle = '#ffffff';
-      ctx.font = 'bold 8px monospace';
-      ctx.textAlign = 'center';
-      ctx.textBaseline = 'middle';
-      ctx.fillText(capInfo.letter, rx, ry + 1);
-    }
-
-    ctx.restore();
-  }
-}
-
-// --- Laser Class ---
-class Laser {
-  constructor(x, y) {
-    this.x = x;
-    this.y = y;
-    this.width = 4;
-    this.height = 14;
-    this.speed = 7;
-  }
-
-  update() {
-    this.y -= this.speed;
-  }
-
-  draw() {
-    ctx.save();
-    ctx.fillStyle = '#ff0000';
-    ctx.fillRect(this.x, this.y, this.width, this.height);
-    
-    // Core white light
-    ctx.fillStyle = '#ffffff';
-    ctx.fillRect(this.x + 1, this.y + 1, this.width - 2, this.height - 2);
-
-    ctx.strokeStyle = '#9b0000';
-    ctx.lineWidth = 1;
-    ctx.strokeRect(this.x, this.y, this.width, this.height);
-    ctx.restore();
-  }
-}
-
-// --- Floating Enemy Class ---
-class Enemy {
-  constructor(x, y) {
-    this.x = x;
-    this.y = y;
-    this.radius = 12;
-    this.speedY = 0.8;
-    this.baseX = x;
-    this.angle = Math.random() * Math.PI * 2;
-    this.rotSpeed = (Math.random() * 0.05 + 0.02) * (Math.random() < 0.5 ? 1 : -1);
-    this.spinAnim = 0;
-    
-    // Flying path amplitude
-    this.amp = 40 + Math.random() * 30;
-  }
-
-  update() {
-    this.angle += 0.02;
-    this.spinAnim += this.rotSpeed;
-
-    // Sine wave flight down
-    this.y += this.speedY;
-    this.x = this.baseX + Math.sin(this.angle) * this.amp;
-
-    // Bounce off border limits
-    const leftLimit = BORDER_WIDTH + this.radius;
-    const rightLimit = canvas.width - BORDER_WIDTH - this.radius;
-    if (this.x < leftLimit) {
-      this.x = leftLimit;
-      this.baseX = leftLimit - Math.sin(this.angle) * this.amp;
-    }
-    if (this.x > rightLimit) {
-      this.x = rightLimit;
-      this.baseX = rightLimit - Math.sin(this.angle) * this.amp;
-    }
-  }
-
-  draw() {
-    const rx = Math.round(this.x);
-    const ry = Math.round(this.y);
-    const r = this.radius;
-
-    ctx.save();
-
-    // Shadow
-    ctx.fillStyle = 'rgba(0, 0, 0, 0.4)';
-    ctx.beginPath();
-    ctx.arc(rx + 4, ry + 4, r, 0, Math.PI * 2);
-    ctx.fill();
-
-    // Floating metallic dome shape (silver-blue geometric shell)
-    ctx.fillStyle = '#2166e0';
-    ctx.beginPath();
-    ctx.arc(rx, ry, r, 0, Math.PI * 2);
-    ctx.fill();
-
-    // Inner 3D lines that spin
-    ctx.strokeStyle = '#ffffff';
-    ctx.lineWidth = 1;
-    ctx.beginPath();
-    ctx.arc(rx, ry, r - 3, 0, Math.PI * 2);
-    ctx.stroke();
-
-    // Draw geometric spinning spokes
-    ctx.beginPath();
-    for (let i = 0; i < 4; i++) {
-      const spAngle = this.spinAnim + (i * Math.PI / 2);
-      ctx.moveTo(rx, ry);
-      ctx.lineTo(rx + Math.cos(spAngle) * r, ry + Math.sin(spAngle) * r);
-    }
-    ctx.stroke();
-
-    // Core light bead
-    ctx.fillStyle = '#00ffff';
-    ctx.beginPath();
-    ctx.arc(rx, ry, r - 8, 0, Math.PI * 2);
-    ctx.fill();
-
-    ctx.strokeStyle = '#000000';
-    ctx.lineWidth = 1.5;
-    ctx.beginPath();
-    ctx.arc(rx, ry, r, 0, Math.PI * 2);
-    ctx.stroke();
 
     ctx.restore();
   }
@@ -771,7 +546,7 @@ class Particle {
   update(dt) {
     this.x += this.vx;
     this.y += this.vy;
-    this.vy += 0.12; // Gravity effect
+    this.vy += 0.12; // Gravity
     this.life -= 0.03;
     this.alpha = Math.max(0, this.life);
   }
@@ -785,24 +560,17 @@ class Particle {
   }
 }
 
-// --- Setup Randomized Symmetrical Levels ---
+// --- Setup Symmetrical Level (Changes Layout Procedurally) ---
 function loadLevel(levelNum) {
   bricks = [];
-  capsules = [];
-  lasers = [];
-  enemies = [];
   particles = [];
   
   if (paddle) {
-    paddle.laserActive = false;
-    paddle.catchActive = false;
-    paddle.targetWidth = 90;
     paddle.caughtBalls = [];
   }
 
-  // Brick type pool
   const types = ['red', 'yellow', 'blue', 'magenta', 'green'];
-  const halfCols = Math.ceil(BRICK_COLS / 2); // 7 columns for symmetry mirror
+  const halfCols = Math.ceil(BRICK_COLS / 2);
   const rowCount = 5 + Math.floor(Math.random() * 3); // 5 to 7 rows of blocks
 
   const grid = [];
@@ -810,46 +578,44 @@ function loadLevel(levelNum) {
     grid.push(Array(BRICK_COLS).fill(null));
   }
 
-  // Select a visual layout style procedurally (every load generates unique balanced shapes)
+  // Pick a layout style randomly so it changes completely with each load
   const layoutStyle = Math.floor(Math.random() * 3);
 
   if (layoutStyle === 0) {
-    // Style 0: Symmetrical Pillars / Towers
+    // Pillars
     for (let r = 0; r < rowCount; r++) {
       const color = r === 0 ? 'silver' : types[Math.floor(Math.random() * types.length)];
       for (let c = 0; c < halfCols; c++) {
-        // 75% active fill chance for towers
         if (Math.random() < 0.75) {
           grid[r][c] = color;
-          grid[r][BRICK_COLS - 1 - c] = color; // Mirror
+          grid[r][BRICK_COLS - 1 - c] = color;
         }
       }
     }
   } else if (layoutStyle === 1) {
-    // Style 1: Symmetrical Step Pyramid
+    // Pyramid
     for (let r = 0; r < rowCount; r++) {
       const color = r === 0 ? 'silver' : types[Math.floor(Math.random() * types.length)];
-      const step = r; // tapers downwards
+      const step = Math.min(halfCols - 1, r);
       for (let c = step; c < halfCols; c++) {
         grid[r][c] = color;
-        grid[r][BRICK_COLS - 1 - c] = color; // Mirror
+        grid[r][BRICK_COLS - 1 - c] = color;
       }
     }
   } else {
-    // Style 2: Chess Checkered Diamond
+    // Checkerboard
     for (let r = 0; r < rowCount; r++) {
       const color = r === 0 ? 'silver' : types[Math.floor(Math.random() * types.length)];
       for (let c = 0; c < halfCols; c++) {
         if ((r + c) % 2 === 0) {
           grid[r][c] = color;
-          grid[r][BRICK_COLS - 1 - c] = color; // Mirror
+          grid[r][BRICK_COLS - 1 - c] = color;
         }
       }
     }
   }
 
-  // --- Seed Bomb Bricks ---
-  // Assemble a list of all active non-empty block coordinates
+  // Seed Bomb Bricks
   const activeCoords = [];
   for (let r = 0; r < rowCount; r++) {
     for (let c = 0; c < BRICK_COLS; c++) {
@@ -859,18 +625,15 @@ function loadLevel(levelNum) {
     }
   }
 
-  // Seed approximately 10% of bricks as explosive bombs (min 3, max 8)
   const bombCount = Math.max(3, Math.min(8, Math.floor(activeCoords.length * 0.1)));
   for (let i = 0; i < bombCount; i++) {
     if (activeCoords.length === 0) break;
     const randIdx = Math.floor(Math.random() * activeCoords.length);
     const coord = activeCoords.splice(randIdx, 1)[0];
-    
-    // Assign explosive type
     grid[coord.r][coord.c] = 'bomb';
   }
 
-  // Instantiate Brick objects
+  // Instantiate bricks
   for (let r = 0; r < rowCount; r++) {
     for (let c = 0; c < BRICK_COLS; c++) {
       const type = grid[r][c];
@@ -888,11 +651,12 @@ function createBrickParticles(x, y, color1, color2) {
     const angle = Math.random() * Math.PI * 2;
     const speed = 1.0 + Math.random() * 3.0;
     const vx = Math.cos(angle) * speed;
-    const vy = Math.sin(angle) * speed - 1.5; // Upward burst bias
+    const vy = Math.sin(angle) * speed - 1.5;
     particles.push(new Particle(x, y, color, vx, vy, 3 + Math.floor(Math.random()*3)));
   }
 }
 
+// Fading sparks for wall bounces
 function createImpactParticles(x, y, color) {
   for (let i = 0; i < 4; i++) {
     const vx = (Math.random() - 0.5) * 2;
@@ -902,24 +666,21 @@ function createImpactParticles(x, y, color) {
 }
 
 function createExplosionParticles(x, y) {
-  // Sparking circular ring fire burst
   for (let i = 0; i < 28; i++) {
     const angle = Math.random() * Math.PI * 2;
     const speed = 2.0 + Math.random() * 6.5;
     const vx = Math.cos(angle) * speed;
     const vy = Math.sin(angle) * speed;
     const color = Math.random() < 0.4 ? '#ff5500' : (Math.random() < 0.7 ? '#ffcc00' : '#ff2200');
-    // Larger pixel size
     particles.push(new Particle(x, y, color, vx, vy, 4 + Math.floor(Math.random() * 3), 1.2));
   }
 }
 
-// --- Trigger Bomb Explosion (3x3 grid blast radius) ---
+// --- Trigger Bomb Explosion ---
 function triggerBombExplosion(bomb) {
   window.audio.playExplosion();
   createExplosionParticles(bomb.x + bomb.width / 2, bomb.y + bomb.height / 2);
 
-  // Scan for adjacent bricks within row and column differences <= 1.2
   for (let i = bricks.length - 1; i >= 0; i--) {
     const b = bricks[i];
     if (b === bomb) continue;
@@ -929,9 +690,7 @@ function triggerBombExplosion(bomb) {
 
     if (colDiff <= 1.2 && rowDiff <= 1.2) {
       if (b.type === 'bomb') {
-        // Staggered chain reaction delay (120ms) looks incredibly cool and visual!
         setTimeout(() => {
-          // Verify bomb brick is still active in the array before detonating
           const idx = bricks.indexOf(b);
           if (idx !== -1) {
             bricks.splice(idx, 1);
@@ -940,7 +699,6 @@ function triggerBombExplosion(bomb) {
           }
         }, 120);
       } else {
-        // Damage adjacent brick (silver brick takes damage, colored brick is destroyed)
         const destroyed = b.damage();
         if (destroyed) {
           bricks.splice(i, 1);
@@ -952,53 +710,21 @@ function triggerBombExplosion(bomb) {
   checkLevelComplete();
 }
 
-// --- Spawn Capsules ---
-function spawnCapsule(x, y) {
-  const keys = Object.keys(CAPSULE_TYPES);
-  const randomKey = keys[Math.floor(Math.random() * keys.length)];
-  capsules.push(new Capsule(x, y, randomKey));
-}
-
-// --- Spawn Floating Enemies ---
-function spawnEnemy() {
-  if (enemies.length >= 3) return;
-  
-  // Pick a random spawner hatch
-  const hatchIdx = Math.floor(Math.random() * spawnHatches.length);
-  const hatch = spawnHatches[hatchIdx];
-
-  // Open animation triggers indicator light flashing
-  hatch.openState = 30; // 30 game frame cycles open
-  
-  // Trigger spawner visual light blink red/green
-  hatchLights[hatchIdx].classList.remove('active');
-  hatchLights[hatchIdx].classList.add('green');
-
-  setTimeout(() => {
-    hatchLights[hatchIdx].classList.remove('green');
-    hatchLights[hatchIdx].classList.add('active');
-  }, 1000);
-
-  const newEnemy = new Enemy(hatch.x + hatch.width / 2, hatch.y + 12);
-  enemies.push(newEnemy);
-}
-
-// --- Render Metallic Pipes Border ---
+// --- Render Metallic Pipes Border (Hatches remain strictly static) ---
 function drawFrameBorders() {
   ctx.save();
 
-  // LEFT Border Pipe
+  // LEFT
   drawPipeSegment(0, 0, BORDER_WIDTH, canvas.height, 'vertical');
-  // RIGHT Border Pipe
+  // RIGHT
   drawPipeSegment(canvas.width - BORDER_WIDTH, 0, BORDER_WIDTH, canvas.height, 'vertical');
-  // TOP Border Pipe
+  // TOP
   drawPipeSegment(BORDER_WIDTH, 0, canvas.width - BORDER_WIDTH * 2, BORDER_WIDTH, 'horizontal');
 
-  // Decorative clamps at the corners
-  drawPipeClamp(0, 0); // Top Left
-  drawPipeClamp(canvas.width - BORDER_WIDTH, 0); // Top Right
+  // Decorative clamps
+  drawPipeClamp(0, 0);
+  drawPipeClamp(canvas.width - BORDER_WIDTH, 0);
 
-  // Mid joint clamps on vertical walls
   const jointYCount = 3;
   for (let i = 1; i <= jointYCount; i++) {
     const yVal = (canvas.height / (jointYCount + 1)) * i;
@@ -1008,31 +734,19 @@ function drawFrameBorders() {
 
   // Draw spawn hatches
   spawnHatches.forEach(h => {
-    // Dark opening
     ctx.fillStyle = '#0a0a0a';
     ctx.fillRect(h.x, h.y, h.width, h.height - 2);
 
-    // Draw hatch gates (if openState is active, draw sliding apart gates)
     ctx.fillStyle = COLORS.HATCH_BLUE[1];
-    ctx.fillRect(h.x, h.y, h.width, 3); // top lip
+    ctx.fillRect(h.x, h.y, h.width, 3);
 
-    if (h.openState > 0) {
-      h.openState--;
-      // Semi open doors
-      ctx.fillStyle = COLORS.HATCH_BLUE[2];
-      ctx.fillRect(h.x, h.y + 3, h.width * 0.25, 7);
-      ctx.fillRect(h.x + h.width * 0.75, h.y + 3, h.width * 0.25, 7);
-    } else {
-      // Closed doors
-      ctx.fillStyle = COLORS.HATCH_BLUE[0];
-      ctx.fillRect(h.x + 2, h.y + 3, h.width - 4, 7);
+    // Closed doors (static background detail)
+    ctx.fillStyle = COLORS.HATCH_BLUE[0];
+    ctx.fillRect(h.x + 2, h.y + 3, h.width - 4, 7);
 
-      // Light hatch shine
-      ctx.fillStyle = '#ffffff';
-      ctx.fillRect(h.x + 4, h.y + 4, h.width - 8, 1.5);
-    }
+    ctx.fillStyle = '#ffffff';
+    ctx.fillRect(h.x + 4, h.y + 4, h.width - 8, 1.5);
 
-    // Outer Hatch Bevel outlines
     ctx.strokeStyle = '#000000';
     ctx.lineWidth = 1.5;
     ctx.strokeRect(h.x, h.y, h.width, h.height);
@@ -1042,15 +756,12 @@ function drawFrameBorders() {
 }
 
 function drawPipeSegment(x, y, w, h, dir) {
-  // Shading colors
   const sh = COLORS.BORDER_METAL;
   
   if (dir === 'vertical') {
-    // Base pipe
     ctx.fillStyle = sh[2];
     ctx.fillRect(x, y, w, h);
 
-    // Light shininess lines
     ctx.fillStyle = sh[1];
     ctx.fillRect(x + 2, y, w - 4, h);
     ctx.fillStyle = sh[0];
@@ -1059,23 +770,19 @@ function drawPipeSegment(x, y, w, h, dir) {
     ctx.fillStyle = sh[3];
     ctx.fillRect(x + w - 4, y, 3, h);
 
-    // Horizontal dark separation score ridges
     ctx.fillStyle = 'rgba(0, 0, 0, 0.4)';
     const ridgeDist = 24;
     for (let rY = ridgeDist; rY < h; rY += ridgeDist) {
       ctx.fillRect(x + 1, y + rY, w - 2, 2);
     }
 
-    // Outlines
     ctx.strokeStyle = '#000000';
     ctx.lineWidth = 1;
     ctx.strokeRect(x, y, w, h);
   } else {
-    // Horizontal Pipe
     ctx.fillStyle = sh[2];
     ctx.fillRect(x, y, w, h);
 
-    // Light shininess
     ctx.fillStyle = sh[1];
     ctx.fillRect(x, y + 2, w, h - 4);
     ctx.fillStyle = sh[0];
@@ -1084,7 +791,6 @@ function drawPipeSegment(x, y, w, h, dir) {
     ctx.fillStyle = sh[3];
     ctx.fillRect(x, y + h - 4, w, 3);
 
-    // Vertical ridges
     ctx.fillStyle = 'rgba(0, 0, 0, 0.4)';
     const ridgeDist = 24;
     for (let rX = x + ridgeDist; rX < x + w; rX += ridgeDist) {
@@ -1099,20 +805,15 @@ function drawPipeSegment(x, y, w, h, dir) {
 
 function drawPipeClamp(x, y) {
   const cl = COLORS.BORDER_CLAMP;
-  
-  // Drawn copper bracket sleeve over pipe
   ctx.fillStyle = cl[1];
   ctx.fillRect(x - 2, y + 1, BORDER_WIDTH + 4, 12);
 
-  // shine
   ctx.fillStyle = cl[0];
   ctx.fillRect(x, y + 3, BORDER_WIDTH, 3);
 
-  // shadow
   ctx.fillStyle = cl[2];
   ctx.fillRect(x - 2, y + 9, BORDER_WIDTH + 4, 4);
 
-  // outlines
   ctx.strokeStyle = '#000000';
   ctx.lineWidth = 1.2;
   ctx.strokeRect(x - 2, y + 1, BORDER_WIDTH + 4, 12);
@@ -1129,7 +830,6 @@ function intersectCircleRect(circle, rect) {
 
   if (distSq < circle.radius * circle.radius) {
     const dist = Math.sqrt(distSq);
-    
     let normalX = 0;
     let normalY = -1;
 
@@ -1151,38 +851,26 @@ function intersectCircleRect(circle, rect) {
   return { collided: false };
 }
 
-// --- Check Level Complete ---
+// --- Check Level Complete (Infinite Progression) ---
 function checkLevelComplete() {
   if (bricks.length === 0) {
-    if (currentLevel < totalLevels) {
-      currentLevel++;
-      window.audio.playVictory();
-      loadLevel(currentLevel);
-      resetBallPaddle();
-    } else {
-      gameState = STATES.VICTORY;
-      window.audio.playVictory();
-      victoryScoreSpan.textContent = String(score).padStart(8, '0');
-      showOverlay(victoryMenu);
-      
-      // Update High score
-      if (score > highscore) {
-        highscore = score;
-        localStorage.setItem('brick_breaker_hiscore', highscore);
-        highscoreVal.textContent = String(highscore).padStart(8, '0');
-      }
-    }
+    currentLevel++;
+    
+    // Scale speed by 10% per level, capped at safety threshold
+    currentBallSpeed = Math.min(BALL_SPEED_MAX, BALL_SPEED_INIT * Math.pow(1.10, currentLevel - 1));
+
+    window.audio.playVictory();
+    updateLevelHUD();
+    loadLevel(currentLevel);
+    resetBallPaddle();
   }
 }
 
 // --- Reset Ball / Paddle Position ---
 function resetBallPaddle() {
   paddle = new Paddle();
-  // Perfect centered starting position sitting on top of the paddle
   balls = [new Ball(paddle.x + paddle.width / 2, paddle.y - 7)];
-  
-  // Force catch ball on starts regardless of catch powerup activation
-  paddle.catchBall(balls[0], true);
+  paddle.catchBall(balls[0]);
 }
 
 // --- Game Logic Update Loop ---
@@ -1194,44 +882,6 @@ function update(dt) {
 
   // Update Paddle
   paddle.update(dt);
-
-  // Update Lasers
-  for (let i = lasers.length - 1; i >= 0; i--) {
-    const laser = lasers[i];
-    laser.update();
-
-    if (laser.y < BORDER_WIDTH) {
-      lasers.splice(i, 1);
-      continue;
-    }
-
-    let laserHit = false;
-    for (let j = bricks.length - 1; j >= 0; j--) {
-      const b = bricks[j];
-      if (
-        laser.x >= b.x && laser.x <= b.x + b.width &&
-        laser.y >= b.y && laser.y <= b.y + b.height
-      ) {
-        laserHit = true;
-        createImpactParticles(laser.x, laser.y, '#ffffff');
-        
-        const destroyed = b.damage();
-        if (destroyed) {
-          bricks.splice(j, 1);
-          if (b.type === 'bomb') {
-            triggerBombExplosion(b);
-          } else {
-            checkLevelComplete();
-          }
-        }
-        break;
-      }
-    }
-
-    if (laserHit) {
-      lasers.splice(i, 1);
-    }
-  }
 
   // Update Balls & Physics
   for (let i = balls.length - 1; i >= 0; i--) {
@@ -1253,24 +903,20 @@ function update(dt) {
     // Ball-to-Paddle collision
     const colPaddle = intersectCircleRect(ball, paddle);
     if (colPaddle.collided && ball.dy > 0) {
-      const caught = paddle.catchBall(ball);
+      const hitX = ball.x - paddle.x;
+      const relativeHit = Math.max(0, Math.min(1.0, hitX / paddle.width));
       
-      if (!caught) {
-        const hitX = ball.x - paddle.x;
-        const relativeHit = Math.max(0, Math.min(1.0, hitX / paddle.width));
-        
-        const maxAngle = 65 * Math.PI / 180;
-        const bounceAngle = (relativeHit - 0.5) * 2 * maxAngle;
+      const maxAngle = 65 * Math.PI / 180;
+      const bounceAngle = (relativeHit - 0.5) * 2 * maxAngle;
 
-        ball.dx = ball.speed * Math.sin(bounceAngle);
-        ball.dy = -ball.speed * Math.cos(bounceAngle);
-        
-        if (Math.abs(ball.dy) < 1.5) ball.dy = -1.5;
-        ball.y = paddle.y - ball.radius; // Pushout
+      ball.dx = ball.speed * Math.sin(bounceAngle);
+      ball.dy = -ball.speed * Math.cos(bounceAngle);
+      
+      if (Math.abs(ball.dy) < 1.5) ball.dy = -1.5;
+      ball.y = paddle.y - ball.radius; // Pushout
 
-        window.audio.playPaddleBounce();
-        createImpactParticles(ball.x, ball.y + ball.radius, '#ffffff');
-      }
+      window.audio.playPaddleBounce();
+      createImpactParticles(ball.x, ball.y + ball.radius, '#ffffff');
       continue;
     }
 
@@ -1303,75 +949,6 @@ function update(dt) {
         break;
       }
     }
-
-    // Ball-to-Enemy Collision
-    for (let eIdx = enemies.length - 1; eIdx >= 0; eIdx--) {
-      const enemy = enemies[eIdx];
-      const dx = ball.x - enemy.x;
-      const dy = ball.y - enemy.y;
-      const distSq = dx * dx + dy * dy;
-      const minDist = ball.radius + enemy.radius;
-
-      if (distSq < minDist * minDist) {
-        enemies.splice(eIdx, 1);
-        score += 150;
-        updateScoreHUD();
-        window.audio.playBrickBreak();
-        
-        createBrickParticles(enemy.x, enemy.y, '#2166e0', '#00ffff');
-        
-        ball.dy = -ball.dy;
-        ball.dx += (Math.random() - 0.5) * 1.5;
-        break;
-      }
-    }
-  }
-
-  // Update Powerup Capsules
-  for (let i = capsules.length - 1; i >= 0; i--) {
-    const cap = capsules[i];
-    cap.update(dt);
-
-    if (cap.y > canvas.height + 10) {
-      capsules.splice(i, 1);
-      continue;
-    }
-
-    if (
-      cap.x >= paddle.x && cap.x <= paddle.x + paddle.width &&
-      cap.y >= paddle.y && cap.y <= paddle.y + paddle.height
-    ) {
-      applyPowerup(cap.typeKey);
-      capsules.splice(i, 1);
-      continue;
-    }
-  }
-
-  // Update Floating Enemies
-  enemySpawnTimer += dt;
-  if (enemySpawnTimer > 12.0) {
-    enemySpawnTimer = 0;
-    if (Math.random() < 0.7) {
-      spawnEnemy();
-    }
-  }
-
-  for (let i = enemies.length - 1; i >= 0; i--) {
-    const enemy = enemies[i];
-    enemy.update();
-
-    if (
-      enemy.x >= paddle.x - 4 && enemy.x <= paddle.x + paddle.width + 4 &&
-      enemy.y >= paddle.y - 8 && enemy.y <= paddle.y + paddle.height + 4
-    ) {
-      enemies.splice(i, 1);
-      loseLife();
-      continue;
-    }
-
-    if (enemy.y > canvas.height + 20) {
-      enemies.splice(i, 1);
-    }
   }
 
   // Update Particles
@@ -1380,77 +957,6 @@ function update(dt) {
     if (particles[i].life <= 0) {
       particles.splice(i, 1);
     }
-  }
-}
-
-// --- Apply Power-up Capsule ---
-function applyPowerup(key) {
-  window.audio.playPowerup();
-  
-  switch(key) {
-    case 'S': // SLOW BALLS
-      balls.forEach(b => {
-        b.speed = Math.max(BALL_SPEED_INIT * 0.75, b.speed - 1.0);
-        const angle = Math.atan2(b.dx, -b.dy);
-        b.dx = b.speed * Math.sin(angle);
-        b.dy = -b.speed * Math.cos(angle);
-      });
-      break;
-
-    case 'E': // EXPAND PADDLE
-      paddle.laserActive = false;
-      paddle.targetWidth = 140;
-      break;
-
-    case 'C': // CATCH BALL
-      paddle.catchActive = true;
-      break;
-
-    case 'L': // LASER PADDLE
-      paddle.targetWidth = 90;
-      paddle.laserActive = true;
-      paddle.catchActive = false;
-      break;
-
-    case 'D': // MULTIPLY / DIVIDE BALLS
-      if (balls.length > 0) {
-        const baseBall = balls[0];
-        const b1 = new Ball(baseBall.x, baseBall.y);
-        const b2 = new Ball(baseBall.x, baseBall.y);
-
-        b1.speed = baseBall.speed;
-        b2.speed = baseBall.speed;
-
-        b1.dx = baseBall.dx * 0.7 - baseBall.dy * 0.5;
-        b1.dy = baseBall.dy * 0.7 + baseBall.dx * 0.5;
-
-        b2.dx = baseBall.dx * 0.7 + baseBall.dy * 0.5;
-        b2.dy = baseBall.dy * 0.7 - baseBall.dx * 0.5;
-
-        balls.push(b1);
-        balls.push(b2);
-      }
-      break;
-
-    case 'P': // EXTRA LIFE PLAYER
-      if (lives < 5) {
-        lives++;
-        updateLivesHUD();
-      }
-      break;
-
-    case 'B': // EXIT PORTAL BREAK
-      window.audio.playVictory();
-      if (currentLevel < totalLevels) {
-        currentLevel++;
-        loadLevel(currentLevel);
-        resetBallPaddle();
-      } else {
-        gameState = STATES.VICTORY;
-        victoryScoreSpan.textContent = String(score).padStart(8, '0');
-        showOverlay(victoryMenu);
-      }
-      break;
   }
 }
 
@@ -1470,7 +976,7 @@ function loseLife() {
 
     if (score > highscore) {
       highscore = score;
-      localStorage.setItem('brick_breaker_hiscore', highscore);
+      localStorage.setItem('bricked_up_hiscore', highscore);
       highscoreVal.textContent = String(highscore).padStart(8, '0');
     }
   } else {
@@ -1497,31 +1003,27 @@ function draw() {
   // 2. Draw Bricks
   bricks.forEach(b => b.draw());
 
-  // 3. Draw Powerup Capsules
-  capsules.forEach(c => c.draw());
-
-  // 4. Draw Lasers
-  lasers.forEach(l => l.draw());
-
-  // 5. Draw Floating Enemies
-  enemies.forEach(e => e.draw());
-
-  // 6. Draw Particles
+  // 3. Draw Particles
   particles.forEach(p => p.draw());
 
-  // 7. Draw Paddle
+  // 4. Draw Paddle
   paddle.draw();
 
-  // 8. Draw Balls
+  // 5. Draw Balls
   balls.forEach(b => b.draw());
 
-  // 9. Draw Pipes / Hatch Frame borders
+  // 6. Draw Pipes / Hatch Frame borders
   drawFrameBorders();
 }
 
-// --- Standard Score and UI HUD sync ---
+// --- Score and UI HUD sync ---
 function updateScoreHUD() {
   scoreVal.textContent = String(score).padStart(8, '0');
+  
+  if (score > highscore) {
+    highscore = score;
+    highscoreVal.textContent = String(highscore).padStart(8, '0');
+  }
 }
 
 function updateLivesHUD() {
@@ -1533,13 +1035,18 @@ function updateLivesHUD() {
   }
 }
 
+function updateLevelHUD() {
+  if (levelDisplay) {
+    levelDisplay.textContent = `LEVEL ${currentLevel}`;
+  }
+}
+
 // --- Main Menu Overlay Handlers ---
 function showOverlay(menuToShow) {
   uiOverlay.classList.remove('hidden');
   startMenu.classList.add('hidden');
   pauseMenu.classList.add('hidden');
   gameOverMenu.classList.add('hidden');
-  victoryMenu.classList.add('hidden');
 
   menuToShow.classList.remove('hidden');
 }
@@ -1549,17 +1056,18 @@ function hideOverlay() {
 }
 
 // --- Reset / Init New Game ---
-function startNewGame(mode) {
+function startNewGame() {
   score = 0;
   lives = 3;
   currentLevel = 1;
-  gameMode = mode;
+  currentBallSpeed = BALL_SPEED_INIT;
   gameState = STATES.PLAYING;
 
   window.audio.resume();
 
   updateScoreHUD();
   updateLivesHUD();
+  updateLevelHUD();
   initSpawnHatches();
   loadLevel(currentLevel);
   resetBallPaddle();
@@ -1605,8 +1113,6 @@ window.addEventListener('keydown', (e) => {
     if (gameState === STATES.PLAYING) {
       if (paddle.caughtBalls.length > 0) {
         paddle.releaseBalls();
-      } else if (paddle.laserActive) {
-        paddle.shoot();
       }
     }
   }
@@ -1634,7 +1140,7 @@ canvas.addEventListener('touchmove', (e) => {
   }
 }, { passive: true });
 
-// Mobile Virtual Trackbar moves paddle
+// Mobile Virtual Trackbar
 const mobileTrack = document.getElementById('mobile-trackbar');
 mobileTrack.addEventListener('touchmove', (e) => {
   if (e.touches.length > 0) {
@@ -1642,15 +1148,13 @@ mobileTrack.addEventListener('touchmove', (e) => {
   }
 }, { passive: true });
 
-// Launch Ball or Shoot Lasers on Left Click / Tap
+// Launch Ball on Left Click / Tap
 window.addEventListener('mousedown', (e) => {
   if (e.target.closest('button') || e.target.closest('header') || e.target.closest('footer')) return;
 
   if (gameState === STATES.PLAYING) {
     if (paddle.caughtBalls.length > 0) {
       paddle.releaseBalls();
-    } else if (paddle.laserActive) {
-      paddle.shoot();
     }
   }
 });
@@ -1659,22 +1163,18 @@ canvas.addEventListener('touchstart', (e) => {
   if (gameState === STATES.PLAYING) {
     if (paddle.caughtBalls.length > 0) {
       paddle.releaseBalls();
-    } else if (paddle.laserActive) {
-      paddle.shoot();
     }
   }
 }, { passive: true });
 
 // Button Click Event Hooks
-document.getElementById('btn-classic').addEventListener('click', () => startNewGame('classic'));
-document.getElementById('btn-random').addEventListener('click', () => startNewGame('random'));
+document.getElementById('btn-classic').addEventListener('click', startNewGame);
 document.getElementById('btn-resume').addEventListener('click', () => {
   gameState = STATES.PLAYING;
   window.audio.resume();
   hideOverlay();
 });
-document.getElementById('btn-retry').addEventListener('click', () => startNewGame(gameMode));
-document.getElementById('btn-victory-retry').addEventListener('click', () => startNewGame(gameMode));
+document.getElementById('btn-retry').addEventListener('click', startNewGame);
 
 // Sound Toggle
 btnSound.addEventListener('click', () => {
