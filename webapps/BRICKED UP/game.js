@@ -1,6 +1,9 @@
 /**
  * BRICKED UP - Retro Breakout Game Engine
  * Streamlined, optimized infinite stage breakout engine featuring:
+ * - Responsive screen scaling: Dynamic Landscape (Desktop) / Portrait (Mobile iPhone) layouts.
+ * - Dynamic aspect ratio: Computes height dynamically to match mobile viewport ratios edge-to-edge.
+ * - Bottom-half touch drag: Bottom half of screen maps to smooth finger tracking.
  * - Procedural symmetrical level layouts with seeded bomb bricks.
  * - Progressive difficulty scaling (ball speed increases 10% per level).
  * - Ball light trail: A glowing cyan comet-like path trailing the ball.
@@ -13,19 +16,15 @@
 const canvas = document.getElementById('gameCanvas');
 const ctx = canvas.getContext('2d');
 
-// Game State constants
-const STATES = {
-  MENU: 'MENU',
-  PLAYING: 'PLAYING',
-  PAUSED: 'PAUSED',
-  GAMEOVER: 'GAMEOVER'
-};
+// Detect Mobile Device / Portrait Viewport
+const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent) || 
+                 (window.innerWidth < 600) || 
+                 (window.innerWidth < window.innerHeight && window.innerWidth < 768);
 
-// Global Config & Constants
-const BORDER_WIDTH = 18;
-const HATCH_Y = BORDER_WIDTH;
-const BRICK_COLS = 13;
-const BRICK_HEIGHT = 18;
+// Global Config & Constants (initialized dynamically in initDimensions)
+let BORDER_WIDTH = 18;
+let BRICK_COLS = 13;
+let BRICK_HEIGHT = 18;
 const BALL_SPEED_INIT = 4.5;
 const BALL_SPEED_MAX = 9.0; // Prevent tunneling through walls at extreme speeds
 
@@ -95,6 +94,25 @@ highscoreVal.textContent = String(highscore).padStart(8, '0');
 // Input state
 const keys = {};
 let mouseX = canvas.width / 2;
+let isDraggingPaddle = false; // Mobile bottom-half touch drag flag
+
+// --- Initialize Layout Sizing dynamically ---
+function initDimensions() {
+  if (isMobile) {
+    // iPhone portrait coordinates: dynamic height scales edge-to-edge
+    canvas.width = 450;
+    const windowRatio = window.innerHeight / window.innerWidth;
+    canvas.height = Math.round(450 * windowRatio);
+    BORDER_WIDTH = 14;
+    BRICK_COLS = 8;
+  } else {
+    // Desktop landscape view coordinates
+    canvas.width = 800;
+    canvas.height = 480;
+    BORDER_WIDTH = 18;
+    BRICK_COLS = 13;
+  }
+}
 
 // --- Initialize Background Texture Pattern ---
 function initBackgroundPattern() {
@@ -104,7 +122,6 @@ function initBackgroundPattern() {
   pCanvas.height = size;
   const pCtx = pCanvas.getContext('2d');
 
-  // Draw isometric-like diamond tile pattern
   pCtx.fillStyle = COLORS.BACKGROUND_DARK;
   pCtx.fillRect(0, 0, size, size);
 
@@ -117,7 +134,6 @@ function initBackgroundPattern() {
   pCtx.closePath();
   pCtx.fill();
 
-  // Dark shading borders
   pCtx.strokeStyle = 'rgba(0, 0, 0, 0.25)';
   pCtx.lineWidth = 1;
   pCtx.beginPath();
@@ -126,7 +142,6 @@ function initBackgroundPattern() {
   pCtx.lineTo(size, size / 2);
   pCtx.stroke();
 
-  // Light highlights
   pCtx.strokeStyle = 'rgba(255, 255, 255, 0.08)';
   pCtx.beginPath();
   pCtx.moveTo(0, size / 2);
@@ -137,22 +152,31 @@ function initBackgroundPattern() {
   bgPattern = ctx.createPattern(pCanvas, 'repeat');
 }
 
-// --- Spawning Hatches Setup ---
+// --- Spawning Hatches Setup (Responsive position counts) ---
 function initSpawnHatches() {
-  spawnHatches = [
-    { x: BORDER_WIDTH + 80, y: HATCH_Y, width: 36, height: 12, openState: 0 },
-    { x: canvas.width / 2 - 18, y: HATCH_Y, width: 36, height: 12, openState: 0 },
-    { x: canvas.width - BORDER_WIDTH - 80 - 36, y: HATCH_Y, width: 36, height: 12, openState: 0 }
-  ];
+  if (isMobile) {
+    // Two hatches spaced symmetrically on portrait layout
+    spawnHatches = [
+      { x: BORDER_WIDTH + 40, y: HATCH_Y, width: 36, height: 12, openState: 0 },
+      { x: canvas.width - BORDER_WIDTH - 40 - 36, y: HATCH_Y, width: 36, height: 12, openState: 0 }
+    ];
+  } else {
+    // Three hatches on landscape layouts
+    spawnHatches = [
+      { x: BORDER_WIDTH + 80, y: HATCH_Y, width: 36, height: 12, openState: 0 },
+      { x: canvas.width / 2 - 18, y: HATCH_Y, width: 36, height: 12, openState: 0 },
+      { x: canvas.width - BORDER_WIDTH - 80 - 36, y: HATCH_Y, width: 36, height: 12, openState: 0 }
+    ];
+  }
 }
 
 // --- Paddle Class ---
 class Paddle {
   constructor() {
-    this.width = 90;
+    this.width = isMobile ? 65 : 90; // Proportional width
     this.height = 18;
     this.x = (canvas.width - this.width) / 2;
-    this.y = canvas.height - 35;
+    this.y = canvas.height - (isMobile ? 45 : 35); // Buffered touch drag limit
     this.speed = 8;
     this.caughtBalls = []; // Used solely for holding the starting ball
   }
@@ -166,7 +190,7 @@ class Paddle {
       this.x += this.speed;
     }
 
-    // Mouse control
+    // Mouse/Touch control
     if (mouseX !== undefined) {
       this.x = mouseX - this.width / 2;
     }
@@ -201,25 +225,23 @@ class Paddle {
     const capColors = COLORS.PADDLE_RED;
     const bodyColors = COLORS.PADDLE_METAL;
 
-    // Left Cap (Red rounded dome)
+    // Left Cap
     ctx.fillStyle = capColors[1];
     ctx.beginPath();
     ctx.arc(x + rCap, y + h / 2, rCap, Math.PI * 0.5, Math.PI * 1.5);
     ctx.fill();
     
-    // Left Cap shine
     ctx.fillStyle = capColors[0];
     ctx.beginPath();
     ctx.arc(x + rCap + 2, y + h / 2 - 2, rCap - 4, Math.PI * 0.5, Math.PI * 1.5);
     ctx.fill();
 
-    // Right Cap (Red rounded dome)
+    // Right Cap
     ctx.fillStyle = capColors[1];
     ctx.beginPath();
     ctx.arc(x + w - rCap, y + h / 2, rCap, Math.PI * 1.5, Math.PI * 0.5);
     ctx.fill();
 
-    // Right Cap shine
     ctx.fillStyle = capColors[0];
     ctx.beginPath();
     ctx.arc(x + w - rCap - 2, y + h / 2 - 2, rCap - 4, Math.PI * 1.5, Math.PI * 0.5);
@@ -229,7 +251,6 @@ class Paddle {
     ctx.fillStyle = bodyColors[2];
     ctx.fillRect(x + rCap, y, w - rCap * 2, h);
 
-    // Shiny highlights
     ctx.fillStyle = bodyColors[1];
     ctx.fillRect(x + rCap, y + 2, w - rCap * 2, 3);
     ctx.fillStyle = bodyColors[0];
@@ -265,7 +286,6 @@ class Paddle {
     this.caughtBalls.forEach(cb => {
       cb.ball.isStuck = false;
       
-      // Launch straight or steer ball angle slightly relative to offset
       const relativeHit = cb.offset / this.width;
       const angle = (relativeHit - 0.5) * 1.2;
       cb.ball.dx = cb.ball.speed * Math.sin(angle);
@@ -288,7 +308,6 @@ class Ball {
     this.dy = dy;
     this.isStuck = false;
     
-    // Glowing light trail
     this.trail = [];
     this.maxTrailLength = 10;
   }
@@ -299,17 +318,14 @@ class Ball {
       return;
     }
 
-    // Capture trail coordinate history
     this.trail.push({ x: this.x, y: this.y });
     if (this.trail.length > this.maxTrailLength) {
       this.trail.shift();
     }
 
-    // Apply movement
     this.x += this.dx;
     this.y += this.dy;
 
-    // Wall reflections
     const leftBorder = BORDER_WIDTH + this.radius;
     const rightBorder = canvas.width - BORDER_WIDTH - this.radius;
     const topBorder = BORDER_WIDTH + this.radius;
@@ -341,12 +357,12 @@ class Ball {
   draw() {
     ctx.save();
     
-    // Draw glowing cyan light trail behind the ball
+    // Draw trail
     if (!this.isStuck && this.trail.length > 0) {
       this.trail.forEach((pos, index) => {
         const ratio = (index + 1) / this.trail.length;
-        const opacity = ratio * 0.35; // Fades out towards tail
-        const size = this.radius * (0.3 + ratio * 0.7); // Shrinks towards tail
+        const opacity = ratio * 0.35;
+        const size = this.radius * (0.3 + ratio * 0.7);
         
         ctx.fillStyle = `rgba(0, 212, 255, ${opacity})`;
         ctx.beginPath();
@@ -359,25 +375,21 @@ class Ball {
     const ry = Math.round(this.y);
     const r = Math.round(this.radius);
 
-    // Draw ball shadow
     ctx.fillStyle = 'rgba(0, 0, 0, 0.4)';
     ctx.beginPath();
     ctx.arc(rx + 3, ry + 3, r, 0, Math.PI * 2);
     ctx.fill();
 
-    // Retro shaded pixel ball
     ctx.fillStyle = COLORS.BALL_SHADE[1];
     ctx.beginPath();
     ctx.arc(rx, ry, r, 0, Math.PI * 2);
     ctx.fill();
 
-    // 3D Highlight dot
     ctx.fillStyle = COLORS.BALL_SHADE[0];
     ctx.beginPath();
     ctx.arc(rx - 2, ry - 2, r - 4, 0, Math.PI * 2);
     ctx.fill();
 
-    // Outer outline
     ctx.strokeStyle = '#000000';
     ctx.lineWidth = 1;
     ctx.beginPath();
@@ -394,35 +406,36 @@ class Brick {
     this.col = col;
     this.row = row;
     this.type = type; // 'silver', 'red', 'yellow', 'blue', 'magenta', 'green', 'bomb'
-    this.x = BORDER_WIDTH + 6 + col * 58;
+    
+    const activeWidth = canvas.width - (BORDER_WIDTH * 2) - 12;
+    this.width = Math.floor(activeWidth / BRICK_COLS);
+    
+    this.x = BORDER_WIDTH + 6 + col * this.width;
     this.y = BORDER_WIDTH + 55 + row * BRICK_HEIGHT;
-    this.width = 57;
     this.height = BRICK_HEIGHT - 1;
     this.health = type === 'silver' ? 2 : 1;
     this.isCracked = false;
-    this.flashFrame = 0; // Visual damage flash
+    this.flashFrame = 0;
   }
 
   damage() {
     this.health--;
-    this.flashFrame = 5; // Flashes white for 5 game cycles
+    this.flashFrame = 5;
     
     if (this.health <= 0) {
       score += this.type === 'silver' ? 200 : 100;
       updateScoreHUD();
       window.audio.playBrickBreak();
       
-      // Spawn colored particles
       const colors = COLORS.BRICKS[this.type.toUpperCase()];
       createBrickParticles(this.x + this.width/2, this.y + this.height/2, colors[0], colors[1]);
-      return true; // Destroyed
+      return true;
     } else {
-      // Silver brick cracked state
       this.isCracked = true;
       score += 50;
       updateScoreHUD();
       window.audio.playMetalClang();
-      return false; // Damaged but not destroyed
+      return false;
     }
   }
 
@@ -434,7 +447,6 @@ class Brick {
 
     ctx.save();
 
-    // Damage White Flash Overlay
     if (this.flashFrame > 0) {
       ctx.fillStyle = '#ffffff';
       ctx.fillRect(rx, ry, rw, rh);
@@ -446,13 +458,10 @@ class Brick {
       return;
     }
 
-    // Special Bomb Drawing
     if (this.type === 'bomb') {
-      // Neon warning orange base
       ctx.fillStyle = '#ff8800';
       ctx.fillRect(rx, ry, rw, rh);
 
-      // Warning hazard stripes (black diagonal lines)
       ctx.strokeStyle = '#000000';
       ctx.lineWidth = 4;
       ctx.beginPath();
@@ -462,13 +471,11 @@ class Brick {
       }
       ctx.stroke();
 
-      // Pulsing bright red/orange neon frame glow
       const pulse = Math.abs(Math.sin(performance.now() / 150));
       ctx.strokeStyle = `rgba(255, 0, 0, ${0.4 + pulse * 0.6})`;
       ctx.lineWidth = 2;
       ctx.strokeRect(rx + 1, ry + 1, rw - 2, rh - 2);
 
-      // Black outline
       ctx.strokeStyle = '#000000';
       ctx.lineWidth = 1;
       ctx.strokeRect(rx, ry, rw, rh);
@@ -477,19 +484,15 @@ class Brick {
       return;
     }
 
-    // Determine colors base
     const colors = COLORS.BRICKS[this.type.toUpperCase()];
 
-    // Base body fill (midtone)
     ctx.fillStyle = colors[1];
     ctx.fillRect(rx, ry, rw, rh);
 
-    // Bevel highlights
     ctx.fillStyle = colors[0];
     ctx.fillRect(rx, ry, rw, 2);
     ctx.fillRect(rx, ry, 2, rh);
 
-    // Bevel shadows
     ctx.fillStyle = colors[2];
     ctx.fillRect(rx, ry + rh - 2, rw, 2);
     ctx.fillRect(rx + rw - 2, ry, 2, rh);
@@ -498,7 +501,6 @@ class Brick {
     ctx.fillRect(rx, ry + rh - 1, rw, 1);
     ctx.fillRect(rx + rw - 1, ry, 1, rh);
 
-    // Silver metallic extra luster reflection stripe
     if (this.type === 'silver') {
       ctx.fillStyle = 'rgba(255, 255, 255, 0.4)';
       ctx.fillRect(rx + 8, ry + 2, 4, rh - 4);
@@ -506,7 +508,6 @@ class Brick {
       ctx.fillRect(rx + 12, ry + 2, 2, rh - 4);
     }
 
-    // Crack lines on damaged silver bricks
     if (this.isCracked && this.type === 'silver') {
       ctx.strokeStyle = 'rgba(0,0,0,0.6)';
       ctx.lineWidth = 1.5;
@@ -521,7 +522,6 @@ class Brick {
       ctx.stroke();
     }
 
-    // Draw solid black outline around entire brick
     ctx.strokeStyle = '#000000';
     ctx.lineWidth = 1;
     ctx.strokeRect(rx, ry, rw, rh);
@@ -546,7 +546,7 @@ class Particle {
   update(dt) {
     this.x += this.vx;
     this.y += this.vy;
-    this.vy += 0.12; // Gravity
+    this.vy += 0.12;
     this.life -= 0.03;
     this.alpha = Math.max(0, this.life);
   }
@@ -560,7 +560,7 @@ class Particle {
   }
 }
 
-// --- Setup Symmetrical Level (Changes Layout Procedurally) ---
+// --- Setup Symmetrical Level (Dynamic boundaries and column scales) ---
 function loadLevel(levelNum) {
   bricks = [];
   particles = [];
@@ -571,14 +571,13 @@ function loadLevel(levelNum) {
 
   const types = ['red', 'yellow', 'blue', 'magenta', 'green'];
   const halfCols = Math.ceil(BRICK_COLS / 2);
-  const rowCount = 5 + Math.floor(Math.random() * 3); // 5 to 7 rows of blocks
+  const rowCount = isMobile ? (7 + Math.floor(Math.random() * 3)) : (5 + Math.floor(Math.random() * 3));
 
   const grid = [];
   for (let r = 0; r < rowCount; r++) {
     grid.push(Array(BRICK_COLS).fill(null));
   }
 
-  // Pick a layout style randomly so it changes completely with each load
   const layoutStyle = Math.floor(Math.random() * 3);
 
   if (layoutStyle === 0) {
@@ -656,7 +655,6 @@ function createBrickParticles(x, y, color1, color2) {
   }
 }
 
-// Fading sparks for wall bounces
 function createImpactParticles(x, y, color) {
   for (let i = 0; i < 4; i++) {
     const vx = (Math.random() - 0.5) * 2;
@@ -710,7 +708,7 @@ function triggerBombExplosion(bomb) {
   checkLevelComplete();
 }
 
-// --- Render Metallic Pipes Border (Hatches remain strictly static) ---
+// --- Render Metallic Pipes Border (Adapts to dimensions) ---
 function drawFrameBorders() {
   ctx.save();
 
@@ -721,11 +719,12 @@ function drawFrameBorders() {
   // TOP
   drawPipeSegment(BORDER_WIDTH, 0, canvas.width - BORDER_WIDTH * 2, BORDER_WIDTH, 'horizontal');
 
-  // Decorative clamps
+  // Corners
   drawPipeClamp(0, 0);
   drawPipeClamp(canvas.width - BORDER_WIDTH, 0);
 
-  const jointYCount = 3;
+  // Scaled vertical clamp decorations
+  const jointYCount = isMobile ? 5 : 3;
   for (let i = 1; i <= jointYCount; i++) {
     const yVal = (canvas.height / (jointYCount + 1)) * i;
     drawPipeClamp(0, yVal);
@@ -851,12 +850,10 @@ function intersectCircleRect(circle, rect) {
   return { collided: false };
 }
 
-// --- Check Level Complete (Infinite Progression) ---
+// --- Check Level Complete ---
 function checkLevelComplete() {
   if (bricks.length === 0) {
     currentLevel++;
-    
-    // Scale speed by 10% per level, capped at safety threshold
     currentBallSpeed = Math.min(BALL_SPEED_MAX, BALL_SPEED_INIT * Math.pow(1.10, currentLevel - 1));
 
     window.audio.playVictory();
@@ -877,10 +874,7 @@ function resetBallPaddle() {
 function update(dt) {
   if (gameState !== STATES.PLAYING) return;
 
-  // Background slow scroll
   bgScrollOffset = (bgScrollOffset + 0.25) % 32;
-
-  // Update Paddle
   paddle.update(dt);
 
   // Update Balls & Physics
@@ -890,17 +884,16 @@ function update(dt) {
 
     if (ball.isStuck) continue;
 
-    // Gutter Out check
+    // Gutter Out
     if (ball.y - ball.radius > canvas.height) {
       balls.splice(i, 1);
-      
       if (balls.length === 0) {
         loseLife();
       }
       continue;
     }
 
-    // Ball-to-Paddle collision
+    // Ball-to-Paddle
     const colPaddle = intersectCircleRect(ball, paddle);
     if (colPaddle.collided && ball.dy > 0) {
       const hitX = ball.x - paddle.x;
@@ -913,24 +906,22 @@ function update(dt) {
       ball.dy = -ball.speed * Math.cos(bounceAngle);
       
       if (Math.abs(ball.dy) < 1.5) ball.dy = -1.5;
-      ball.y = paddle.y - ball.radius; // Pushout
+      ball.y = paddle.y - ball.radius;
 
       window.audio.playPaddleBounce();
       createImpactParticles(ball.x, ball.y + ball.radius, '#ffffff');
       continue;
     }
 
-    // Ball-to-Brick collision
+    // Ball-to-Brick
     for (let j = bricks.length - 1; j >= 0; j--) {
       const brick = bricks[j];
       const col = intersectCircleRect(ball, brick);
 
       if (col.collided) {
-        // Pushout
         ball.x += col.normalX * col.penetration;
         ball.y += col.normalY * col.penetration;
 
-        // Velocity reflection
         if (Math.abs(col.normalX) > Math.abs(col.normalY)) {
           ball.dx = col.normalX * Math.abs(ball.dx);
         } else {
@@ -988,7 +979,6 @@ function loseLife() {
 function draw() {
   ctx.clearRect(0, 0, canvas.width, canvas.height);
 
-  // 1. Draw Checked Blue Retro Background Pattern
   if (bgPattern) {
     ctx.save();
     ctx.translate(bgScrollOffset, bgScrollOffset);
@@ -1000,19 +990,10 @@ function draw() {
     ctx.fillRect(0, 0, canvas.width, canvas.height);
   }
 
-  // 2. Draw Bricks
   bricks.forEach(b => b.draw());
-
-  // 3. Draw Particles
   particles.forEach(p => p.draw());
-
-  // 4. Draw Paddle
   paddle.draw();
-
-  // 5. Draw Balls
   balls.forEach(b => b.draw());
-
-  // 6. Draw Pipes / Hatch Frame borders
   drawFrameBorders();
 }
 
@@ -1026,6 +1007,7 @@ function updateScoreHUD() {
   }
 }
 
+// Draw red lives indicators on controls bar
 function updateLivesHUD() {
   livesDisplay.innerHTML = '';
   for (let i = 0; i < lives; i++) {
@@ -1133,22 +1115,38 @@ window.addEventListener('mousemove', (e) => {
   handleMouseMove(e.clientX);
 });
 
-// Touch controls for mobile compatibility
+// Touch controls for mobile portrait compatibility (Bottom-half drag area)
+canvas.addEventListener('touchstart', (e) => {
+  if (e.touches.length > 0) {
+    const rect = canvas.getBoundingClientRect();
+    const relativeY = e.touches[0].clientY - rect.top;
+    
+    // Drag/touch is strictly initiated in the bottom half of the screen
+    if (relativeY > rect.height / 2) {
+      isDraggingPaddle = true;
+      handleMouseMove(e.touches[0].clientX);
+      
+      // Tap launch if ball is stuck
+      if (gameState === STATES.PLAYING) {
+        if (paddle.caughtBalls.length > 0) {
+          paddle.releaseBalls();
+        }
+      }
+    }
+  }
+}, { passive: true });
+
 canvas.addEventListener('touchmove', (e) => {
-  if (e.touches.length > 0) {
+  if (isDraggingPaddle && e.touches.length > 0) {
     handleMouseMove(e.touches[0].clientX);
   }
 }, { passive: true });
 
-// Mobile Virtual Trackbar
-const mobileTrack = document.getElementById('mobile-trackbar');
-mobileTrack.addEventListener('touchmove', (e) => {
-  if (e.touches.length > 0) {
-    handleMouseMove(e.touches[0].clientX);
-  }
-}, { passive: true });
+canvas.addEventListener('touchend', () => {
+  isDraggingPaddle = false;
+});
 
-// Launch Ball on Left Click / Tap
+// Launch Ball on mouse mousedown (desktop clicks)
 window.addEventListener('mousedown', (e) => {
   if (e.target.closest('button') || e.target.closest('header') || e.target.closest('footer')) return;
 
@@ -1158,14 +1156,6 @@ window.addEventListener('mousedown', (e) => {
     }
   }
 });
-
-canvas.addEventListener('touchstart', (e) => {
-  if (gameState === STATES.PLAYING) {
-    if (paddle.caughtBalls.length > 0) {
-      paddle.releaseBalls();
-    }
-  }
-}, { passive: true });
 
 // Button Click Event Hooks
 document.getElementById('btn-classic').addEventListener('click', startNewGame);
@@ -1203,6 +1193,7 @@ btnFullscreen.addEventListener('click', () => {
 });
 
 // Start Setup on Page Load
+initDimensions();
 initBackgroundPattern();
 initSpawnHatches();
 resetBallPaddle();

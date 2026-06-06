@@ -32,6 +32,7 @@ body {
   align-items: center;
   overflow: hidden;
   position: relative;
+  touch-action: none;
   /* Retro background grid pattern */
   background-image: 
     radial-gradient(circle at 50% 50%, rgba(20, 25, 45, 0.8) 0%, var(--bg-dark) 100%),
@@ -212,6 +213,7 @@ canvas {
   image-rendering: crisp-edges;
   display: block;
   z-index: 1;
+  touch-action: none;
 }
 
 /* Scanline Effect overlay */
@@ -528,46 +530,112 @@ canvas {
 
 /* Media Queries for Responsive Design */
 @media (max-width: 768px) {
+  .game-container {
+    width: 100vw;
+    height: 100vh;
+    max-height: 100vh;
+    padding: 0;
+    margin: 0;
+    justify-content: flex-start;
+  }
+
+  .monitor-frame {
+    width: 100vw;
+    height: 100vh;
+    margin: 0;
+    border: none;
+    border-radius: 0;
+    padding: 0;
+    box-shadow: none;
+  }
+
+  .monitor-frame::after {
+    border-radius: 0;
+  }
+
+  .crt-screen {
+    border-radius: 0;
+  }
+
+  /* Glassmorphic floating HUD header at the top of the canvas */
   .hud-header {
+    position: absolute;
+    top: 12px;
+    left: 12px;
+    right: 12px;
+    z-index: 10;
+    background: rgba(20, 22, 34, 0.85);
+    backdrop-filter: blur(6px);
+    -webkit-backdrop-filter: blur(6px);
+    border: 2px solid #32384e;
+    border-radius: 6px;
     padding: 8px 12px;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.5);
+    pointer-events: none; /* Click-through to canvas menu overlay */
   }
   
   .hud-value {
-    font-size: 14px;
+    font-size: 13px;
   }
   
+  .hud-label {
+    font-size: 7px;
+    margin-bottom: 2px;
+  }
+
   .game-title {
-    font-size: 12px;
+    font-size: 11px;
   }
   
+  .hud-level-label {
+    font-size: 7px;
+    margin-top: 2px;
+  }
+
   .score-box, .highscore-box {
-    min-width: 90px;
+    min-width: 80px;
   }
-  
-  .instructions {
-    display: none; /* Hide bottom instructions text on mobile */
+
+  .hatch-indicators {
+    display: none; /* Hide spawner lights on mobile to reduce clutter */
   }
-  
+
+  /* Floating controls bar at the bottom */
   .controls-bar {
+    position: absolute;
+    bottom: 12px;
+    left: 12px;
+    right: 12px;
+    z-index: 10;
+    background: rgba(20, 22, 34, 0.85);
+    backdrop-filter: blur(6px);
+    -webkit-backdrop-filter: blur(6px);
+    border: 2px solid #32384e;
+    border-radius: 6px;
     padding: 8px 12px;
+    box-shadow: 0 -4px 15px rgba(0, 0, 0, 0.5);
   }
-  
+
+  .instructions {
+    display: none; /* Hide text instructions to maximize space */
+  }
+
   .btn-text {
-    display: none; /* Hide button labels to save space */
+    display: none; /* Hide icon buttons text labels */
   }
-  
+
   .icon-btn {
-    padding: 8px;
+    padding: 6px;
   }
 
   .mobile-trackbar {
-    display: block; /* Show mobile drag controller */
+    display: none !important; /* Hide trackbar as drag area is now bottom half */
   }
-  
+
   .menu-logo {
     font-size: 20px;
   }
-  
+
   .retro-btn {
     font-size: 9px;
     padding: 12px;
