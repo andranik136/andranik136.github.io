@@ -25,6 +25,7 @@ const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/
 let BORDER_WIDTH = 18;
 let BRICK_COLS = 13;
 let BRICK_HEIGHT = 18;
+let HATCH_Y = 18;
 const BALL_SPEED_INIT = 4.5;
 const BALL_SPEED_MAX = 9.0; // Prevent tunneling through walls at extreme speeds
 
@@ -47,6 +48,14 @@ const COLORS = {
     GREEN: ['#4fff4f', '#19db19', '#059705', '#004a00'],
     BOMB: ['#ffaa00', '#ff6600', '#cc3300', '#000000']
   }
+};
+
+// Game States
+const STATES = {
+  MENU: 'MENU',
+  PLAYING: 'PLAYING',
+  PAUSED: 'PAUSED',
+  GAMEOVER: 'GAMEOVER'
 };
 
 // Core Game Variables
@@ -99,9 +108,11 @@ let isDraggingPaddle = false; // Mobile bottom-half touch drag flag
 // --- Initialize Layout Sizing dynamically ---
 function initDimensions() {
   if (isMobile) {
-    // iPhone portrait coordinates: dynamic height scales edge-to-edge
+    // iPhone portrait coordinates: dynamic height scales to fill available space between HUD and footer
     canvas.width = 450;
-    const windowRatio = window.innerHeight / window.innerWidth;
+    const availableWidth = window.innerWidth - 16; // 8px padding on both sides of game-container
+    const availableHeight = window.innerHeight - 112; // vertical space taken by header, footer, and margins/paddings
+    const windowRatio = Math.max(1.0, availableHeight / availableWidth);
     canvas.height = Math.round(450 * windowRatio);
     BORDER_WIDTH = 14;
     BRICK_COLS = 8;
@@ -112,6 +123,7 @@ function initDimensions() {
     BORDER_WIDTH = 18;
     BRICK_COLS = 13;
   }
+  HATCH_Y = BORDER_WIDTH;
 }
 
 // --- Initialize Background Texture Pattern ---
