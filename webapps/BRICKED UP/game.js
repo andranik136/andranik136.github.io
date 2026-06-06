@@ -26,8 +26,8 @@ let BORDER_WIDTH = 18;
 let BRICK_COLS = 13;
 let BRICK_HEIGHT = 18;
 let HATCH_Y = 18;
-const BALL_SPEED_INIT = 4.5;
-const BALL_SPEED_MAX = 9.0; // Prevent tunneling through walls at extreme speeds
+const BALL_SPEED_INIT = 9.0;
+const BALL_SPEED_MAX = 18.0; // Prevent tunneling through walls at extreme speeds
 
 // Colors
 const COLORS = {
@@ -188,7 +188,7 @@ class Paddle {
     this.width = isMobile ? 65 : 90; // Proportional width
     this.height = 18;
     this.x = (canvas.width - this.width) / 2;
-    this.y = canvas.height - (isMobile ? 45 : 35); // Buffered touch drag limit
+    this.y = canvas.height - (isMobile ? 345 : 35); // Buffered touch drag limit (300px higher on mobile)
     this.speed = 8;
     this.caughtBalls = []; // Used solely for holding the starting ball
   }
@@ -896,8 +896,8 @@ function update(dt) {
 
     if (ball.isStuck) continue;
 
-    // Gutter Out
-    if (ball.y - ball.radius > canvas.height) {
+    // Gutter Out (Triggers when ball falls below paddle)
+    if (ball.y - ball.radius > paddle.y + paddle.height + 10) {
       balls.splice(i, 1);
       if (balls.length === 0) {
         loseLife();
