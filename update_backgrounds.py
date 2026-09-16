@@ -3,7 +3,7 @@ import re
 import os
 
 # Base paths
-base_dir = '/Users/andranikshirinian/Documents/GitHub/andranik136.github.io'
+base_dir = os.path.dirname(os.path.abspath(__file__))
 index_path = os.path.join(base_dir, 'index.html')
 
 def get_portfolio_data():
