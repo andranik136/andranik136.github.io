@@ -12,10 +12,14 @@ import {
   Moon,
   Menu,
   X,
-  Newspaper
+  Newspaper,
+  Cloud,
+  Loader2,
+  Check,
+  User as UserIcon
 } from 'lucide-react';
 import { formatMonthYear } from '../utils/dateUtils';
-import { Task } from '../types';
+import { Task, UserProfile, SyncStatus } from '../types';
 import clsx from 'clsx';
 
 interface HeaderProps {
@@ -31,6 +35,9 @@ interface HeaderProps {
   onImportData: (e: React.ChangeEvent<HTMLInputElement>) => void;
   theme: 'dark' | 'light';
   onToggleTheme: () => void;
+  user: UserProfile | null;
+  syncStatus: SyncStatus;
+  onOpenAuthModal: () => void;
 }
 
 export const Header: React.FC<HeaderProps> = ({
@@ -46,6 +53,9 @@ export const Header: React.FC<HeaderProps> = ({
   onImportData,
   theme,
   onToggleTheme,
+  user,
+  syncStatus,
+  onOpenAuthModal,
 }) => {
   const fileInputRef = React.useRef<HTMLInputElement>(null);
   const menuRef = React.useRef<HTMLDivElement>(null);
@@ -161,6 +171,29 @@ export const Header: React.FC<HeaderProps> = ({
           </div>
         )}
 
+        {/* Account & Cloud Sync Trigger */}
+        <button
+          onClick={onOpenAuthModal}
+          className={clsx(
+            "flex items-center space-x-1.5 px-3 py-1.5 rounded-xl border transition-all duration-150 text-xs font-medium active:scale-95",
+            user
+              ? isLight ? "bg-emerald-50 text-emerald-700 border-emerald-200 hover:bg-emerald-100" : "bg-emerald-950/40 text-emerald-400 border-emerald-800/40 hover:bg-emerald-900/50"
+              : isLight ? "bg-slate-100 hover:bg-blue-50 text-slate-700 hover:text-blue-600 border-blue-200" : "bg-slate-900/80 hover:bg-slate-800 text-slate-300 hover:text-white border-white/[0.08]"
+          )}
+          title={user ? `Signed in as ${user.email}` : "Sign In & Sync Data"}
+        >
+          {user?.photoURL ? (
+            <img src={user.photoURL} alt="Avatar" className="w-4 h-4 rounded-full" />
+          ) : user ? (
+            <Cloud className="w-4 h-4 text-emerald-500" />
+          ) : (
+            <Cloud className="w-4 h-4 text-blue-500" />
+          )}
+          <span className="hidden sm:inline text-xs font-semibold">
+            {user ? (user.displayName || user.email?.split('@')[0] || 'Account') : 'Sign In'}
+          </span>
+        </button>
+
         {/* Global Search Button */}
         <button
           onClick={onOpenSearch}
@@ -197,11 +230,36 @@ export const Header: React.FC<HeaderProps> = ({
           {/* Dropdown Popout */}
           {isMenuOpen && (
             <div className={clsx(
-              "absolute right-0 top-full mt-2 w-60 rounded-xl border shadow-2xl z-50 p-1.5 backdrop-blur-xl animate-in fade-in zoom-in-95 duration-150",
+              "absolute right-0 top-full mt-2 w-64 rounded-xl border shadow-2xl z-50 p-1.5 backdrop-blur-xl animate-in fade-in zoom-in-95 duration-150",
               isLight 
                 ? "bg-white/95 border-blue-200/90 shadow-blue-500/10" 
                 : "bg-slate-900/95 border-slate-800 shadow-black/60"
             )}>
+              {/* Account & Sync Menu Item */}
+              <button
+                onClick={() => {
+                  onOpenAuthModal();
+                  setIsMenuOpen(false);
+                }}
+                className={clsx(
+                  "w-full flex items-center justify-between px-3 py-2.5 rounded-xl text-xs font-medium transition-colors text-left",
+                  isLight ? "text-slate-700 hover:bg-blue-50 hover:text-blue-600" : "text-slate-200 hover:bg-slate-800/80 hover:text-white"
+                )}
+              >
+                <div className="flex items-center space-x-3">
+                  <Cloud className="w-4 h-4 text-blue-500 flex-shrink-0" />
+                  <span>Account & Cloud Sync</span>
+                </div>
+                <span className={clsx(
+                  "text-[10px] px-2 py-0.5 rounded-md border font-semibold flex items-center space-x-1",
+                  user 
+                    ? "bg-emerald-100 text-emerald-700 border-emerald-200 dark:bg-emerald-950 dark:text-emerald-300 dark:border-emerald-800"
+                    : isLight ? "bg-slate-100 text-slate-600 border-slate-200" : "bg-slate-800 text-slate-400 border-slate-700"
+                )}>
+                  {user ? "Synced" : "Local Guest"}
+                </span>
+              </button>
+
               {/* Productivity Insights */}
               <button
                 onClick={() => {

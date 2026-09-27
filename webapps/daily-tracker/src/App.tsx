@@ -1,6 +1,6 @@
 import React from 'react';
 import clsx from 'clsx';
-import { Task, DailyNote } from './types';
+import { Task, DailyNote, UserProfile, SyncStatus } from './types';
 import { formatDateKey, parseDateKey } from './utils/dateUtils';
 import { 
   loadTasks, 
@@ -11,6 +11,15 @@ import {
   saveTheme,
   resetAllData
 } from './utils/storage';
+import { 
+  auth, 
+  onAuthStateChanged, 
+  saveUserDataToCloud, 
+  fetchUserDataFromCloud,
+  db,
+  User
+} from './firebase';
+import { doc, onSnapshot } from 'firebase/firestore';
 import { Header } from './components/Header';
 import { CalendarGrid } from './components/CalendarGrid';
 import { DailyNotes } from './components/Sidebar/DailyNotes';
@@ -18,6 +27,7 @@ import { DailyTasks } from './components/Sidebar/DailyTasks';
 import { NewsSidebar } from './components/Sidebar/NewsSidebar';
 import { SearchModal } from './components/Modals/SearchModal';
 import { AnalyticsModal } from './components/Modals/AnalyticsModal';
+import { AuthModal } from './components/Modals/AuthModal';
 
 export function App() {
   const todayDateKey = formatDateKey(new Date());
@@ -32,6 +42,11 @@ export function App() {
 
   const [tasks, setTasks] = React.useState<Task[]>(() => loadTasks());
   const [notes, setNotes] = React.useState<Record<string, DailyNote>>(() => loadNotes());
+
+  // User Auth & Cloud Sync States
+  const [user, setUser] = React.useState<UserProfile | null>(null);
+  const [syncStatus, setSyncStatus] = React.useState<SyncStatus>('idle');
+  const [isAuthModalOpen, setIsAuthModalOpen] = React.useState(false);
 
   // Modal States
   const [isSearchOpen, setIsSearchOpen] = React.useState(false);
@@ -50,14 +65,101 @@ export function App() {
     setIsNotesMinimized(!hasContent);
   }, [selectedDateKey, notes]);
 
-  // Sync state changes to localStorage
+  // Sync state changes to localStorage & Cloud
   React.useEffect(() => {
     saveTasks(tasks);
-  }, [tasks]);
+    if (user?.uid) {
+      setSyncStatus('syncing');
+      saveUserDataToCloud(user.uid, { tasks })
+        .then(() => setSyncStatus('synced'))
+        .catch(() => setSyncStatus('error'));
+    }
+  }, [tasks, user]);
 
   React.useEffect(() => {
     saveNotes(notes);
-  }, [notes]);
+    if (user?.uid) {
+      setSyncStatus('syncing');
+      saveUserDataToCloud(user.uid, { notes })
+        .then(() => setSyncStatus('synced'))
+        .catch(() => setSyncStatus('error'));
+    }
+  }, [notes, user]);
+
+  // Auth State Listener & Firestore Sync Subscription
+  React.useEffect(() => {
+    const unsubscribeAuth = onAuthStateChanged(auth, async (firebaseUser: User | null) => {
+      if (firebaseUser) {
+        const profile: UserProfile = {
+          uid: firebaseUser.uid,
+          email: firebaseUser.email,
+          displayName: firebaseUser.displayName,
+          photoURL: firebaseUser.photoURL,
+        };
+        setUser(profile);
+        setSyncStatus('syncing');
+
+        // Fetch cloud data or merge local data
+        const cloudData = await fetchUserDataFromCloud(firebaseUser.uid);
+        if (cloudData) {
+          if (cloudData.tasks) {
+            setTasks(cloudData.tasks);
+            saveTasks(cloudData.tasks);
+          }
+          if (cloudData.notes) {
+            setNotes(cloudData.notes);
+            saveNotes(cloudData.notes);
+          }
+          if (cloudData.theme) {
+            setTheme(cloudData.theme);
+            saveTheme(cloudData.theme);
+          }
+          setSyncStatus('synced');
+        } else {
+          // Initial user migration: upload current local storage tasks and notes to cloud
+          const currentTasks = loadTasks();
+          const currentNotes = loadNotes();
+          await saveUserDataToCloud(firebaseUser.uid, {
+            tasks: currentTasks,
+            notes: currentNotes,
+            theme,
+          });
+          setSyncStatus('synced');
+        }
+
+        // Subscribe to real-time updates for user document
+        const userDocRef = doc(db, 'users', firebaseUser.uid);
+        const unsubscribeSnap = onSnapshot(userDocRef, (snap) => {
+          if (snap.exists()) {
+            const data = snap.data();
+            if (data.tasks) {
+              setTasks(data.tasks);
+              saveTasks(data.tasks);
+            }
+            if (data.notes) {
+              setNotes(data.notes);
+              saveNotes(data.notes);
+            }
+            if (data.theme) {
+              setTheme(data.theme);
+              saveTheme(data.theme);
+            }
+            setSyncStatus('synced');
+          }
+        }, (err) => {
+          console.warn('Real-time listener warning:', err);
+          setSyncStatus('offline');
+        });
+
+        return () => unsubscribeSnap();
+      } else {
+        setUser(null);
+        setSyncStatus('idle');
+      }
+    });
+
+    return () => unsubscribeAuth();
+  }, []);
 
   const handleToggleTheme = () => {
     setTheme((prev) => {
@@ -242,6 +344,9 @@ export function App() {
         onImportData={handleImportData}
         theme={theme}
         onToggleTheme={handleToggleTheme}
+        user={user}
+        syncStatus={syncStatus}
+        onOpenAuthModal={() => setIsAuthModalOpen(true)}
       />
 
       {/* Main App Layout */}
@@ -325,6 +430,16 @@ export function App() {
         tasks={tasks}
         notes={notes}
         theme={theme}
+      />
+
+      <AuthModal
+        isOpen={isAuthModalOpen}
+        onClose={() => setIsAuthModalOpen(false)}
+        user={user}
+        syncStatus={syncStatus}
+        theme={theme}
+        taskCount={tasks.length}
+        noteCount={Object.keys(notes).length}
       />
     </div>
   );

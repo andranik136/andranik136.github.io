@@ -43,3 +43,13 @@ export interface FilterOptions {
   priority: Priority | 'All';
   status: 'all' | 'pending' | 'completed';
 }
+
+export interface UserProfile {
+  uid: string;
+  email: string | null;
+  displayName: string | null;
+  photoURL: string | null;
+}
+
+export type SyncStatus = 'idle' | 'syncing' | 'synced' | 'offline' | 'error';
+
