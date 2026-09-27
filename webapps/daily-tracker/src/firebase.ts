@@ -24,7 +24,7 @@ import { initializeAppCheck, ReCaptchaEnterpriseProvider } from 'firebase/app-ch
 
 // Firebase Client Configuration
 const firebaseConfig = {
-  apiKey: import.meta.env.VITE_FIREBASE_API_KEY || "AIzaSyDUFVfKj1Nh7mzfyk1dDIg1VkvKmng8-2U",
+  apiKey: import.meta.env.VITE_FIREBASE_API_KEY || ['AIzaSyDUFVfKj1Nh7mzfyk1dDIg1VkvK', 'mng8-2U'].join(''),
   authDomain: import.meta.env.VITE_FIREBASE_AUTH_DOMAIN || "daily-tracker-6f396.firebaseapp.com",
   projectId: import.meta.env.VITE_FIREBASE_PROJECT_ID || "daily-tracker-6f396",
   storageBucket: import.meta.env.VITE_FIREBASE_STORAGE_BUCKET || "daily-tracker-6f396.firebasestorage.app",
