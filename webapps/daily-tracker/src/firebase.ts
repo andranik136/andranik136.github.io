@@ -20,14 +20,15 @@ import {
 } from 'firebase/firestore';
 import { Task, DailyNote } from './types';
 
-// Default Firebase Client Configuration (Can be customized via env vars or config)
+// Firebase Client Configuration
 const firebaseConfig = {
-  apiKey: import.meta.env.VITE_FIREBASE_API_KEY || "AIzaSyDemoApiKeyForDailyTrackerApp1234",
-  authDomain: import.meta.env.VITE_FIREBASE_AUTH_DOMAIN || "daily-tracker-demo.firebaseapp.com",
-  projectId: import.meta.env.VITE_FIREBASE_PROJECT_ID || "daily-tracker-demo",
-  storageBucket: import.meta.env.VITE_FIREBASE_STORAGE_BUCKET || "daily-tracker-demo.appspot.com",
-  messagingSenderId: import.meta.env.VITE_FIREBASE_MESSAGING_SENDER_ID || "123456789012",
-  appId: import.meta.env.VITE_FIREBASE_APP_ID || "1:123456789012:web:demo1234567890"
+  apiKey: import.meta.env.VITE_FIREBASE_API_KEY || "AIzaSyDUFVfKj1Nh7mzfyk1dDIg1VkvKmng8-2U",
+  authDomain: import.meta.env.VITE_FIREBASE_AUTH_DOMAIN || "daily-tracker-6f396.firebaseapp.com",
+  projectId: import.meta.env.VITE_FIREBASE_PROJECT_ID || "daily-tracker-6f396",
+  storageBucket: import.meta.env.VITE_FIREBASE_STORAGE_BUCKET || "daily-tracker-6f396.firebasestorage.app",
+  messagingSenderId: import.meta.env.VITE_FIREBASE_MESSAGING_SENDER_ID || "750983435029",
+  appId: import.meta.env.VITE_FIREBASE_APP_ID || "1:750983435029:web:da532850a11dc85e9b4f1c",
+  measurementId: "G-RND51M713B"
 };
 
 // Initialize App
