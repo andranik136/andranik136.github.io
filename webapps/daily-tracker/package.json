@@ -5,7 +5,7 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
-    "build": "cp src/index.html.template index.html; rm -rf assets dist; tsc -b && vite build && cp -r dist/* .",
+    "build": "cp src/index.html.template index.html; rm -rf assets dist; tsc -b && vite build && cp -r dist/* . && mkdir -p assets/icons && cp -r icons/* assets/icons/",
     "lint": "eslint .",
     "preview": "vite preview"
   },

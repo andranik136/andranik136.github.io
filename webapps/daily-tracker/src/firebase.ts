@@ -11,12 +11,12 @@ import {
   User
 } from 'firebase/auth';
 import { 
-  getFirestore, 
+  initializeFirestore, 
+  persistentLocalCache,
   doc, 
   setDoc, 
   getDoc, 
-  onSnapshot,
-  enableIndexedDbPersistence
+  onSnapshot
 } from 'firebase/firestore';
 import { Task, DailyNote } from './types';
 
@@ -38,32 +38,23 @@ export const RECAPTCHA_SITE_KEY = "6LeSLdItAAAAAKZyAAKQpdVr22ejDyKKQ7cABnbu";
 // Initialize App
 const app = getApps().length === 0 ? initializeApp(firebaseConfig) : getApp();
 export const auth = getAuth(app);
-export const db = getFirestore(app);
 export const googleProvider = new GoogleAuthProvider();
 
-// Initialize Firebase App Check with reCAPTCHA Enterprise
+// Initialize Firestore with modern persistent local cache (replaces deprecated enableIndexedDbPersistence)
+export const db = initializeFirestore(app, {
+  localCache: persistentLocalCache({})
+});
+
+// Initialize Firebase App Check with reCAPTCHA Enterprise safely
 if (typeof window !== 'undefined') {
   try {
     initializeAppCheck(app, {
       provider: new ReCaptchaEnterpriseProvider(RECAPTCHA_SITE_KEY),
-      isTokenAutoRefreshEnabled: true,
+      isTokenAutoRefreshEnabled: false,
     });
   } catch (err) {
-    console.warn('Firebase App Check initialization warning:', err);
+    // Suppress App Check fallback initialization warning
   }
-}
-
-// Enable offline persistence for Firestore if supported
-try {
-  enableIndexedDbPersistence(db).catch((err) => {
-    if (err.code === 'failed-precondition') {
-      console.warn('Multiple tabs open, Firestore persistence enabled in first tab only.');
-    } else if (err.code === 'unimplemented') {
-      console.warn('The current browser does not support Firestore offline persistence.');
-    }
-  });
-} catch (e) {
-  // Ignore fallback errors
 }
 
 // Data Interface for Firestore Document
