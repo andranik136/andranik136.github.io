@@ -20,6 +20,8 @@ import {
 } from 'firebase/firestore';
 import { Task, DailyNote } from './types';
 
+import { initializeAppCheck, ReCaptchaEnterpriseProvider } from 'firebase/app-check';
+
 // Firebase Client Configuration
 const firebaseConfig = {
   apiKey: import.meta.env.VITE_FIREBASE_API_KEY || "AIzaSyDUFVfKj1Nh7mzfyk1dDIg1VkvKmng8-2U",
@@ -31,11 +33,25 @@ const firebaseConfig = {
   measurementId: "G-RND51M713B"
 };
 
+export const RECAPTCHA_SITE_KEY = "6LeSLdItAAAAAKZyAAKQpdVr22ejDyKKQ7cABnbu";
+
 // Initialize App
 const app = getApps().length === 0 ? initializeApp(firebaseConfig) : getApp();
 export const auth = getAuth(app);
 export const db = getFirestore(app);
 export const googleProvider = new GoogleAuthProvider();
+
+// Initialize Firebase App Check with reCAPTCHA Enterprise
+if (typeof window !== 'undefined') {
+  try {
+    initializeAppCheck(app, {
+      provider: new ReCaptchaEnterpriseProvider(RECAPTCHA_SITE_KEY),
+      isTokenAutoRefreshEnabled: true,
+    });
+  } catch (err) {
+    console.warn('Firebase App Check initialization warning:', err);
+  }
+}
 
 // Enable offline persistence for Firestore if supported
 try {

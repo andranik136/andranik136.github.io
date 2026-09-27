@@ -6,7 +6,8 @@ import {
   createUserWithEmailAndPassword, 
   signInWithPopup, 
   googleProvider,
-  signOut 
+  signOut,
+  RECAPTCHA_SITE_KEY
 } from '../../firebase';
 import { 
   User as UserIcon, 
@@ -329,6 +330,19 @@ export const AuthModal: React.FC<AuthModalProps> = ({
                     )}
                   />
                 </div>
+              </div>
+
+              {/* reCAPTCHA Enterprise Element */}
+              <div className="flex flex-col items-center justify-center py-1">
+                <div 
+                  className="g-recaptcha" 
+                  data-sitekey={RECAPTCHA_SITE_KEY} 
+                  data-action={tab === 'signin' ? 'LOGIN' : 'REGISTER'}
+                />
+                <span className={clsx("text-[10px] flex items-center space-x-1 mt-1 font-medium", isLight ? "text-slate-500" : "text-slate-400")}>
+                  <ShieldCheck className="w-3 h-3 text-emerald-500" />
+                  <span>Protected by Google reCAPTCHA Enterprise</span>
+                </span>
               </div>
 
               <button
