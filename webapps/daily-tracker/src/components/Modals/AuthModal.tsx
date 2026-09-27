@@ -201,6 +201,12 @@ export const AuthModal: React.FC<AuthModalProps> = ({
                       <span>Syncing...</span>
                     </span>
                   )}
+                  {syncStatus === 'error' && (
+                    <span className="flex items-center space-x-1 text-amber-600 dark:text-amber-400">
+                      <AlertCircle className="w-3.5 h-3.5" />
+                      <span>Sync Blocked (Check Firestore Rules / Ad-Blocker)</span>
+                    </span>
+                  )}
                   {syncStatus === 'idle' && (
                     <span className="flex items-center space-x-1 text-slate-500">
                       <Cloud className="w-3.5 h-3.5" />
