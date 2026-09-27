@@ -93,6 +93,10 @@ export const AuthModal: React.FC<AuthModalProps> = ({
         msg = 'Password should be at least 6 characters long.';
       } else if (err.code === 'auth/invalid-email') {
         msg = 'Invalid email address format.';
+      } else if (err.code === 'auth/operation-not-allowed') {
+        msg = 'Email/Password authentication is disabled in Firebase Console (Authentication > Sign-in method).';
+      } else if (err.message) {
+        msg = err.message;
       }
       setErrorMsg(msg);
     } finally {

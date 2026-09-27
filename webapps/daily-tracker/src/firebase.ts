@@ -58,15 +58,21 @@ export interface UserCloudData {
   updatedAt: number;
 }
 
+// Helper function to strip undefined values so Firestore setDoc never fails
+function sanitizeData<T>(obj: T): T {
+  return JSON.parse(JSON.stringify(obj));
+}
+
 // Save User Tracker Data to Firestore
 export async function saveUserDataToCloud(userId: string, data: Partial<UserCloudData>): Promise<void> {
   if (!userId) return;
   try {
     const userDocRef = doc(db, 'users', userId);
-    await setDoc(userDocRef, {
+    const cleanData = sanitizeData({
       ...data,
       updatedAt: Date.now()
-    }, { merge: true });
+    });
+    await setDoc(userDocRef, cleanData, { merge: true });
   } catch (err) {
     console.error('Error saving user data to Firestore:', err);
     throw err;
