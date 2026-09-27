@@ -64,10 +64,9 @@ def update_project_file(item):
     # 1. Update background image style with relative path
     # Replace the body tag again
     
-    # Check if we already have the style with absolute path
-    if 'style="background-image' in content:
-         # regex to replace the url content
-         content = re.sub(r'background-image: url\([\'"].*?[\'"]\)', f"background-image: url('{final_image_path}')", content)
+    # Check if we already have the style with absolute or relative path on body
+    if '<body style="background-image' in content or 'body style="background-image' in content:
+         content = re.sub(r'<body style="background-image: url\([\'"].*?[\'"]\)"', f"<body style=\"background-image: url('{final_image_path}')\"", content)
     else:
          content = re.sub(r'<body>', f'<body style="background-image: url(\'{final_image_path}\')">', content)
 
