@@ -153,25 +153,6 @@ export const Header: React.FC<HeaderProps> = ({
 
       {/* Right Side Actions & Menu Popout */}
       <div className="flex items-center space-x-2">
-        {/* Month Stats Progress Pill */}
-        {totalCount > 0 && (
-          <div className={clsx(
-            "hidden xl:flex items-center space-x-2.5 border rounded-xl px-3 py-1.5",
-            isLight ? "bg-blue-50/60 border-blue-200" : "bg-slate-900/80 border-white/[0.08]"
-          )}>
-            <CheckCircle2 className="w-3.5 h-3.5 text-blue-500" />
-            <div className="text-[11px]">
-              <span className={clsx("font-medium", isLight ? "text-slate-800" : "text-slate-200")}>{completedCount}/{totalCount}</span>
-              <span className={clsx("ml-1", isLight ? "text-slate-500" : "text-slate-400")}>({completionPercent}%)</span>
-            </div>
-            <div className={clsx("w-16 rounded-full h-1.5 overflow-hidden border", isLight ? "bg-slate-200 border-blue-200" : "bg-slate-950 border-slate-800")}>
-              <div 
-                className="bg-gradient-to-r from-blue-500 to-purple-500 h-full rounded-full transition-all duration-500" 
-                style={{ width: `${completionPercent}%` }}
-              />
-            </div>
-          </div>
-        )}
 
         {/* Dedicated Save & Sync Button */}
         {user && (
