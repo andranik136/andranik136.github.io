@@ -38,6 +38,7 @@ interface HeaderProps {
   user: UserProfile | null;
   syncStatus: SyncStatus;
   onOpenAuthModal: () => void;
+  onManualSync?: () => void;
 }
 
 export const Header: React.FC<HeaderProps> = ({
@@ -56,6 +57,7 @@ export const Header: React.FC<HeaderProps> = ({
   user,
   syncStatus,
   onOpenAuthModal,
+  onManualSync,
 }) => {
   const fileInputRef = React.useRef<HTMLInputElement>(null);
   const menuRef = React.useRef<HTMLDivElement>(null);
@@ -171,13 +173,41 @@ export const Header: React.FC<HeaderProps> = ({
           </div>
         )}
 
+        {/* Dedicated Save & Sync Button */}
+        {user && (
+          <button
+            onClick={onManualSync}
+            disabled={syncStatus === 'syncing'}
+            className={clsx(
+              "flex items-center space-x-1.5 px-3 py-1.5 rounded-xl border transition-all duration-150 text-xs font-semibold active:scale-95 shadow-2xs",
+              syncStatus === 'syncing'
+                ? "bg-blue-600/20 text-blue-400 border-blue-500/30"
+                : syncStatus === 'synced'
+                ? isLight ? "bg-emerald-50 text-emerald-700 border-emerald-300 hover:bg-emerald-100" : "bg-emerald-950/50 text-emerald-400 border-emerald-800/50 hover:bg-emerald-900/60"
+                : isLight ? "bg-blue-50 hover:bg-blue-100 text-blue-700 border-blue-200" : "bg-purple-950/50 hover:bg-purple-900/60 text-purple-300 border-purple-800/40"
+            )}
+            title="Save and Sync data to Cloud"
+          >
+            {syncStatus === 'syncing' ? (
+              <Loader2 className="w-3.5 h-3.5 text-blue-500 animate-spin" />
+            ) : syncStatus === 'synced' ? (
+              <Check className="w-3.5 h-3.5 text-emerald-500" />
+            ) : (
+              <Cloud className="w-3.5 h-3.5 text-blue-500" />
+            )}
+            <span>
+              {syncStatus === 'syncing' ? 'Syncing...' : syncStatus === 'synced' ? 'Synced' : 'Save & Sync'}
+            </span>
+          </button>
+        )}
+
         {/* Account & Cloud Sync Trigger */}
         <button
           onClick={onOpenAuthModal}
           className={clsx(
             "flex items-center space-x-1.5 px-3 py-1.5 rounded-xl border transition-all duration-150 text-xs font-medium active:scale-95",
             user
-              ? isLight ? "bg-emerald-50 text-emerald-700 border-emerald-200 hover:bg-emerald-100" : "bg-emerald-950/40 text-emerald-400 border-emerald-800/40 hover:bg-emerald-900/50"
+              ? isLight ? "bg-slate-100 text-slate-700 border-slate-200 hover:bg-slate-200" : "bg-slate-900/80 text-slate-300 border-slate-800 hover:bg-slate-800"
               : isLight ? "bg-slate-100 hover:bg-blue-50 text-slate-700 hover:text-blue-600 border-blue-200" : "bg-slate-900/80 hover:bg-slate-800 text-slate-300 hover:text-white border-white/[0.08]"
           )}
           title={user ? `Signed in as ${user.email}` : "Sign In & Sync Data"}

@@ -65,26 +65,45 @@ export function App() {
     setIsNotesMinimized(!hasContent);
   }, [selectedDateKey, notes]);
 
-  // Sync state changes to localStorage & Cloud
+  // Instant local storage saves (zero latency)
   React.useEffect(() => {
     saveTasks(tasks);
-    if (user?.uid) {
-      setSyncStatus('syncing');
-      saveUserDataToCloud(user.uid, { tasks })
-        .then(() => setSyncStatus('synced'))
-        .catch(() => setSyncStatus('error'));
-    }
-  }, [tasks, user]);
+  }, [tasks]);
 
   React.useEffect(() => {
     saveNotes(notes);
-    if (user?.uid) {
-      setSyncStatus('syncing');
-      saveUserDataToCloud(user.uid, { notes })
-        .then(() => setSyncStatus('synced'))
-        .catch(() => setSyncStatus('error'));
+  }, [notes]);
+
+  // Manual Cloud Sync Trigger
+  const handleManualSync = React.useCallback(async () => {
+    if (!user?.uid) return;
+    setSyncStatus('syncing');
+    try {
+      const currentTasks = loadTasks();
+      const currentNotes = loadNotes();
+      await saveUserDataToCloud(user.uid, {
+        tasks: currentTasks,
+        notes: currentNotes,
+        theme,
+      });
+      setSyncStatus('synced');
+    } catch (err) {
+      console.error('Manual cloud sync error:', err);
+      setSyncStatus('error');
     }
-  }, [notes, user]);
+  }, [user, theme]);
+
+  // 5-Minute Periodic Cloud Sync Timer
+  React.useEffect(() => {
+    if (!user?.uid) return;
+
+    const FIVE_MINUTES_MS = 5 * 60 * 1000;
+    const intervalId = setInterval(() => {
+      handleManualSync();
+    }, FIVE_MINUTES_MS);
+
+    return () => clearInterval(intervalId);
+  }, [user, handleManualSync]);
 
   // Auth State Listener & Firestore Sync Subscription
   React.useEffect(() => {
@@ -347,6 +366,7 @@ export function App() {
         user={user}
         syncStatus={syncStatus}
         onOpenAuthModal={() => setIsAuthModalOpen(true)}
+        onManualSync={handleManualSync}
       />
 
       {/* Main App Layout */}
