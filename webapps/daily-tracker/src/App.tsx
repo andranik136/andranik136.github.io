@@ -74,38 +74,49 @@ export function App() {
     saveNotes(notes);
   }, [notes]);
 
-  // Manual Cloud Sync Trigger
-  const handleManualSync = React.useCallback(async () => {
-    if (!user?.uid) return;
+  // Ref for current user & theme to prevent timer resets on re-renders
+  const syncStateRef = React.useRef({ user, theme });
+  React.useEffect(() => {
+    syncStateRef.current = { user, theme };
+  }, [user, theme]);
+
+  // Core Cloud Sync Function (triggered on demand or by 5-minute timer)
+  const performCloudSync = React.useCallback(async () => {
+    const currentUser = syncStateRef.current.user;
+    if (!currentUser?.uid) return;
+
     setSyncStatus('syncing');
     try {
       const currentTasks = loadTasks();
       const currentNotes = loadNotes();
-      await saveUserDataToCloud(user.uid, {
+      const currentTheme = loadTheme();
+
+      await saveUserDataToCloud(currentUser.uid, {
         tasks: currentTasks,
         notes: currentNotes,
-        theme,
+        theme: currentTheme,
       });
       setSyncStatus('synced');
     } catch (err) {
-      console.error('Manual cloud sync error:', err);
+      console.error('Cloud sync error:', err);
       setSyncStatus('error');
     }
-  }, [user, theme]);
+  }, []);
 
-  // 5-Minute Periodic Cloud Sync Timer
+  // 5-Minute Periodic Cloud Sync Timer (Runs strictly once every 5 minutes when signed in)
+  const userId = user?.uid;
   React.useEffect(() => {
-    if (!user?.uid) return;
+    if (!userId) return;
 
     const FIVE_MINUTES_MS = 5 * 60 * 1000;
     const intervalId = setInterval(() => {
-      handleManualSync();
+      performCloudSync();
     }, FIVE_MINUTES_MS);
 
     return () => clearInterval(intervalId);
-  }, [user, handleManualSync]);
+  }, [userId, performCloudSync]);
 
-  // Auth State Listener & Firestore Sync Subscription
+  // Auth State Listener & Initial Cloud Fetch (Runs once on Auth state change)
   React.useEffect(() => {
     const unsubscribeAuth = onAuthStateChanged(auth, async (firebaseUser: User | null) => {
       if (firebaseUser) {
@@ -118,59 +129,38 @@ export function App() {
         setUser(profile);
         setSyncStatus('syncing');
 
-        // Fetch cloud data or merge local data
-        const cloudData = await fetchUserDataFromCloud(firebaseUser.uid);
-        if (cloudData) {
-          if (cloudData.tasks) {
-            setTasks(cloudData.tasks);
-            saveTasks(cloudData.tasks);
-          }
-          if (cloudData.notes) {
-            setNotes(cloudData.notes);
-            saveNotes(cloudData.notes);
-          }
-          if (cloudData.theme) {
-            setTheme(cloudData.theme);
-            saveTheme(cloudData.theme);
+        try {
+          // Fetch cloud data once on sign-in
+          const cloudData = await fetchUserDataFromCloud(firebaseUser.uid);
+          if (cloudData) {
+            if (cloudData.tasks) {
+              setTasks(cloudData.tasks);
+              saveTasks(cloudData.tasks);
+            }
+            if (cloudData.notes) {
+              setNotes(cloudData.notes);
+              saveNotes(cloudData.notes);
+            }
+            if (cloudData.theme) {
+              setTheme(cloudData.theme);
+              saveTheme(cloudData.theme);
+            }
+          } else {
+            // Initial user migration: save current local data to cloud once
+            const currentTasks = loadTasks();
+            const currentNotes = loadNotes();
+            const currentTheme = loadTheme();
+            await saveUserDataToCloud(firebaseUser.uid, {
+              tasks: currentTasks,
+              notes: currentNotes,
+              theme: currentTheme,
+            });
           }
           setSyncStatus('synced');
-        } else {
-          // Initial user migration: upload current local storage tasks and notes to cloud
-          const currentTasks = loadTasks();
-          const currentNotes = loadNotes();
-          await saveUserDataToCloud(firebaseUser.uid, {
-            tasks: currentTasks,
-            notes: currentNotes,
-            theme,
-          });
-          setSyncStatus('synced');
+        } catch (err) {
+          console.error('Error loading cloud data on auth change:', err);
+          setSyncStatus('error');
         }
-
-        // Subscribe to real-time updates for user document
-        const userDocRef = doc(db, 'users', firebaseUser.uid);
-        const unsubscribeSnap = onSnapshot(userDocRef, (snap) => {
-          if (snap.exists()) {
-            const data = snap.data();
-            if (data.tasks) {
-              setTasks(data.tasks);
-              saveTasks(data.tasks);
-            }
-            if (data.notes) {
-              setNotes(data.notes);
-              saveNotes(data.notes);
-            }
-            if (data.theme) {
-              setTheme(data.theme);
-              saveTheme(data.theme);
-            }
-            setSyncStatus('synced');
-          }
-        }, (err) => {
-          console.warn('Real-time listener warning:', err);
-          setSyncStatus('offline');
-        });
-
-        return () => unsubscribeSnap();
       } else {
         setUser(null);
         setSyncStatus('idle');
@@ -366,7 +356,7 @@ export function App() {
         user={user}
         syncStatus={syncStatus}
         onOpenAuthModal={() => setIsAuthModalOpen(true)}
-        onManualSync={handleManualSync}
+        onManualSync={performCloudSync}
       />
 
       {/* Main App Layout */}
