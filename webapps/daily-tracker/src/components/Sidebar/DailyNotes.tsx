@@ -160,6 +160,8 @@ export function renderMarkdown(text: string, isLight: boolean = false): React.Re
   return <div className="space-y-0.5">{elements}</div>;
 }
 
+const MAX_NOTE_LENGTH = 10000;
+
 export const DailyNotes: React.FC<DailyNotesProps> = ({
   selectedDateKey,
   note,
@@ -184,15 +186,19 @@ export const DailyNotes: React.FC<DailyNotesProps> = ({
   }, [selectedDateKey, note]);
 
   const handleChangeContent = (val: string) => {
+    if (val.length > MAX_NOTE_LENGTH) {
+      val = val.slice(0, MAX_NOTE_LENGTH);
+    }
     setContent(val);
     setIsSaved(false);
   };
 
   const handleSaveNote = () => {
-    onSaveNote(selectedDateKey, content);
+    const safeContent = content.slice(0, MAX_NOTE_LENGTH);
+    onSaveNote(selectedDateKey, safeContent);
     setIsSaved(true);
     setIsEditing(false);
-    if (!content.trim()) {
+    if (!safeContent.trim()) {
       onToggleMinimize?.(true);
     }
   };
@@ -205,7 +211,10 @@ export const DailyNotes: React.FC<DailyNotesProps> = ({
     const textBefore = content.substring(0, start);
     const textAfter = content.substring(end);
 
-    const newContent = textBefore + snippet + textAfter;
+    let newContent = textBefore + snippet + textAfter;
+    if (newContent.length > MAX_NOTE_LENGTH) {
+      newContent = newContent.slice(0, MAX_NOTE_LENGTH);
+    }
     setContent(newContent);
     setIsSaved(false);
 
@@ -399,8 +408,18 @@ export const DailyNotes: React.FC<DailyNotesProps> = ({
             <CheckSquare className="w-3.5 h-3.5" />
           </button>
 
-          <div className={clsx("ml-auto text-[10px] font-mono", isLight ? "text-slate-500" : "text-slate-400")}>
-            {wordCount} {wordCount === 1 ? 'word' : 'words'}
+          <div className={clsx("ml-auto text-[10px] font-mono flex items-center space-x-1.5", isLight ? "text-slate-500" : "text-slate-400")}>
+            <span>{wordCount} {wordCount === 1 ? 'word' : 'words'}</span>
+            <span>•</span>
+            <span className={clsx(
+              content.length >= MAX_NOTE_LENGTH 
+                ? "text-red-500 font-bold" 
+                : content.length > MAX_NOTE_LENGTH * 0.9 
+                ? "text-amber-500 font-semibold" 
+                : ""
+            )}>
+              {content.length.toLocaleString()} / {MAX_NOTE_LENGTH.toLocaleString()} chars
+            </span>
           </div>
         </div>
       )}
@@ -411,6 +430,7 @@ export const DailyNotes: React.FC<DailyNotesProps> = ({
           <textarea
             ref={textareaRef}
             value={content}
+            maxLength={MAX_NOTE_LENGTH}
             onChange={(e) => handleChangeContent(e.target.value)}
             placeholder={`Write notes, thoughts, or meeting agendas for ${formatFullDate(selectedDateKey)}...`}
             className={clsx(

@@ -74,9 +74,21 @@ export interface UserCloudData {
   updatedAt: number;
 }
 
-// Helper function to strip undefined values so Firestore setDoc never fails
-function sanitizeData<T>(obj: T): T {
-  return JSON.parse(JSON.stringify(obj));
+const MAX_NOTE_LENGTH = 10000;
+
+// Helper function to strip undefined values and enforce max note length to protect Firestore storage
+function sanitizeData(data: Partial<UserCloudData>): Partial<UserCloudData> {
+  const clean: Partial<UserCloudData> = JSON.parse(JSON.stringify(data));
+  if (clean.notes && typeof clean.notes === 'object') {
+    for (const key of Object.keys(clean.notes)) {
+      if (clean.notes[key]?.content && typeof clean.notes[key].content === 'string') {
+        if (clean.notes[key].content.length > MAX_NOTE_LENGTH) {
+          clean.notes[key].content = clean.notes[key].content.slice(0, MAX_NOTE_LENGTH);
+        }
+      }
+    }
+  }
+  return clean;
 }
 
 // Save User Tracker Data to Firestore
