@@ -209,18 +209,14 @@ export const Header: React.FC<HeaderProps> = ({
         <button
           onClick={onOpenSearch}
           className={clsx(
-            "flex items-center space-x-2 px-3 py-1.5 rounded-xl border transition-all duration-150 text-xs font-medium active:scale-95",
+            "p-2 rounded-xl border transition-all duration-150 active:scale-95 flex items-center justify-center",
             isLight 
               ? "bg-slate-100 hover:bg-blue-50 text-slate-700 hover:text-blue-600 border-blue-200" 
               : "bg-slate-900/80 hover:bg-slate-800 text-slate-300 hover:text-white border-white/[0.08] hover:border-blue-500/30"
           )}
           title="Search Tasks & Notes (Cmd + K)"
         >
-          <Search className="w-3.5 h-3.5 text-blue-500" />
-          <span className="hidden md:inline text-xs">Search</span>
-          <kbd className={clsx("hidden sm:inline-block px-1.5 py-0.5 text-[10px] font-mono rounded border", isLight ? "bg-white text-slate-500 border-blue-200" : "bg-slate-950 text-slate-400 border-slate-800")}>
-            ⌘K
-          </kbd>
+          <Search className="w-4 h-4 text-blue-500" />
         </button>
 
         {/* Menu Button Trigger & Popout Dropdown */}
