@@ -1,0 +1,332 @@
+import React from 'react';
+import clsx from 'clsx';
+import { Task, DailyNote } from './types';
+import { formatDateKey, parseDateKey } from './utils/dateUtils';
+import { 
+  loadTasks, 
+  saveTasks, 
+  loadNotes, 
+  saveNotes, 
+  loadTheme,
+  saveTheme,
+  resetAllData
+} from './utils/storage';
+import { Header } from './components/Header';
+import { CalendarGrid } from './components/CalendarGrid';
+import { DailyNotes } from './components/Sidebar/DailyNotes';
+import { DailyTasks } from './components/Sidebar/DailyTasks';
+import { NewsSidebar } from './components/Sidebar/NewsSidebar';
+import { SearchModal } from './components/Modals/SearchModal';
+import { AnalyticsModal } from './components/Modals/AnalyticsModal';
+
+export function App() {
+  const todayDateKey = formatDateKey(new Date());
+
+  // App State
+  const [selectedDateKey, setSelectedDateKey] = React.useState<string>(todayDateKey);
+  const [currentYear, setCurrentYear] = React.useState<number>(new Date().getFullYear());
+  const [currentMonth, setCurrentMonth] = React.useState<number>(new Date().getMonth());
+
+  const [theme, setTheme] = React.useState<'dark' | 'light'>(() => loadTheme());
+  const [isNewsSidebarOpen, setIsNewsSidebarOpen] = React.useState(true);
+
+  const [tasks, setTasks] = React.useState<Task[]>(() => loadTasks());
+  const [notes, setNotes] = React.useState<Record<string, DailyNote>>(() => loadNotes());
+
+  // Modal States
+  const [isSearchOpen, setIsSearchOpen] = React.useState(false);
+  const [isAnalyticsOpen, setIsAnalyticsOpen] = React.useState(false);
+
+  // Notes minimize state: when no notes present, minimize notes box and pull up Tasks area
+  const [isNotesMinimized, setIsNotesMinimized] = React.useState(() => {
+    const initialNote = loadNotes()[formatDateKey(new Date())];
+    return !Boolean(initialNote?.content && initialNote.content.trim().length > 0);
+  });
+
+  // Sync minimize state when selected date changes or notes update
+  React.useEffect(() => {
+    const note = notes[selectedDateKey];
+    const hasContent = Boolean(note?.content && note.content.trim().length > 0);
+    setIsNotesMinimized(!hasContent);
+  }, [selectedDateKey, notes]);
+
+  // Sync state changes to localStorage
+  React.useEffect(() => {
+    saveTasks(tasks);
+  }, [tasks]);
+
+  React.useEffect(() => {
+    saveNotes(notes);
+  }, [notes]);
+
+  const handleToggleTheme = () => {
+    setTheme((prev) => {
+      const next = prev === 'dark' ? 'light' : 'dark';
+      saveTheme(next);
+      return next;
+    });
+  };
+
+  // Keep month/year in sync when selecting dates outside current month
+  const handleSelectDate = (dateKey: string) => {
+    setSelectedDateKey(dateKey);
+    const d = parseDateKey(dateKey);
+    if (d.getFullYear() !== currentYear || d.getMonth() !== currentMonth) {
+      setCurrentYear(d.getFullYear());
+      setCurrentMonth(d.getMonth());
+    }
+  };
+
+  // Month navigation
+  const handlePrevMonth = () => {
+    if (currentMonth === 0) {
+      setCurrentMonth(11);
+      setCurrentYear((y) => y - 1);
+    } else {
+      setCurrentMonth((m) => m - 1);
+    }
+  };
+
+  const handleNextMonth = () => {
+    if (currentMonth === 11) {
+      setCurrentMonth(0);
+      setCurrentYear((y) => y + 1);
+    } else {
+      setCurrentMonth((m) => m + 1);
+    }
+  };
+
+  const handleToday = () => {
+    const today = new Date();
+    setCurrentYear(today.getFullYear());
+    setCurrentMonth(today.getMonth());
+    setSelectedDateKey(formatDateKey(today));
+  };
+
+  // Task Actions
+  const handleAddTask = (newTaskData: Omit<Task, 'id' | 'createdAt'>) => {
+    const newTask: Task = {
+      ...newTaskData,
+      id: `task-${Date.now()}-${Math.random().toString(36).substr(2, 4)}`,
+      createdAt: Date.now(),
+    };
+    setTasks((prev) => [newTask, ...prev]);
+  };
+
+  const handleUpdateTask = (taskId: string, updatedFields: Partial<Task>) => {
+    setTasks((prev) =>
+      prev.map((t) => (t.id === taskId ? { ...t, ...updatedFields } : t))
+    );
+  };
+
+  const handleToggleTask = (taskId: string) => {
+    setTasks((prev) =>
+      prev.map((t) => (t.id === taskId ? { ...t, completed: !t.completed } : t))
+    );
+  };
+
+  const handleDeleteTask = (taskId: string) => {
+    setTasks((prev) => prev.filter((t) => t.id !== taskId));
+  };
+
+  const handleMoveTaskDate = (taskId: string, targetDateKey: string) => {
+    setTasks((prev) =>
+      prev.map((t) => (t.id === taskId ? { ...t, date: targetDateKey } : t))
+    );
+  };
+
+  const handleAddSubtask = (taskId: string, title: string) => {
+    setTasks((prev) =>
+      prev.map((t) => {
+        if (t.id !== taskId) return t;
+        const subtasks = t.subtasks || [];
+        const newSubtask = {
+          id: `st-${Date.now()}`,
+          title,
+          completed: false,
+        };
+        return { ...t, subtasks: [...subtasks, newSubtask] };
+      })
+    );
+  };
+
+  const handleToggleSubtask = (taskId: string, subtaskId: string) => {
+    setTasks((prev) =>
+      prev.map((t) => {
+        if (t.id !== taskId) return t;
+        const subtasks = (t.subtasks || []).map((st) =>
+          st.id === subtaskId ? { ...st, completed: !st.completed } : st
+        );
+        return { ...t, subtasks };
+      })
+    );
+  };
+
+  // Daily Notes Actions
+  const handleSaveNote = (dateKey: string, content: string) => {
+    setNotes((prev) => ({
+      ...prev,
+      [dateKey]: {
+        date: dateKey,
+        content,
+        updatedAt: Date.now(),
+      },
+    }));
+  };
+
+  // Backup Import & Export
+  const handleExportData = () => {
+    const backupData = {
+      tasks,
+      notes,
+      exportedAt: new Date().toISOString(),
+    };
+    const blob = new Blob([JSON.stringify(backupData, null, 2)], { type: 'application/json' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `daily-tracker-backup-${formatDateKey(new Date())}.json`;
+    a.click();
+    URL.revokeObjectURL(url);
+  };
+
+  const handleImportData = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = (event) => {
+      try {
+        const parsed = JSON.parse(event.target?.result as string);
+        if (parsed.tasks) setTasks(parsed.tasks);
+        if (parsed.notes) setNotes(parsed.notes);
+        alert('Data backup successfully imported!');
+      } catch (err) {
+        alert('Invalid JSON backup file.');
+      }
+    };
+    reader.readAsText(file);
+  };
+
+  // Keyboard Shortcuts (Cmd+K)
+  React.useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if ((e.metaKey || e.ctrlKey) && e.key === 'k') {
+        e.preventDefault();
+        setIsSearchOpen((prev) => !prev);
+      }
+    };
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, []);
+
+  const isLight = theme === 'light';
+
+  return (
+    <div className={clsx(
+      "flex flex-col h-screen overflow-hidden transition-colors duration-200",
+      isLight 
+        ? "theme-light bg-slate-50 text-slate-900" 
+        : "bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-slate-900 via-slate-950 to-black text-slate-100"
+    )}>
+      {/* Header */}
+      <Header
+        currentYear={currentYear}
+        currentMonth={currentMonth}
+        onPrevMonth={handlePrevMonth}
+        onNextMonth={handleNextMonth}
+        onToday={handleToday}
+        onOpenSearch={() => setIsSearchOpen(true)}
+        onOpenAnalytics={() => setIsAnalyticsOpen(true)}
+        tasks={tasks}
+        onExportData={handleExportData}
+        onImportData={handleImportData}
+        theme={theme}
+        onToggleTheme={handleToggleTheme}
+      />
+
+      {/* Main App Layout */}
+      <main className="flex-1 flex flex-col lg:flex-row min-h-0 overflow-hidden">
+        {/* Leftmost Column: NPR News Sidebar & Collapsed Rail */}
+        <NewsSidebar
+          isOpen={isNewsSidebarOpen}
+          onOpen={() => setIsNewsSidebarOpen(true)}
+          onClose={() => setIsNewsSidebarOpen(false)}
+          theme={theme}
+        />
+
+        {/* Center Column: Monthly Calendar Grid (Main View) */}
+        <div className={clsx("flex-1 flex flex-col min-h-0 overflow-hidden border-r", isLight ? "border-blue-200/60" : "border-slate-800/80")}>
+          <CalendarGrid
+            currentYear={currentYear}
+            currentMonth={currentMonth}
+            selectedDateKey={selectedDateKey}
+            onSelectDate={handleSelectDate}
+            tasks={tasks}
+            notes={notes}
+            onQuickAddTask={(dateKey) => {
+              handleSelectDate(dateKey);
+            }}
+            onMoveTaskDate={handleMoveTaskDate}
+            theme={theme}
+          />
+        </div>
+
+        {/* Right Column: Sidebar (Daily Notes & Tasks split panel) */}
+        <aside className={clsx(
+          "w-full lg:w-[420px] xl:w-[480px] flex flex-col h-full p-4 lg:p-6 gap-4 min-h-0 overflow-y-auto lg:overflow-hidden flex-shrink-0 transition-colors",
+          isLight ? "bg-blue-50/40" : "bg-slate-950/20"
+        )}>
+          {/* Top Half: Daily Notes for Selected Date (Minimizes when no notes present) */}
+          <div className={clsx(
+            "transition-all duration-300 flex flex-col min-h-0",
+            isNotesMinimized ? "flex-none h-auto" : "flex-1 min-h-[260px]"
+          )}>
+            <DailyNotes
+              selectedDateKey={selectedDateKey}
+              note={notes[selectedDateKey]}
+              onSaveNote={handleSaveNote}
+              theme={theme}
+              isMinimized={isNotesMinimized}
+              onToggleMinimize={setIsNotesMinimized}
+            />
+          </div>
+
+          {/* Bottom Half: Tasks Agenda for Selected Date */}
+          <div className="flex-1 min-h-[300px] flex flex-col min-h-0">
+            <DailyTasks
+              selectedDateKey={selectedDateKey}
+              tasks={tasks}
+              onAddTask={handleAddTask}
+              onUpdateTask={handleUpdateTask}
+              onToggleTask={handleToggleTask}
+              onDeleteTask={handleDeleteTask}
+              onAddSubtask={handleAddSubtask}
+              onToggleSubtask={handleToggleSubtask}
+              onMoveTaskDate={handleMoveTaskDate}
+              theme={theme}
+            />
+          </div>
+        </aside>
+      </main>
+
+      {/* Global Modals */}
+      <SearchModal
+        isOpen={isSearchOpen}
+        onClose={() => setIsSearchOpen(false)}
+        tasks={tasks}
+        notes={notes}
+        onSelectDate={handleSelectDate}
+        theme={theme}
+      />
+
+      <AnalyticsModal
+        isOpen={isAnalyticsOpen}
+        onClose={() => setIsAnalyticsOpen(false)}
+        tasks={tasks}
+        notes={notes}
+        theme={theme}
+      />
+    </div>
+  );
+}
+export default App;
