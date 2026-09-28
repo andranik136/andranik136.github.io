@@ -1,12 +1,12 @@
-const CACHE_NAME = 'daily-tracker-v3';
+const CACHE_NAME = 'daily-tracker-v4';
 const ASSETS_TO_CACHE = [
-  './',
-  './index.html',
-  './manifest.json',
-  './icons/icon.svg',
-  './icons/icon-192.png',
-  './icons/icon-512.png',
-  './icons/icon-maskable.png'
+  '/webapps/daily-tracker/',
+  '/webapps/daily-tracker/index.html',
+  '/webapps/daily-tracker/manifest.json',
+  '/webapps/daily-tracker/icons/icon.svg',
+  '/webapps/daily-tracker/icons/icon-192.png',
+  '/webapps/daily-tracker/icons/icon-512.png',
+  '/webapps/daily-tracker/icons/icon-maskable.png'
 ];
 
 // Install event: Pre-cache static shell assets safely
