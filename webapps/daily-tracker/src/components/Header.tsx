@@ -224,18 +224,6 @@ export const Header: React.FC<HeaderProps> = ({
           <Search className="w-4 h-4 text-blue-500" />
         </button>
 
-        {/* Install PWA Button */}
-        {canInstallPWA && (
-          <button
-            onClick={onInstallPWA}
-            className="flex items-center space-x-1.5 px-3 py-1.5 rounded-xl bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 text-white text-xs font-semibold shadow-md transition-all active:scale-95"
-            title="Install Daily Tracker App"
-          >
-            <Smartphone className="w-3.5 h-3.5" />
-            <span className="hidden sm:inline">Install App</span>
-          </button>
-        )}
-
         {/* Menu Button Trigger & Popout Dropdown */}
         <div className="relative" ref={menuRef}>
           <button
