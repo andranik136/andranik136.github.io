@@ -1,4 +1,4 @@
-const CACHE_NAME = 'daily-tracker-v2';
+const CACHE_NAME = 'daily-tracker-v3';
 const ASSETS_TO_CACHE = [
   './',
   './index.html',
@@ -9,11 +9,15 @@ const ASSETS_TO_CACHE = [
   './icons/icon-maskable.png'
 ];
 
-// Install event: Pre-cache static shell assets
+// Install event: Pre-cache static shell assets safely
 self.addEventListener('install', (event) => {
   event.waitUntil(
     caches.open(CACHE_NAME).then((cache) => {
-      return cache.addAll(ASSETS_TO_CACHE);
+      return Promise.all(
+        ASSETS_TO_CACHE.map((url) => 
+          cache.add(url).catch((err) => console.warn('PWA Pre-cache item warning:', url))
+        )
+      );
     }).then(() => self.skipWaiting())
   );
 });

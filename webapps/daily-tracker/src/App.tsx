@@ -52,6 +52,42 @@ export function App() {
   const [isSearchOpen, setIsSearchOpen] = React.useState(false);
   const [isAnalyticsOpen, setIsAnalyticsOpen] = React.useState(false);
 
+  // PWA Install Prompt State
+  const [deferredInstallPrompt, setDeferredInstallPrompt] = React.useState<any>(null);
+  const [canInstallPWA, setCanInstallPWA] = React.useState(false);
+
+  React.useEffect(() => {
+    const handleBeforeInstallPrompt = (e: Event) => {
+      e.preventDefault();
+      setDeferredInstallPrompt(e);
+      setCanInstallPWA(true);
+    };
+
+    window.addEventListener('beforeinstallprompt', handleBeforeInstallPrompt);
+
+    return () => {
+      window.removeEventListener('beforeinstallprompt', handleBeforeInstallPrompt);
+    };
+  }, []);
+
+  const handleInstallPWA = React.useCallback(async () => {
+    if (deferredInstallPrompt) {
+      deferredInstallPrompt.prompt();
+      const choiceResult = await deferredInstallPrompt.userChoice;
+      if (choiceResult.outcome === 'accepted') {
+        setCanInstallPWA(false);
+      }
+      setDeferredInstallPrompt(null);
+    } else {
+      alert(
+        'To install Daily Tracker on your device:\n\n' +
+        '• Desktop Chrome / Edge: Click the Install icon in the address bar.\n' +
+        '• Mobile Android: Tap "Install App" or Chrome menu ➔ "Install app".\n' +
+        '• Mobile iOS / Safari: Tap Share (📤) ➔ "Add to Home Screen".'
+      );
+    }
+  }, [deferredInstallPrompt]);
+
   // Notes minimize state: when no notes present, minimize notes box and pull up Tasks area
   const [isNotesMinimized, setIsNotesMinimized] = React.useState(() => {
     const initialNote = loadNotes()[formatDateKey(new Date())];
@@ -357,6 +393,8 @@ export function App() {
         syncStatus={syncStatus}
         onOpenAuthModal={() => setIsAuthModalOpen(true)}
         onManualSync={performCloudSync}
+        onInstallPWA={handleInstallPWA}
+        canInstallPWA={canInstallPWA}
       />
 
       {/* Main App Layout */}
