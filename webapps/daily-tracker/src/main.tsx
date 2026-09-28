@@ -12,9 +12,8 @@ createRoot(document.getElementById('root')!).render(
 // Register PWA Service Worker
 if ('serviceWorker' in navigator) {
   window.addEventListener('load', () => {
-    const swUrl = (import.meta as any).env?.DEV ? './sw.js' : '/webapps/daily-tracker/sw.js';
     navigator.serviceWorker
-      .register(swUrl)
+      .register('sw.js')
       .then((reg) => {
         console.log('Daily Tracker PWA Service Worker registered:', reg.scope);
       })

@@ -8,13 +8,13 @@
     <meta name="description" content="A modern, minimal calendar, daily notes editor, and task tracker featuring productivity insights, time-blocking, and search." />
     
     <!-- PWA Manifest & Mobile Config -->
-    <link rel="manifest" href="./manifest.json" />
+    <link rel="manifest" href="manifest.json" />
     <meta name="theme-color" content="#2563eb" />
     <meta name="mobile-web-app-capable" content="yes" />
     <meta name="apple-mobile-web-app-capable" content="yes" />
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
     <meta name="apple-mobile-web-app-title" content="Daily Tracker" />
-    <link rel="apple-touch-icon" href="./icons/icon-192.png" />
+    <link rel="apple-touch-icon" href="icons/icon-192.png" />
     <!-- Google Fonts: Sora -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
