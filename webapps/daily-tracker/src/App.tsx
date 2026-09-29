@@ -484,7 +484,7 @@ export function App() {
         />
 
         {/* Center Column: Monthly Calendar Grid (Main View) */}
-        <div className={clsx("w-full flex-none lg:flex-1 flex flex-col min-h-[460px] sm:min-h-[520px] lg:min-h-0 lg:overflow-hidden border-b lg:border-b-0 lg:border-r", isLight ? "border-blue-200/60" : "border-slate-800/80")}>
+        <div className={clsx("flex-1 flex flex-col min-h-[460px] lg:min-h-0 overflow-hidden border-b lg:border-b-0 lg:border-r", isLight ? "border-blue-200/60" : "border-slate-800/80")}>
           <CalendarGrid
             currentYear={currentYear}
             currentMonth={currentMonth}
@@ -502,7 +502,7 @@ export function App() {
 
         {/* Right Column: Sidebar (Daily Notes & Tasks split panel) */}
         <aside className={clsx(
-          "w-full lg:w-[420px] xl:w-[480px] flex flex-col p-4 lg:p-6 gap-4 flex-none lg:flex-1 lg:h-full overflow-y-visible lg:overflow-hidden flex-shrink-0 transition-colors",
+          "w-full lg:w-[420px] xl:w-[480px] flex flex-col h-full p-4 lg:p-6 gap-4 min-h-0 overflow-y-auto lg:overflow-hidden flex-shrink-0 transition-colors",
           isLight ? "bg-blue-50/40" : "bg-slate-950/20"
         )}>
           {/* Top Half: Daily Notes for Selected Date (Minimizes when no notes present) */}

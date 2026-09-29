@@ -93,7 +93,7 @@ export const CalendarGrid: React.FC<CalendarGridProps> = ({
 
       {/* 7x6 Calendar Cells Grid - Zero Gap Padding */}
       <div className={clsx(
-        "flex-1 grid grid-cols-7 grid-rows-6 gap-px border overflow-hidden rounded-xl min-h-[440px] sm:min-h-[500px] lg:min-h-0 shadow-sm",
+        "flex-1 grid grid-cols-7 grid-rows-6 gap-px border overflow-hidden rounded-xl min-h-0 shadow-sm",
         isLight ? "bg-slate-200/90 border-slate-200" : "bg-slate-800/80 border-white/[0.08]"
       )}>
         {days.map((day) => {
