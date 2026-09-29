@@ -12,7 +12,9 @@ import {
   resetAllData,
   getLastLocalEdit,
   saveLastLocalEdit,
-  mergeTrackerData
+  mergeTrackerData,
+  loadNewsSidebarOpen,
+  saveNewsSidebarOpen
 } from './utils/storage';
 import { 
   auth, 
@@ -41,7 +43,7 @@ export function App() {
   const [currentMonth, setCurrentMonth] = React.useState<number>(new Date().getMonth());
 
   const [theme, setTheme] = React.useState<'dark' | 'light'>(() => loadTheme());
-  const [isNewsSidebarOpen, setIsNewsSidebarOpen] = React.useState(true);
+  const [isNewsSidebarOpen, setIsNewsSidebarOpen] = React.useState<boolean>(() => loadNewsSidebarOpen());
 
   const [tasks, setTasks] = React.useState<Task[]>(() => loadTasks());
   const [notes, setNotes] = React.useState<Record<string, DailyNote>>(() => loadNotes());
@@ -455,8 +457,14 @@ export function App() {
         {/* Leftmost Column: NPR News Sidebar & Collapsed Rail */}
         <NewsSidebar
           isOpen={isNewsSidebarOpen}
-          onOpen={() => setIsNewsSidebarOpen(true)}
-          onClose={() => setIsNewsSidebarOpen(false)}
+          onOpen={() => {
+            setIsNewsSidebarOpen(true);
+            saveNewsSidebarOpen(true);
+          }}
+          onClose={() => {
+            setIsNewsSidebarOpen(false);
+            saveNewsSidebarOpen(false);
+          }}
           theme={theme}
         />
 

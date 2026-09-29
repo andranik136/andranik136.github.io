@@ -6,6 +6,7 @@ const STORAGE_KEYS = {
   NOTES: 'gorilla_notes_dict_v4',
   THEME: 'gorilla_theme_pref_v4',
   LAST_EDIT: 'daily_tracker_last_local_edit_v4',
+  NEWS_SIDEBAR_OPEN: 'daily_tracker_news_sidebar_open_v4',
 };
 
 /**
@@ -226,6 +227,25 @@ export function saveLastLocalEdit(timestamp: number): void {
     console.error('Failed to save last edit timestamp:', err);
   }
 }
+
+export function loadNewsSidebarOpen(): boolean {
+  try {
+    const saved = localStorage.getItem(STORAGE_KEYS.NEWS_SIDEBAR_OPEN);
+    if (saved === null) return true;
+    return saved === 'true';
+  } catch {
+    return true;
+  }
+}
+
+export function saveNewsSidebarOpen(isOpen: boolean): void {
+  try {
+    localStorage.setItem(STORAGE_KEYS.NEWS_SIDEBAR_OPEN, String(isOpen));
+  } catch (err) {
+    console.error('Failed to save news sidebar state:', err);
+  }
+}
+
 
 export function resetAllData(): { tasks: Task[]; notes: Record<string, DailyNote> } {
   localStorage.removeItem(STORAGE_KEYS.TASKS);

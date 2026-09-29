@@ -94,3 +94,23 @@ export function isFutureDate(dateKey: string): boolean {
 export function isToday(dateKey: string): boolean {
   return dateKey === formatDateKey(new Date());
 }
+
+/**
+ * Converts a 24-hour time string ("HH:mm") into a 12-hour format ("h:mm AM/PM").
+ */
+export function formatTime12Hour(timeStr?: string): string {
+  if (!timeStr || typeof timeStr !== 'string') return '';
+  const parts = timeStr.trim().split(':');
+  if (parts.length < 2) return timeStr;
+
+  let hours = parseInt(parts[0], 10);
+  const minutes = parts[1];
+  if (isNaN(hours)) return timeStr;
+
+  const ampm = hours >= 12 ? 'PM' : 'AM';
+  hours = hours % 12;
+  if (hours === 0) hours = 12;
+
+  return `${hours}:${minutes} ${ampm}`;
+}
+

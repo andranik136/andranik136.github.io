@@ -1,6 +1,6 @@
 import React from 'react';
 import { Task, Priority, Category } from '../../types';
-import { formatFullDate } from '../../utils/dateUtils';
+import { formatFullDate, formatTime12Hour } from '../../utils/dateUtils';
 import { 
   CheckCircle, 
   Circle, 
@@ -505,7 +505,7 @@ export const DailyTasks: React.FC<DailyTasksProps> = ({
                       {task.time && (
                         <span className={clsx("flex items-center space-x-1 px-1.5 py-0.5 rounded border", isLight ? "text-slate-600 bg-blue-50 border-blue-200" : "text-slate-400 bg-slate-950 border-slate-800")}>
                           <Clock className="w-3 h-3 text-blue-500" />
-                          <span>{task.time}</span>
+                          <span>{formatTime12Hour(task.time)}</span>
                         </span>
                       )}
 
