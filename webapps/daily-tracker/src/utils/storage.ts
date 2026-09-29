@@ -119,9 +119,19 @@ export function saveNewsSidebarOpen(isOpen: boolean): void {
 }
 
 
+export function clearAllUserData(): void {
+  try {
+    localStorage.removeItem(STORAGE_KEYS.TASKS);
+    localStorage.removeItem(STORAGE_KEYS.NOTES);
+    localStorage.removeItem(STORAGE_KEYS.THEME);
+    localStorage.removeItem(STORAGE_KEYS.LAST_EDIT);
+  } catch (err) {
+    console.error('Error clearing user data:', err);
+  }
+}
+
 export function resetAllData(): { tasks: Task[]; notes: Record<string, DailyNote> } {
-  localStorage.removeItem(STORAGE_KEYS.TASKS);
-  localStorage.removeItem(STORAGE_KEYS.NOTES);
+  clearAllUserData();
   saveTasks([]);
   saveNotes({});
   return { tasks: [], notes: {} };

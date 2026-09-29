@@ -10,6 +10,7 @@ import {
   loadTheme,
   saveTheme,
   resetAllData,
+  clearAllUserData,
   getLastLocalEdit,
   saveLastLocalEdit,
   mergeTrackerData,
@@ -249,6 +250,13 @@ export function App() {
           setSyncStatus('error');
         }
       } else {
+        if (syncStateRef.current.user) {
+          clearAllUserData();
+          setTasks([]);
+          setNotes({});
+          setTheme('dark');
+          saveTheme('dark');
+        }
         setUser(null);
         setSyncStatus('idle');
       }
