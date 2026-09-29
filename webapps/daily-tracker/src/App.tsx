@@ -43,7 +43,22 @@ export function App() {
   const [currentMonth, setCurrentMonth] = React.useState<number>(new Date().getMonth());
 
   const [theme, setTheme] = React.useState<'dark' | 'light'>(() => loadTheme());
-  const [isNewsSidebarOpen, setIsNewsSidebarOpen] = React.useState<boolean>(() => loadNewsSidebarOpen());
+  const [isNewsSidebarOpen, setIsNewsSidebarOpen] = React.useState<boolean>(() => {
+    if (typeof window !== 'undefined' && window.innerWidth < 1024) {
+      return false;
+    }
+    return loadNewsSidebarOpen();
+  });
+
+  React.useEffect(() => {
+    const handleResize = () => {
+      if (window.innerWidth < 1024) {
+        setIsNewsSidebarOpen(false);
+      }
+    };
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
 
   const [tasks, setTasks] = React.useState<Task[]>(() => loadTasks());
   const [notes, setNotes] = React.useState<Record<string, DailyNote>>(() => loadNotes());
@@ -425,7 +440,7 @@ export function App() {
 
   return (
     <div className={clsx(
-      "flex flex-col h-screen overflow-hidden transition-colors duration-200",
+      "flex flex-col min-h-screen lg:h-screen overflow-y-auto lg:overflow-hidden transition-colors duration-200",
       isLight 
         ? "theme-light bg-slate-50 text-slate-900" 
         : "bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-slate-900 via-slate-950 to-black text-slate-100"
@@ -453,7 +468,7 @@ export function App() {
       />
 
       {/* Main App Layout */}
-      <main className="flex-1 flex flex-col lg:flex-row min-h-0 overflow-hidden">
+      <main className="flex-1 flex flex-col lg:flex-row min-h-0 overflow-y-auto lg:overflow-hidden">
         {/* Leftmost Column: NPR News Sidebar & Collapsed Rail */}
         <NewsSidebar
           isOpen={isNewsSidebarOpen}
@@ -469,7 +484,7 @@ export function App() {
         />
 
         {/* Center Column: Monthly Calendar Grid (Main View) */}
-        <div className={clsx("flex-1 flex flex-col min-h-0 overflow-hidden border-r", isLight ? "border-blue-200/60" : "border-slate-800/80")}>
+        <div className={clsx("w-full flex-none lg:flex-1 flex flex-col min-h-[460px] sm:min-h-[520px] lg:min-h-0 lg:overflow-hidden border-b lg:border-b-0 lg:border-r", isLight ? "border-blue-200/60" : "border-slate-800/80")}>
           <CalendarGrid
             currentYear={currentYear}
             currentMonth={currentMonth}
@@ -487,7 +502,7 @@ export function App() {
 
         {/* Right Column: Sidebar (Daily Notes & Tasks split panel) */}
         <aside className={clsx(
-          "w-full lg:w-[420px] xl:w-[480px] flex flex-col h-full p-4 lg:p-6 gap-4 min-h-0 overflow-y-auto lg:overflow-hidden flex-shrink-0 transition-colors",
+          "w-full lg:w-[420px] xl:w-[480px] flex flex-col p-4 lg:p-6 gap-4 flex-none lg:flex-1 lg:h-full overflow-y-visible lg:overflow-hidden flex-shrink-0 transition-colors",
           isLight ? "bg-blue-50/40" : "bg-slate-950/20"
         )}>
           {/* Top Half: Daily Notes for Selected Date (Minimizes when no notes present) */}

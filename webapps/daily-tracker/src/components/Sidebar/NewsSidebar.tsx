@@ -174,7 +174,7 @@ export const NewsSidebar: React.FC<NewsSidebarProps> = ({
       <div
         onClick={onOpen}
         className={clsx(
-          "w-10 flex flex-col items-center justify-between py-4 h-full border-r cursor-pointer transition-all group flex-shrink-0 z-20 select-none",
+          "hidden lg:flex w-10 flex-col items-center justify-between py-4 h-full border-r cursor-pointer transition-all group flex-shrink-0 z-20 select-none",
           isLight 
             ? "bg-white hover:bg-blue-50/80 border-blue-200/90 text-slate-600 hover:text-blue-600 shadow-sm" 
             : "bg-slate-950/80 hover:bg-slate-900 border-white/[0.08] text-slate-400 hover:text-white"
@@ -203,7 +203,7 @@ export const NewsSidebar: React.FC<NewsSidebarProps> = ({
 
   return (
     <aside className={clsx(
-      "w-full sm:w-80 lg:w-88 flex flex-col h-full border-r min-h-0 flex-shrink-0 transition-all duration-300 z-20 shadow-2xl",
+      "w-full lg:w-88 flex flex-col h-auto lg:h-full border-b lg:border-b-0 lg:border-r min-h-0 flex-shrink-0 transition-all duration-300 z-20 shadow-2xl",
       isLight 
         ? "bg-white border-blue-200/90 text-slate-900 shadow-blue-500/5" 
         : "bg-slate-950/95 border-white/[0.08] text-slate-100 shadow-black/50"
