@@ -203,7 +203,7 @@ export const NewsSidebar: React.FC<NewsSidebarProps> = ({
 
   return (
     <aside className={clsx(
-      "w-full lg:w-88 flex flex-col h-auto lg:h-full border-b lg:border-b-0 lg:border-r min-h-0 flex-shrink-0 transition-all duration-300 z-20 shadow-2xl",
+      "w-full lg:w-[340px] flex flex-col h-full border-b lg:border-b-0 lg:border-r min-h-0 flex-shrink-0 transition-all duration-300 z-20 shadow-2xl",
       isLight 
         ? "bg-white border-blue-200/90 text-slate-900 shadow-blue-500/5" 
         : "bg-slate-950/95 border-white/[0.08] text-slate-100 shadow-black/50"
