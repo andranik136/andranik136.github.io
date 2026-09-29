@@ -170,19 +170,19 @@ export const Header: React.FC<HeaderProps> = ({
                 ? "bg-blue-600/20 text-blue-400 border-blue-500/30"
                 : syncStatus === 'synced'
                 ? isLight ? "bg-emerald-50 text-emerald-700 border-emerald-300 hover:bg-emerald-100" : "bg-emerald-950/50 text-emerald-400 border-emerald-800/50 hover:bg-emerald-900/60"
-                : isLight ? "bg-blue-50 hover:bg-blue-100 text-blue-700 border-blue-200" : "bg-purple-950/50 hover:bg-purple-900/60 text-purple-300 border-purple-800/40"
+                : "bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-500 hover:to-indigo-500 text-white border-blue-500/30 shadow-md animate-pulse"
             )}
-            title="Save and Sync data to Cloud"
+            title={syncStatus === 'unsaved' ? "Save recent changes to cloud" : "Save and Sync data to Cloud"}
           >
             {syncStatus === 'syncing' ? (
-              <Loader2 className="w-3.5 h-3.5 text-blue-500 animate-spin" />
+              <Loader2 className="w-3.5 h-3.5 text-blue-400 animate-spin" />
             ) : syncStatus === 'synced' ? (
               <Check className="w-3.5 h-3.5 text-emerald-500" />
             ) : (
-              <Cloud className="w-3.5 h-3.5 text-blue-500" />
+              <Cloud className="w-3.5 h-3.5 text-white" />
             )}
             <span>
-              {syncStatus === 'syncing' ? 'Syncing...' : syncStatus === 'synced' ? 'Synced' : 'Save & Sync'}
+              {syncStatus === 'syncing' ? 'Syncing...' : syncStatus === 'synced' ? 'Synced' : 'Save'}
             </span>
           </button>
         )}

@@ -5,6 +5,7 @@ const STORAGE_KEYS = {
   TASKS: 'gorilla_tasks_list_v4',
   NOTES: 'gorilla_notes_dict_v4',
   THEME: 'gorilla_theme_pref_v4',
+  LAST_EDIT: 'daily_tracker_last_local_edit_v4',
 };
 
 /**
@@ -209,6 +210,23 @@ export function saveTheme(theme: 'dark' | 'light'): void {
   }
 }
 
+export function getLastLocalEdit(): number {
+  try {
+    const ts = localStorage.getItem(STORAGE_KEYS.LAST_EDIT);
+    return ts ? Number(ts) : 0;
+  } catch {
+    return 0;
+  }
+}
+
+export function saveLastLocalEdit(timestamp: number): void {
+  try {
+    localStorage.setItem(STORAGE_KEYS.LAST_EDIT, String(timestamp));
+  } catch (err) {
+    console.error('Failed to save last edit timestamp:', err);
+  }
+}
+
 export function resetAllData(): { tasks: Task[]; notes: Record<string, DailyNote> } {
   localStorage.removeItem(STORAGE_KEYS.TASKS);
   localStorage.removeItem(STORAGE_KEYS.NOTES);
@@ -218,3 +236,83 @@ export function resetAllData(): { tasks: Task[]; notes: Record<string, DailyNote
   saveNotes(notes);
   return { tasks, notes };
 }
+
+/**
+ * Merges local and cloud tracker data using timestamps to ensure newest data is preserved per item.
+ */
+export function mergeTrackerData(
+  localTasks: Task[],
+  localNotes: Record<string, DailyNote>,
+  localTheme: 'dark' | 'light',
+  lastLocalEditTs: number,
+  cloudData: { tasks?: Task[]; notes?: Record<string, DailyNote>; theme?: 'dark' | 'light'; updatedAt?: number }
+) {
+  const cloudTasks = cloudData.tasks || [];
+  const cloudNotes = cloudData.notes || {};
+  const cloudTheme = cloudData.theme || localTheme;
+  const cloudUpdatedAt = cloudData.updatedAt || 0;
+
+  // 1. Merge Notes by per-note updatedAt timestamp
+  const mergedNotes: Record<string, DailyNote> = {};
+  const allNoteKeys = new Set([...Object.keys(localNotes), ...Object.keys(cloudNotes)]);
+
+  for (const dateKey of allNoteKeys) {
+    const localNote = localNotes[dateKey];
+    const cloudNote = cloudNotes[dateKey];
+
+    if (localNote && !cloudNote) {
+      mergedNotes[dateKey] = localNote;
+    } else if (!localNote && cloudNote) {
+      const cloudTs = cloudNote.updatedAt || cloudUpdatedAt;
+      if (lastLocalEditTs > cloudUpdatedAt) {
+        if (cloudTs > lastLocalEditTs) {
+          mergedNotes[dateKey] = cloudNote;
+        }
+      } else {
+        mergedNotes[dateKey] = cloudNote;
+      }
+    } else if (localNote && cloudNote) {
+      const localTs = localNote.updatedAt || lastLocalEditTs;
+      const cloudTs = cloudNote.updatedAt || cloudUpdatedAt;
+      mergedNotes[dateKey] = localTs >= cloudTs ? localNote : cloudNote;
+    }
+  }
+
+  // 2. Merge Tasks by Task ID & timestamps
+  const localTaskMap = new Map(localTasks.map((t) => [t.id, t]));
+  const cloudTaskMap = new Map(cloudTasks.map((t) => [t.id, t]));
+  const allTaskIds = new Set([...localTaskMap.keys(), ...cloudTaskMap.keys()]);
+  const mergedTasks: Task[] = [];
+
+  for (const id of allTaskIds) {
+    const localTask = localTaskMap.get(id);
+    const cloudTask = cloudTaskMap.get(id);
+
+    if (localTask && !cloudTask) {
+      mergedTasks.push(localTask);
+    } else if (!localTask && cloudTask) {
+      const cloudTs = cloudTask.updatedAt || cloudTask.createdAt || cloudUpdatedAt;
+      if (lastLocalEditTs > cloudUpdatedAt) {
+        if (cloudTs > lastLocalEditTs) {
+          mergedTasks.push(cloudTask);
+        }
+      } else {
+        mergedTasks.push(cloudTask);
+      }
+    } else if (localTask && cloudTask) {
+      const localTs = localTask.updatedAt || localTask.createdAt || lastLocalEditTs;
+      const cloudTs = cloudTask.updatedAt || cloudTask.createdAt || cloudUpdatedAt;
+      mergedTasks.push(localTs >= cloudTs ? localTask : cloudTask);
+    }
+  }
+
+  // Theme preference
+  const mergedTheme = lastLocalEditTs > cloudUpdatedAt ? localTheme : cloudTheme;
+
+  return {
+    tasks: mergedTasks,
+    notes: mergedNotes,
+    theme: mergedTheme,
+  };
+}
+

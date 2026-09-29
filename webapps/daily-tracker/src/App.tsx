@@ -9,7 +9,10 @@ import {
   saveNotes, 
   loadTheme,
   saveTheme,
-  resetAllData
+  resetAllData,
+  getLastLocalEdit,
+  saveLastLocalEdit,
+  mergeTrackerData
 } from './utils/storage';
 import { 
   auth, 
@@ -116,6 +119,15 @@ export function App() {
     syncStateRef.current = { user, theme };
   }, [user, theme]);
 
+  // Helper to mark unsaved local changes and update edit timestamp
+  const markLocalChange = React.useCallback(() => {
+    const now = Date.now();
+    saveLastLocalEdit(now);
+    if (syncStateRef.current.user) {
+      setSyncStatus('unsaved');
+    }
+  }, []);
+
   // Core Cloud Sync Function (triggered on demand or by 5-minute timer)
   const performCloudSync = React.useCallback(async () => {
     const currentUser = syncStateRef.current.user;
@@ -126,12 +138,15 @@ export function App() {
       const currentTasks = loadTasks();
       const currentNotes = loadNotes();
       const currentTheme = loadTheme();
+      const now = Date.now();
 
       await saveUserDataToCloud(currentUser.uid, {
         tasks: currentTasks,
         notes: currentNotes,
         theme: currentTheme,
+        updatedAt: now,
       });
+      saveLastLocalEdit(now);
       setSyncStatus('synced');
     } catch (err) {
       console.error('Cloud sync error:', err);
@@ -168,29 +183,48 @@ export function App() {
         try {
           // Fetch cloud data once on sign-in
           const cloudData = await fetchUserDataFromCloud(firebaseUser.uid);
+          const currentTasks = loadTasks();
+          const currentNotes = loadNotes();
+          const currentTheme = loadTheme();
+          const lastLocalEdit = getLastLocalEdit();
+
           if (cloudData) {
-            if (cloudData.tasks) {
-              setTasks(cloudData.tasks);
-              saveTasks(cloudData.tasks);
-            }
-            if (cloudData.notes) {
-              setNotes(cloudData.notes);
-              saveNotes(cloudData.notes);
-            }
-            if (cloudData.theme) {
-              setTheme(cloudData.theme);
-              saveTheme(cloudData.theme);
+            const merged = mergeTrackerData(
+              currentTasks,
+              currentNotes,
+              currentTheme,
+              lastLocalEdit,
+              cloudData
+            );
+
+            setTasks(merged.tasks);
+            saveTasks(merged.tasks);
+            setNotes(merged.notes);
+            saveNotes(merged.notes);
+            setTheme(merged.theme);
+            saveTheme(merged.theme);
+
+            // If local had unsaved edits newer than cloud, push merged data to cloud immediately
+            if (lastLocalEdit > (cloudData.updatedAt || 0)) {
+              const now = Date.now();
+              await saveUserDataToCloud(firebaseUser.uid, {
+                tasks: merged.tasks,
+                notes: merged.notes,
+                theme: merged.theme,
+                updatedAt: now,
+              });
+              saveLastLocalEdit(now);
             }
           } else {
             // Initial user migration: save current local data to cloud once
-            const currentTasks = loadTasks();
-            const currentNotes = loadNotes();
-            const currentTheme = loadTheme();
+            const now = Date.now();
             await saveUserDataToCloud(firebaseUser.uid, {
               tasks: currentTasks,
               notes: currentNotes,
               theme: currentTheme,
+              updatedAt: now,
             });
+            saveLastLocalEdit(now);
           }
           setSyncStatus('synced');
         } catch (err) {
@@ -212,6 +246,7 @@ export function App() {
       saveTheme(next);
       return next;
     });
+    markLocalChange();
   };
 
   // Keep month/year in sync when selecting dates outside current month
@@ -252,73 +287,89 @@ export function App() {
 
   // Task Actions
   const handleAddTask = (newTaskData: Omit<Task, 'id' | 'createdAt'>) => {
+    const now = Date.now();
     const newTask: Task = {
       ...newTaskData,
-      id: `task-${Date.now()}-${Math.random().toString(36).substr(2, 4)}`,
-      createdAt: Date.now(),
+      id: `task-${now}-${Math.random().toString(36).substr(2, 4)}`,
+      createdAt: now,
+      updatedAt: now,
     };
     setTasks((prev) => [newTask, ...prev]);
+    markLocalChange();
   };
 
   const handleUpdateTask = (taskId: string, updatedFields: Partial<Task>) => {
+    const now = Date.now();
     setTasks((prev) =>
-      prev.map((t) => (t.id === taskId ? { ...t, ...updatedFields } : t))
+      prev.map((t) => (t.id === taskId ? { ...t, ...updatedFields, updatedAt: now } : t))
     );
+    markLocalChange();
   };
 
   const handleToggleTask = (taskId: string) => {
+    const now = Date.now();
     setTasks((prev) =>
-      prev.map((t) => (t.id === taskId ? { ...t, completed: !t.completed } : t))
+      prev.map((t) => (t.id === taskId ? { ...t, completed: !t.completed, updatedAt: now } : t))
     );
+    markLocalChange();
   };
 
   const handleDeleteTask = (taskId: string) => {
     setTasks((prev) => prev.filter((t) => t.id !== taskId));
+    markLocalChange();
   };
 
   const handleMoveTaskDate = (taskId: string, targetDateKey: string) => {
+    const now = Date.now();
     setTasks((prev) =>
-      prev.map((t) => (t.id === taskId ? { ...t, date: targetDateKey } : t))
+      prev.map((t) => (t.id === taskId ? { ...t, date: targetDateKey, updatedAt: now } : t))
     );
+    markLocalChange();
   };
 
   const handleAddSubtask = (taskId: string, title: string) => {
+    const now = Date.now();
     setTasks((prev) =>
       prev.map((t) => {
         if (t.id !== taskId) return t;
         const subtasks = t.subtasks || [];
         const newSubtask = {
-          id: `st-${Date.now()}`,
+          id: `st-${now}`,
           title,
           completed: false,
         };
-        return { ...t, subtasks: [...subtasks, newSubtask] };
+        return { ...t, subtasks: [...subtasks, newSubtask], updatedAt: now };
       })
     );
+    markLocalChange();
   };
 
   const handleToggleSubtask = (taskId: string, subtaskId: string) => {
+    const now = Date.now();
     setTasks((prev) =>
       prev.map((t) => {
         if (t.id !== taskId) return t;
         const subtasks = (t.subtasks || []).map((st) =>
           st.id === subtaskId ? { ...st, completed: !st.completed } : st
         );
-        return { ...t, subtasks };
+        return { ...t, subtasks, updatedAt: now };
       })
     );
+    markLocalChange();
   };
 
   // Daily Notes Actions
   const handleSaveNote = (dateKey: string, content: string) => {
+    const now = Date.now();
     setNotes((prev) => ({
       ...prev,
       [dateKey]: {
         date: dateKey,
         content,
-        updatedAt: Date.now(),
+        updatedAt: now,
       },
     }));
+    markLocalChange();
   };
 
   // Backup Import & Export
@@ -346,6 +397,7 @@ export function App() {
         const parsed = JSON.parse(event.target?.result as string);
         if (parsed.tasks) setTasks(parsed.tasks);
         if (parsed.notes) setNotes(parsed.notes);
+        markLocalChange();
         alert('Data backup successfully imported!');
       } catch (err) {
         alert('Invalid JSON backup file.');
@@ -353,6 +405,7 @@ export function App() {
     };
     reader.readAsText(file);
   };
+
 
   // Keyboard Shortcuts (Cmd+K)
   React.useEffect(() => {

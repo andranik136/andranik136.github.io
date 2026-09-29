@@ -19,6 +19,7 @@ export interface Task {
   durationMinutes?: number; // e.g. 30, 60
   subtasks?: Subtask[];
   createdAt: number;
+  updatedAt?: number;
 }
 
 export interface DailyNote {
@@ -51,5 +52,5 @@ export interface UserProfile {
   photoURL: string | null;
 }
 
-export type SyncStatus = 'idle' | 'syncing' | 'synced' | 'offline' | 'error';
+export type SyncStatus = 'idle' | 'syncing' | 'synced' | 'unsaved' | 'offline' | 'error';
 
