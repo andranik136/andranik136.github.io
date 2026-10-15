@@ -4,191 +4,298 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Andranik Shirinian - Portfolio</title>
+    <title>Andranik Shirinian — 3D Artist & Web Developer</title>
+    <meta name="description" content="Portfolio of Andranik Shirinian — Front-End Web Developer, Graphic Designer, and 3D Artist crafting interactive digital experiences and procedural worlds.">
+
+    <!-- Open Graph / Meta -->
+    <meta property="og:title" content="Andranik Shirinian — 3D Artist & Web Developer">
+    <meta property="og:description" content="Explore interactive web apps, Blender 3D isometric scenes, and digital experiences.">
+    <meta property="og:image" content="/media/my-profile-img.jpg">
+    <meta property="og:type" content="website">
 
     <!-- Google Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Sora:wght@100..800&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:ital,wght@0,100..800;1,100..800&display=swap" rel="stylesheet">
 
     <link rel="icon" href="/favicon.png" type="image/png">
-
     <link href="/style.css" rel="stylesheet">
 
-    <!-- Vue.js -->
+    <!-- Vue.js 3 -->
     <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
 
+    <!-- Hero Galaxy Module -->
+    <script src="/js/hero-galaxy.js"></script>
 </head>
 
 <body>
-
     <div id="app">
         <!-- Header & Navigation -->
         <header class="header" :class="{ 'scrolled': scrolled }">
             <div class="container header-content">
                 <nav class="main-nav">
                     <a v-for="link in navLinks" :key="link.id" :href="'#' + link.id" @click.prevent="scrollTo(link.id)"
-                        class="nav-link">{{ link.text }}</a>
+                        class="nav-link" :class="{ 'active': activeNavSection === link.id }">
+                        {{ link.text }}
+                    </a>
                 </nav>
-                <button @click="mobileMenuOpen = !mobileMenuOpen" class="mobile-menu-button">
-                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"
-                        xmlns="http://www.w3.org/2000/svg">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                            d="M4 6h16M4 12h16m-7 6h7"></path>
-                    </svg>
-                </button>
+
+                <div class="header-actions">
+                    <a href="#contact" @click.prevent="scrollTo('contact')" class="header-cta">
+                        <span>Get In Touch</span>
+                        <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"></path><path d="m12 5 7 7-7 7"></path></svg>
+                    </a>
+                    <button @click="mobileMenuOpen = !mobileMenuOpen" class="mobile-menu-button" aria-label="Toggle Navigation">
+                        <svg class="w-6 h-6" width="24" height="24" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16m-7 6h7"></path>
+                        </svg>
+                    </button>
+                </div>
             </div>
-            <!-- Mobile Menu -->
+
+            <!-- Mobile Menu Dropdown -->
             <div v-show="mobileMenuOpen" class="mobile-nav">
                 <a v-for="link in navLinks" :key="link.id" :href="'#' + link.id"
-                    @click.prevent="scrollTo(link.id, true)" class="nav-link">{{ link.text }}</a>
+                    @click.prevent="scrollTo(link.id, true)">{{ link.text }}</a>
+                <a href="#contact" @click.prevent="scrollTo('contact', true)" class="mobile-cta" style="color: var(--amber-flame); font-weight: 700;">Initiate Contact ↗</a>
             </div>
         </header>
 
-        <!-- Hero Section -->
-        <section class="hero-section">
-            <div id="background-grid">
-                <div class="grid-column" v-for="(column, index) in shuffled3DArtColumns" :key="index">
-                    <div class="grid-item" v-for="item in column" :key="item.id"
-                        :style="{ backgroundImage: 'url(' + item.image + ')' }"></div>
-                    <!-- Duplicate for infinite scroll effect -->
-                    <div class="grid-item" v-for="item in column" :key="'dup-' + item.id"
-                        :style="{ backgroundImage: 'url(' + item.image + ')' }"></div>
-                </div>
-                <div class="grid-overlay"></div>
+        <!-- Hero Section with 3D Orbital Galaxy (Inspired by getartcraft.com) -->
+        <section id="hero" class="hero-section">
+            <div id="hero-galaxy">
+                <!-- Underlay orbital geometry canvas -->
+                <canvas id="galaxy-underlay"></canvas>
+
+                <!-- 3D floating & rotating work cards -->
+                <div id="galaxy-cards-container"></div>
+
+                <!-- Central contrast pocket scrim -->
+                <div class="hero-scrim"></div>
             </div>
+
             <div class="hero-content">
-                <h1>Andranik Shirinian</h1>
-                <p>Web Developer | Graphic Designer | 3D Artist</p>
+                <h1 class="hero-title">ANDRANIK SHIRINIAN</h1>
+
+                <p class="hero-subtitle">3D ARTIST &amp; WEB DEVELOPER</p>
+
+                <div class="hero-actions">
+                    <a href="#portfolio" @click.prevent="scrollTo('portfolio')" class="btn-hud-primary">
+                        <span>Explore My Work</span>
+                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"></path><path d="m12 5 7 7-7 7"></path></svg>
+                    </a>
+                    <a href="#contact" @click.prevent="scrollTo('contact')" class="btn-hud-secondary">
+                        <span>Get In Touch</span>
+                    </a>
+                </div>
             </div>
-            <a href="#about" @click.prevent="scrollTo('about')" class="scroll-down-link">
-                <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none"
-                    stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+
+            <!-- Scroll indicator -->
+            <a href="#about" @click.prevent="scrollTo('about')" class="scroll-down-link" aria-label="Scroll down">
+                <span>Explore</span>
+                <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none"
+                    stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                     <line x1="12" y1="5" x2="12" y2="19"></line>
                     <polyline points="19 12 12 19 5 12"></polyline>
                 </svg>
             </a>
         </section>
 
-        <main class="container">
-            </section>
+        <!-- Live Marquee Ribbon -->
+        <div class="marquee-ribbon" aria-hidden="true">
+            <ul class="marquee-track">
+                <li class="marquee-item"><span class="marquee-bullet">▪</span> 3D ENVIRONMENT ART</li>
+                <li class="marquee-item"><span class="marquee-bullet">▪</span> BLENDER 3D & PROCEDURAL SHADERS</li>
+                <li class="marquee-item"><span class="marquee-bullet">▪</span> FRONT-END ARCHITECTURE</li>
+                <li class="marquee-item"><span class="marquee-bullet">▪</span> GOOGLE ANTIGRAVITY & JAVASCRIPT</li>
+                <li class="marquee-item"><span class="marquee-bullet">▪</span> ISOMETRIC WORLD BUILDING</li>
+                <li class="marquee-item"><span class="marquee-bullet">▪</span> WEBGL & THREE.JS</li>
+                <li class="marquee-item"><span class="marquee-bullet">▪</span> ADOBE CREATIVE SUITE</li>
+                <li class="marquee-item"><span class="marquee-bullet">▪</span> INTERACTIVE WEB APPS</li>
+                <li class="marquee-item"><span class="marquee-bullet">▪</span> PRODUCT VISUALIZATION</li>
 
+                <!-- Duplicate for seamless infinite loop -->
+                <li class="marquee-item"><span class="marquee-bullet">▪</span> 3D ENVIRONMENT ART</li>
+                <li class="marquee-item"><span class="marquee-bullet">▪</span> BLENDER 3D & PROCEDURAL SHADERS</li>
+                <li class="marquee-item"><span class="marquee-bullet">▪</span> FRONT-END ARCHITECTURE</li>
+                <li class="marquee-item"><span class="marquee-bullet">▪</span> GOOGLE ANTIGRAVITY & JAVASCRIPT</li>
+                <li class="marquee-item"><span class="marquee-bullet">▪</span> ISOMETRIC WORLD BUILDING</li>
+                <li class="marquee-item"><span class="marquee-bullet">▪</span> WEBGL & THREE.JS</li>
+                <li class="marquee-item"><span class="marquee-bullet">▪</span> ADOBE CREATIVE SUITE</li>
+                <li class="marquee-item"><span class="marquee-bullet">▪</span> INTERACTIVE WEB APPS</li>
+                <li class="marquee-item"><span class="marquee-bullet">▪</span> PRODUCT VISUALIZATION</li>
+            </ul>
+        </div>
+
+        <main class="container">
             <!-- About Section -->
             <section id="about" class="section">
-                <h2 class="section-title">About Me</h2>
-                <div class="about-content">
-                    <div class="about-text">
-                        <img src="/media/my-profile-img.jpg" alt="Andranik Shirinian">
-                        <p>
-                            Hello! I’m Andranik. For over 10 years, I’ve been helping brands and businesses bring their
-                            digital ideas to life. I don’t just specialize in one field; I work across the entire
-                            creative spectrum—from front-end development to graphic design and 3D modeling.
-                        </p>
-                        <p>
-                            I love the challenge of taking a complex concept and turning it into a polished, engaging
-                            experience. Using a mix of VueJS/JavaScript, Adobe Creative Suite, and Blender, I bridge the
-                            gap between technical functionality and visual storytelling.
-                        </p>
-                        <p>
-                            Outside of my studio, you’ll find me catching the sunset on the coast or traveling with my
-                            dog, Archie. I’m always open to new opportunities and interesting conversations. Send me an
-                            email—I’d love to hear what you’re working on!
-                        </p>
+                <div class="section-header-block">
+                    <div class="section-pretitle">
+                        <span class="hud-tag">[ 01 // OVERVIEW ]</span>
                     </div>
+                    <h2 class="section-title">Bridging Technical Code & 3D Art</h2>
+                    <p class="section-subtitle">
+                        Over a decade of translating complex digital ideas into polished, captivating experiences.
+                    </p>
                 </div>
 
-                <div class="about-skills">
-                    <h3>My Toolkit</h3>
-                    <ul class="skills-list">
-                        <li class="skill-item skill-html5"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor"
-                                viewBox="0 0 24 24">
-                                <title>HTML5</title>
-                                <path
-                                    d="M1.5 0h21l-1.91 21.563L11.977 24l-8.564-2.438L1.5 0zm7.031 9.75l-.232-2.718 10.059.003.23-2.622L5.412 4.41l.698 8.01h9.126l-.326 3.426-2.91.804-2.955-.81-.188-2.11H6.248l.33 4.171L12 19.351l5.379-1.443.744-8.157H8.531z" />
-                            </svg>HTML5</li>
-                        <li class="skill-item skill-css3"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor"
-                                viewBox="0 0 24 24">
-                                <title>CSS3</title>
-                                <path
-                                    d="M1.5 0h21l-1.91 21.563L11.977 24l-8.565-2.438L1.5 0zm17.09 4.413L5.41 4.41l.213 2.622 10.125.002-.255 2.716h-6.64l.24 2.573h6.182l-.366 3.523-2.91.804-2.956-.81-.188-2.11h-2.61l.29 3.855L12 19.288l5.373-1.53L18.59 4.414z" />
-                            </svg>CSS3</li>
-                        <li class="skill-item skill-js"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor"
-                                viewBox="0 0 24 24">
-                                <title>JavaScript</title>
-                                <path
-                                    d="M0 0h24v24H0V0zm22.034 18.276c-.175-1.095-.888-2.015-3.003-2.873-.736-.345-1.554-.585-1.797-1.14-.091-.33-.105-.51-.046-.705.15-.646.915-.84 1.515-.66.39.12.75.42.976.9 1.034-.676 1.034-.676 1.755-1.125-.27-.42-.404-.601-.586-.78-.63-.705-1.469-1.065-2.834-1.034l-.705.089c-.676.165-1.32.525-1.71 1.005-1.14 1.291-.811 3.541.569 4.471 1.365 1.02 3.361 1.244 3.616 2.205.24 1.17-.87 1.545-1.966 1.41-.811-.18-1.26-.586-1.755-1.336l-1.83 1.051c.21.48.45.689.81 1.109 1.74 1.756 6.09 1.666 6.871-1.004.029-.09.24-.705.074-1.65l.046.067zm-8.983-7.245h-2.248c0 1.938-.009 3.864-.009 5.805 0 1.232.063 2.363-.138 2.711-.33.689-1.18.601-1.566.48-.396-.196-.597-.466-.83-.855-.063-.105-.11-.196-.127-.196l-1.825 1.125c.305.63.75 1.172 1.324 1.517.855.51 2.004.675 3.207.405.783-.226 1.458-.691 1.811-1.411.51-.93.402-2.07.397-3.346.012-2.054 0-4.109 0-6.179l.004-.056z" />
-                            </svg>JavaScript</li>
-                        <li class="skill-item skill-vue"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor"
-                                viewBox="0 0 24 24">
-                                <title>Vue.js</title>
-                                <path
-                                    d="M24,1.61H14.06L12,5.16,9.94,1.61H0L12,22.39ZM12,14.08,5.16,2.23H9.59L12,6.41l2.41-4.18h4.43Z" />
-                            </svg>VueJS</li>
-                        <li class="skill-item skill-illustrator"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor"
-                                viewBox="0 0 24 24">
-                                <title>Adobe Illustrator</title>
-                                <path
-                                    d="M10.53 10.73c-.1-.31-.19-.61-.29-.92-.1-.31-.19-.6-.27-.89-.08-.28-.15-.54-.22-.78h-.02c-.09.43-.2.86-.34 1.29-.15.48-.3.98-.46 1.48-.14.51-.29.98-.44 1.4h2.54c-.06-.211-.14-.46-.23-.721-.09-.269-.18-.559-.27-.859zM19.75.3H4.25C1.9.3 0 2.2 0 4.55v14.9c0 2.35 1.9 4.25 4.25 4.25h15.5c2.35 0 4.25-1.9 4.25-4.25V4.55C24 2.2 22.1.3 19.75.3zM14.7 16.83h-2.091c-.069.01-.139-.04-.159-.11l-.82-2.38H7.91l-.76 2.35c-.02.09-.1.15-.19.141H5.08c-.11 0-.14-.061-.11-.18L8.19 7.38c.03-.1.06-.21.1-.33.04-.21.06-.43.06-.65-.01-.05.03-.1.08-.11h2.59c.08 0 .12.03.13.08l3.65 10.3c.03.109 0 .16-.1.16zm3.4-.15c0 .11-.039.16-.129.16H16.01c-.1 0-.15-.061-.15-.16v-7.7c0-.1.041-.14.131-.14h1.98c.09 0 .129.05.129.14v7.7zm-.209-9.03c-.231.24-.571.37-.911.35-.33.01-.65-.12-.891-.35-.23-.25-.35-.58-.34-.92-.01-.34.12-.66.359-.89.242-.23.562-.35.892-.35.391 0 .689.12.91.35.22.24.34.56.33.89.01.34-.11.67-.349.92z" />
-                            </svg>Illustrator</li>
-                        <li class="skill-item skill-ae"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor"
-                                viewBox="0 0 24 24">
-                                <title>Adobe After Effects</title>
-                                <path
-                                    d="M8.54 10.73c-.1-.31-.19-.61-.29-.92s-.19-.6-.27-.89c-.08-.28-.15-.54-.22-.78h-.02c-.09.43-.2.86-.34 1.29-.15.48-.3.98-.46 1.48-.13.51-.29.98-.44 1.4h2.54c-.06-.21-.14-.46-.23-.72-.09-.27-.18-.56-.27-.86zm8.58-.29c-.55-.03-1.07.26-1.33.76-.12.23-.19.47-.22.72h2.109c.26 0 .45 0 .57-.01.08-.01.16-.03.23-.08v-.1c0-.13-.021-.25-.061-.37-.178-.56-.708-.94-1.298-.92zM19.75.3H4.25C1.9.3 0 2.2 0 4.55v14.9c0 2.35 1.9 4.25 4.25 4.25h15.5c2.35 0 4.25-1.9 4.25-4.25V4.55C24 2.2 22.1.3 19.75.3zm-7.04 16.511h-2.09c-.07.01-.14-.041-.16-.11l-.82-2.4H5.92l-.76 2.36c-.02.09-.1.15-.19.14H3.09c-.11 0-.14-.06-.11-.18L6.2 7.39c.03-.1.06-.19.1-.31.04-.21.06-.43.06-.65-.01-.05.03-.1.08-.11h2.59c.07 0 .12.03.13.08l3.65 10.25c.03.11.001.161-.1.161zm7.851-3.991c-.021.189-.031.33-.041.42-.01.07-.069.13-.14.13-.06 0-.17.01-.33.021-.159.02-.35.029-.579.029-.23 0-.471-.04-.73-.04h-3.17c.039.31.14.62.31.89.181.271.431.48.729.601.4.17.841.26 1.281.25.35-.011.699-.04 1.039-.11.311-.039.61-.119.891-.23.05-.039.08-.02.08.08v1.531c0 .039-.01.08-.021.119-.021.03-.04.051-.069.07-.32.14-.65.24-1 .3-.471.09-.94.13-1.42.12-.761 0-1.4-.12-1.92-.35-.49-.211-.921-.541-1.261-.95-.319-.39-.55-.83-.69-1.31-.14-.471-.209-.961-.209-1.461 0-.539.08-1.07.25-1.59.16-.5.41-.96.75-1.37.33-.4.739-.72 1.209-.95.471-.23 1.03-.31 1.67-.31.531-.01 1.06.09 1.55.31.41.18.77.45 1.05.8.26.34.47.72.601 1.14.129.4.189.81.189 1.22 0 .24-.01.45-.019.64z" />
-                            </svg>After Effects</li>
-                        <li class="skill-item skill-blender"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor"
-                                viewBox="0 0 24 24">
-                                <title>Blender</title>
-                                <path
-                                    d="M12.51 13.214c.046-.8.438-1.506 1.03-2.006a3.424 3.424 0 0 1 2.212-.79c.85 0 1.631.3 2.211.79.592.5.983 1.206 1.028 2.005.045.823-.285 1.586-.865 2.153a3.389 3.389 0 0 1-2.374.938 3.393 3.393 0 0 1-2.376-.938c-.58-.567-.91-1.33-.865-2.152M7.35 14.831c.006.314.106.922.256 1.398a7.372 7.372 0 0 0 1.593 2.757 8.227 8.227 0 0 0 2.787 2.001 8.947 8.947 0 0 0 3.66.76 8.964 8.964 0 0 0 3.657-.772 8.285 8.285 0 0 0 2.785-2.01 7.428 7.428 0 0 0 1.592-2.762 6.964 6.964 0 0 0 .25-3.074 7.123 7.123 0 0 0-1.016-2.779 7.764 7.764 0 0 0-1.852-2.043h.002L13.566 2.55l-.02-.015c-.492-.378-1.319-.376-1.86.002-.547.382-.609 1.015-.123 1.415l-.001.001 3.126 2.543-9.53.01h-.013c-.788.001-1.545.518-1.695 1.172-.154.665.38 1.217 1.2 1.22V8.9l4.83-.01-8.62 6.617-.034.025c-.813.622-1.075 1.658-.563 2.313.52.667 1.625.668 2.447.004L7.414 14s-.069.52-.063.831zm12.09 1.741c-.97.988-2.326 1.548-3.795 1.55-1.47.004-2.827-.552-3.797-1.538a4.51 4.51 0 0 1-1.036-1.622 4.282 4.282 0 0 1 .282-3.519 4.702 4.702 0 0 1 1.153-1.371c.942-.768 2.141-1.183 3.396-1.185 1.256-.002 2.455.41 3.398 1.175.48.391.87.854 1.152 1.367a4.28 4.28 0 0 1 .522 1.706 4.236 4.236 0 0 1-.239 1.811 4.54 4.54 0 0 1-1.035 1.626" />
-                            </svg>Blender</li>
-                    </ul>
+                <div class="about-grid">
+                    <!-- Profile Card with HUD ticks -->
+                    <div class="about-visual-card">
+                        <span class="tick tick-tl"></span>
+                        <span class="tick tick-tr"></span>
+                        <span class="tick tick-bl"></span>
+                        <span class="tick tick-br"></span>
+
+                        <div class="about-photo-wrapper">
+                            <img src="/media/my-profile-img.jpg" alt="Andranik Shirinian">
+                        </div>
+
+                        <div class="about-status-strip">
+                            <span class="status-badge">
+                                <span class="status-dot"></span>
+                                Available For Select Projects
+                            </span>
+                            <div class="meta-details">
+                                <span>BASED IN CALIFORNIA</span>
+                                <span>UTC-7</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Narrative & Stats -->
+                    <div class="about-narrative">
+                        <p class="about-lead">
+                            Hello! I’m <span>Andranik</span>. For over 10 years, I’ve worked across the full creative spectrum—from engineering front-end applications to building isometric 3D worlds in Blender.
+                        </p>
+                        <p>
+                            I thrive on the challenge of taking intricate concepts and molding them into seamless, responsive user experiences. By blending modern agentic tools like Google Antigravity with the visual power of Blender and Adobe Creative Suite, I bridge the gap between technical logic and visual storytelling.
+                        </p>
+                        <p>
+                            When I’m away from my workstation, you’ll find me catching the Pacific sunset along the California coast or exploring scenic mountain trails with my dog, Archie.
+                        </p>
+
+                        <!-- Stats Grid -->
+                        <div class="about-stats-grid">
+                            <div class="stat-item">
+                                <div class="stat-number">10+</div>
+                                <div class="stat-label">Years Experience</div>
+                            </div>
+                            <div class="stat-item">
+                                <div class="stat-number">27</div>
+                                <div class="stat-label">3D Scenes & Models</div>
+                            </div>
+                            <div class="stat-item">
+                                <div class="stat-number">08</div>
+                                <div class="stat-label">Web Apps Built</div>
+                            </div>
+                        </div>
+
+                        <!-- Toolkit List -->
+                        <div class="toolkit-block">
+                            <h3 class="toolkit-title">Creative Toolkit</h3>
+                            <ul class="skills-list">
+                                <li class="skill-item skill-html5">
+                                    <svg viewBox="0 0 24 24" fill="currentColor"><path d="M1.5 0h21l-1.91 21.563L11.977 24l-8.564-2.438L1.5 0zm7.031 9.75l-.232-2.718 10.059.003.23-2.622L5.412 4.41l.698 8.01h9.126l-.326 3.426-2.91.804-2.955-.81-.188-2.11H6.248l.33 4.171L12 19.351l5.379-1.443.744-8.157H8.531z" /></svg>
+                                    HTML5
+                                </li>
+                                <li class="skill-item skill-css3">
+                                    <svg viewBox="0 0 24 24" fill="currentColor"><path d="M1.5 0h21l-1.91 21.563L11.977 24l-8.565-2.438L1.5 0zm17.09 4.413L5.41 4.41l.213 2.622 10.125.002-.255 2.716h-6.64l.24 2.573h6.182l-.366 3.523-2.91.804-2.956-.81-.188-2.11h-2.61l.29 3.855L12 19.288l5.373-1.53L18.59 4.414z" /></svg>
+                                    CSS3
+                                </li>
+                                <li class="skill-item skill-js">
+                                    <svg viewBox="0 0 24 24" fill="currentColor"><path d="M0 0h24v24H0V0zm22.034 18.276c-.175-1.095-.888-2.015-3.003-2.873-.736-.345-1.554-.585-1.797-1.14-.091-.33-.105-.51-.046-.705.15-.646.915-.84 1.515-.66.39.12.75.42.976.9 1.034-.676 1.034-.676 1.755-1.125-.27-.42-.404-.601-.586-.78-.63-.705-1.469-1.065-2.834-1.034l-.705.089c-.676.165-1.32.525-1.71 1.005-1.14 1.291-.811 3.541.569 4.471 1.365 1.02 3.361 1.244 3.616 2.205.24 1.17-.87 1.545-1.966 1.41-.811-.18-1.26-.586-1.755-1.336l-1.83 1.051c.21.48.45.689.81 1.109 1.74 1.756 6.09 1.666 6.871-1.004.029-.09.24-.705.074-1.65l.046.067zm-8.983-7.245h-2.248c0 1.938-.009 3.864-.009 5.805 0 1.232.063 2.363-.138 2.711-.33.689-1.18.601-1.566.48-.396-.196-.597-.466-.83-.855-.063-.105-.11-.196-.127-.196l-1.825 1.125c.305.63.75 1.172 1.324 1.517.855.51 2.004.675 3.207.405.783-.226 1.458-.691 1.811-1.411.51-.93.402-2.07.397-3.346.012-2.054 0-4.109 0-6.179l.004-.056z" /></svg>
+                                    JavaScript
+                                </li>
+                                <li class="skill-item skill-antigravity">
+                                    <svg viewBox="0 0 24 24" fill="currentColor">
+                                        <path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4"/>
+                                        <path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853"/>
+                                        <path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.06H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.94l2.85-2.22.81-.63z" fill="#FBBC05"/>
+                                        <path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.06l3.66 2.84c.87-2.6 3.3-4.52 6.16-4.52z" fill="#EA4335"/>
+                                    </svg>
+                                    Google Antigravity
+                                </li>
+                                <li class="skill-item skill-blender">
+                                    <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12.51 13.214c.046-.8.438-1.506 1.03-2.006a3.424 3.424 0 0 1 2.212-.79c.85 0 1.631.3 2.211.79.592.5.983 1.206 1.028 2.005.045.823-.285 1.586-.865 2.153a3.389 3.389 0 0 1-2.374.938 3.393 3.393 0 0 1-2.376-.938c-.58-.567-.91-1.33-.865-2.152M7.35 14.831c.006.314.106.922.256 1.398a7.372 7.372 0 0 0 1.593 2.757 8.227 8.227 0 0 0 2.787 2.001 8.947 8.947 0 0 0 3.66.76 8.964 8.964 0 0 0 3.657-.772 8.285 8.285 0 0 0 2.785-2.01 7.428 7.428 0 0 0 1.592-2.762 6.964 6.964 0 0 0 .25-3.074 7.123 7.123 0 0 0-1.016-2.779 7.764 7.764 0 0 0-1.852-2.043h.002L13.566 2.55l-.02-.015c-.492-.378-1.319-.376-1.86.002-.547.382-.609 1.015-.123 1.415l-.001.001 3.126 2.543-9.53.01h-.013c-.788.001-1.545.518-1.695 1.172-.154.665.38 1.217 1.2 1.22V8.9l4.83-.01-8.62 6.617-.034.025c-.813.622-1.075 1.658-.563 2.313.52.667 1.625.668 2.447.004L7.414 14s-.069.52-.063.831zm12.09 1.741c-.97.988-2.326 1.548-3.795 1.55-1.47.004-2.827-.552-3.797-1.538a4.51 4.51 0 0 1-1.036-1.622 4.282 4.282 0 0 1 .282-3.519 4.702 4.702 0 0 1 1.153-1.371c.942-.768 2.141-1.183 3.396-1.185 1.256-.002 2.455.41 3.398 1.175.48.391.87.854 1.152 1.367a4.28 4.28 0 0 1 .522 1.706 4.236 4.236 0 0 1-.239 1.811 4.54 4.54 0 0 1-1.035 1.626" /></svg>
+                                    Blender 3D
+                                </li>
+                                <li class="skill-item skill-illustrator">
+                                    <svg viewBox="0 0 24 24" fill="currentColor"><path d="M10.53 10.73c-.1-.31-.19-.61-.29-.92-.1-.31-.19-.6-.27-.89-.08-.28-.15-.54-.22-.78h-.02c-.09.43-.2.86-.34 1.29-.15.48-.3.98-.46 1.48-.14.51-.29.98-.44 1.4h2.54c-.06-.211-.14-.46-.23-.721-.09-.269-.18-.559-.27-.859zM19.75.3H4.25C1.9.3 0 2.2 0 4.55v14.9c0 2.35 1.9 4.25 4.25 4.25h15.5c2.35 0 4.25-1.9 4.25-4.25V4.55C24 2.2 22.1.3 19.75.3zM14.7 16.83h-2.091c-.069.01-.139-.04-.159-.11l-.82-2.38H7.91l-.76 2.35c-.02.09-.1.15-.19.141H5.08c-.11 0-.14-.061-.11-.18L8.19 7.38c.03-.1.06-.21.1-.33.04-.21.06-.43.06-.65-.01-.05.03-.1.08-.11h2.59c.08 0 .12.03.13.08l3.65 10.3c.03.109 0 .16-.1.16zm3.4-.15c0 .11-.039.16-.129.16H16.01c-.1 0-.15-.061-.15-.16v-7.7c0-.1.041-.14.131-.14h1.98c.09 0 .129.05.129.14v7.7zm-.209-9.03c-.231.24-.571.37-.911.35-.33.01-.65-.12-.891-.35-.23-.25-.35-.58-.34-.92-.01-.34.12-.66.359-.89.242-.23.562-.35.892-.35.391 0 .689.12.91.35.22.24.34.56.33.89.01.34-.11.67-.349.92z" /></svg>
+                                    Illustrator
+                                </li>
+                                <li class="skill-item skill-ae">
+                                    <svg viewBox="0 0 24 24" fill="currentColor"><path d="M8.54 10.73c-.1-.31-.19-.61-.29-.92s-.19-.6-.27-.89c-.08-.28-.15-.54-.22-.78h-.02c-.09.43-.2.86-.34 1.29-.15.48-.3.98-.46 1.48-.13.51-.29.98-.44 1.4h2.54c-.06-.21-.14-.46-.23-.72-.09-.27-.18-.56-.27-.86zm8.58-.29c-.55-.03-1.07.26-1.33.76-.12.23-.19.47-.22.72h2.109c.26 0 .45 0 .57-.01.08-.01.16-.03.23-.08v-.1c0-.13-.021-.25-.061-.37-.178-.56-.708-.94-1.298-.92zM19.75.3H4.25C1.9.3 0 2.2 0 4.55v14.9c0 2.35 1.9 4.25 4.25 4.25h15.5c2.35 0 4.25-1.9 4.25-4.25V4.55C24 2.2 22.1.3 19.75.3zm-7.04 16.511h-2.09c-.07.01-.14-.041-.16-.11l-.82-2.4H5.92l-.76 2.36c-.02.09-.1.15-.19.14H3.09c-.11 0-.14-.06-.11-.18L6.2 7.39c.03-.1.06-.19.1-.31.04-.21.06-.43.06-.65-.01-.05.03-.1.08-.11h2.59c.07 0 .12.03.13.08l3.65 10.25c.03.11.001.161-.1.161zm7.851-3.991c-.021.189-.031.33-.041.42-.01.07-.069.13-.14.13-.06 0-.17.01-.33.021-.159.02-.35.029-.579.029-.23 0-.471-.04-.73-.04h-3.17c.039.31.14.62.31.89.181.271.431.48.729.601.4.17.841.26 1.281.25.35-.011.699-.04 1.039-.11.311-.039.61-.119.891-.23.05-.039.08-.02.08.08v1.531c0 .039-.01.08-.021.119-.021.03-.04.051-.069.07-.32.14-.65.24-1 .3-.471.09-.94.13-1.42.12-.761 0-1.4-.12-1.92-.35-.49-.211-.921-.541-1.261-.95-.319-.39-.55-.83-.69-1.31-.14-.471-.209-.961-.209-1.461 0-.539.08-1.07.25-1.59.16-.5.41-.96.75-1.37.33-.4.739-.72 1.209-.95.471-.23 1.03-.31 1.67-.31.531-.01 1.06.09 1.55.31.41.18.77.45 1.05.8.26.34.47.72.601 1.14.129.4.189.81.189 1.22 0 .24-.01.45-.019.64z" /></svg>
+                                    After Effects
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
                 </div>
             </section>
 
             <!-- Portfolio Section -->
             <section id="portfolio" class="section">
-                <h2 class="section-title">My Work</h2>
+                <div class="section-header-block">
+                    <div class="section-pretitle">
+                        <span class="hud-tag">[ 02 // ARCHIVE ]</span>
+                    </div>
+                    <h2 class="section-title">Selected Works & Systems</h2>
+                    <p class="section-subtitle">
+                        Explore front-end web applications, progressive tools, and detailed isometric 3D worlds.
+                    </p>
+                </div>
+
+                <!-- Filter Pills -->
                 <div class="filter-buttons">
-                    <button v-for="category in categories" :key="category" @click="activeCategory = category; showAllProjects = false;"
-                        class="filter-btn" :class="{ 
-                            'active': activeCategory === category,
-                            'btn-filter-all': category === 'All',
-                            'btn-filter-web': category === 'Web Development',
-                            'btn-filter-3d': category === '3D Art'
-                        }">
-                        {{ category }}
+                    <button v-for="category in categories" :key="category"
+                        @click="setCategory(category)"
+                        class="filter-btn" :class="{ 'active': activeCategory === category }">
+                        <span>{{ category }}</span>
                     </button>
                 </div>
 
+                <!-- Projects Grid -->
                 <div class="portfolio-grid">
-                    <div v-for="item in displayedPortfolio" :key="item.id" class="portfolio-item" :class="item.category === '3D Art' ? 'category-3d' : 'category-web'">
-                        <a :href="item.link">
-                            <div class="portfolio-image-container">
-                                <div class="portfolio-image" :style="{ backgroundImage: 'url(' + item.image + ')' }">
-                                </div>
-                            </div>
-                        </a>
+                    <div v-for="item in displayedPortfolio" :key="item.id" class="portfolio-item">
+                        <span class="tick tick-tl"></span>
+                        <span class="tick tick-tr"></span>
+                        <span class="tick tick-bl"></span>
+                        <span class="tick tick-br"></span>
+
+                        <div class="portfolio-image-container" @click="openPreview(item)" style="cursor: pointer;">
+                            <div class="portfolio-image" :style="{ backgroundImage: 'url(' + item.image + ')' }"></div>
+                            <span class="portfolio-category-badge" :class="item.category === '3D Art' ? 'category-3d' : 'category-web'">
+                                {{ item.category }}
+                            </span>
+                        </div>
+
                         <div class="portfolio-content">
-                            <div>
-                                <h3>{{ item.title }}</h3>
-                                <p class="portfolio-date">{{ item.date }}</p>
-                                <p>{{ item.description }}</p>
-                                <span class="portfolio-category" :class="item.category === '3D Art' ? 'category-3d' : 'category-web'">{{ item.category }}</span>
-                            </div>
+                            <p class="portfolio-date">
+                                {{ item.date }}
+                                <span v-if="item.category === 'Web Development'" class="vibe-coded-tag">· Vibe-coded</span>
+                            </p>
+                            <h3>{{ item.title }}</h3>
+                            <p>{{ item.description }}</p>
+
                             <div class="portfolio-footer">
-                                <a :href="item.link" class="btn-primary view-project-btn" :class="item.category === '3D Art' ? 'btn-blue' : 'btn-green'">
+                                <a :href="item.link" class="btn-card-primary">
                                     <span>View Project</span>
-                                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"></path><path d="m12 5 7 7-7 7"></path></svg>
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"></path><path d="m12 5 7 7-7 7"></path></svg>
                                 </a>
+                                <button @click="openPreview(item)" class="btn-card-preview" title="Quick inspect">
+                                    <span>Preview</span>
+                                </button>
                             </div>
                         </div>
                     </div>
                 </div>
 
+                <!-- Load More Button -->
                 <div v-if="hasMoreProjects" class="load-more-container">
-                    <button @click="showAllProjects = true" class="btn-primary load-more-btn">
-                        <span>Load More Projects</span>
+                    <button @click="showAllProjects = true" class="load-more-btn">
+                        <span>Load More Projects ({{ remainingCount }})</span>
                         <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5v14"></path><path d="m5 12 7 7 7-7"></path></svg>
                     </button>
                 </div>
@@ -196,68 +303,147 @@
 
             <!-- Contact Section -->
             <section id="contact" class="section">
-                <h2 class="section-title">Get In Touch</h2>
-                <div class="contact-content">
-                    <p>
-                        Have a project in mind or just want to say hello? My inbox is always open.
+                <div class="section-header-block">
+                    <div class="section-pretitle">
+                        <span class="hud-tag">[ 03 // TRANSMISSION ]</span>
+                    </div>
+                    <h2 class="section-title">Initiate Contact</h2>
+                </div>
+
+                <div class="contact-terminal">
+                    <span class="tick tick-tl"></span>
+                    <span class="tick tick-tr"></span>
+                    <span class="tick tick-bl"></span>
+                    <span class="tick tick-br"></span>
+
+                    <div class="contact-terminal-header">
+                        <span class="orbit-pulse-dot"></span>
+                        <span>STATUS: ONLINE · INBOX MONITORED</span>
+                    </div>
+
+                    <h3 class="contact-title">Let’s Build Something Exceptional</h3>
+                    <p class="contact-desc">
+                        Have a 3D modeling project in mind, need front-end architecture, or want to discuss full-time and freelance opportunities? My inbox is always open.
                     </p>
-                    <a href="mailto:andranik136@gmail.com" class="btn-primary">
-                        andranik136@gmail.com
-                    </a>
+
+                    <!-- Interactive Email Copy Box -->
+                    <div class="email-copy-box" @click="copyEmail" role="button" tabindex="0" title="Click to copy email address">
+                        <span>andranik136@gmail.com</span>
+                        <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <rect width="14" height="14" x="8" y="8" rx="2" ry="2"></rect>
+                            <path d="M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2"></path>
+                        </svg>
+                        <span v-if="emailCopied" class="copy-feedback">Copied! ✓</span>
+                    </div>
+
+                    <!-- Social / External Link Pills -->
+                    <div class="social-links-row">
+                        <a href="mailto:andranik136@gmail.com" class="social-pill">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="20" height="16" x="2" y="4" rx="2"></rect><path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7"></path></svg>
+                            Direct Email
+                        </a>
+                        <a href="https://github.com/andranik136" target="_blank" rel="noopener noreferrer" class="social-pill">
+                            <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M12 .297c-6.63 0-12 5.373-12 12 0 5.303 3.438 9.8 8.205 11.385.6.113.82-.258.82-.577 0-.285-.01-1.04-.015-2.04-3.338.724-4.042-1.61-4.042-1.61C4.422 18.07 3.633 17.7 3.633 17.7c-1.087-.744.084-.729.084-.729 1.205.084 1.838 1.236 1.838 1.236 1.07 1.835 2.809 1.305 3.495.998.108-.776.417-1.305.76-1.605-2.665-.3-5.466-1.332-5.466-5.93 0-1.31.465-2.38 1.235-3.22-.135-.303-.54-1.523.105-3.176 0 0 1.005-.322 3.3 1.23.96-.267 1.98-.399 3-.405 1.02.006 2.04.138 3 .405 2.28-1.552 3.285-1.23 3.285-1.23.645 1.653.24 2.873.12 3.176.765.84 1.23 1.91 1.23 3.22 0 4.61-2.805 5.625-5.475 5.92.42.36.81 1.096.81 2.22 0 1.606-.015 2.896-.015 3.286 0 .315.21.69.825.57C20.565 22.092 24 17.592 24 12.297c0-6.627-5.373-12-12-12"></path></svg>
+                            GitHub
+                        </a>
+                        <a href="https://linkedin.com/in/andranikshirinian" target="_blank" rel="noopener noreferrer" class="social-pill">
+                            <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M19 0h-14c-2.761 0-5 2.239-5 5v14c0 2.761 2.239 5 5 5h14c2.762 0 5-2.239 5-5v-14c0-2.761-2.238-5-5-5zm-11 19h-3v-11h3v11zm-1.5-12.268c-.966 0-1.75-.79-1.75-1.764s.784-1.764 1.75-1.764 1.75.79 1.75 1.764-.783 1.764-1.75 1.764zm13.5 12.268h-3v-5.604c0-3.368-4-3.113-4 0v5.604h-3v-11h3v1.765c1.396-2.586 7-2.777 7 2.476v6.759z"/></svg>
+                            LinkedIn
+                        </a>
+                    </div>
                 </div>
             </section>
         </main>
 
+        <!-- Quick Preview Modal -->
+        <div v-if="previewItem" class="hud-modal-backdrop" @click="closePreview">
+            <div class="hud-modal-box" @click.stop>
+                <span class="tick tick-tl"></span>
+                <span class="tick tick-tr"></span>
+                <span class="tick tick-bl"></span>
+                <span class="tick tick-br"></span>
+
+                <button class="hud-modal-close" @click="closePreview" aria-label="Close preview">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6 6 18"></path><path d="m6 6 12 12"></path></svg>
+                </button>
+
+                <div class="modal-media-wrapper">
+                    <img :src="previewItem.image" :alt="previewItem.title">
+                </div>
+
+                <div class="modal-meta-row">
+                    <span class="portfolio-category-badge" :class="previewItem.category === '3D Art' ? 'category-3d' : 'category-web'">
+                        {{ previewItem.category }}
+                    </span>
+                    <span class="hud-label">
+                        {{ previewItem.date }}
+                        <span v-if="previewItem.category === 'Web Development'" class="vibe-coded-tag">· Vibe-coded</span>
+                    </span>
+                </div>
+
+                <h3 class="modal-title">{{ previewItem.title }}</h3>
+                <p class="modal-description">{{ previewItem.description }}</p>
+
+                <div class="modal-actions">
+                    <button @click="closePreview" class="btn-hud-secondary" style="padding: 0.75rem 1.5rem;">
+                        Close
+                    </button>
+                    <a :href="previewItem.link" class="btn-hud-primary" style="padding: 0.75rem 1.75rem;">
+                        <span>Launch Full Project</span>
+                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"></path><path d="m12 5 7 7-7 7"></path></svg>
+                    </a>
+                </div>
+            </div>
+        </div>
+
         <!-- Footer -->
         <footer class="footer">
-            <p>&copy; {{ new Date().getFullYear() }} Andranik Shirinian. All Rights Reserved.</p>
+            <div class="container footer-content">
+                <div>
+                    &copy; {{ new Date().getFullYear() }} Andranik Shirinian
+                </div>
+                <div>
+                    <a href="#" @click.prevent="scrollToTop" class="footer-back-to-top">
+                        <span>Back to top</span>
+                        <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="m18 15-6-6-6 6"></path></svg>
+                    </a>
+                </div>
+            </div>
         </footer>
     </div>
 
+    <!-- Vue Application Bootstrap -->
     <script>
-        const { createApp, ref, onMounted, onUnmounted, computed } = Vue;
+        const { createApp, ref, computed, onMounted, onUnmounted } = Vue;
 
         createApp({
             setup() {
-                // ... Vue.js logic remains the same ...
                 const scrolled = ref(false);
                 const mobileMenuOpen = ref(false);
+                const activeNavSection = ref('about');
+                const emailCopied = ref(false);
+                const previewItem = ref(null);
+                const galaxyPlaying = ref(true);
+                let galaxyInstance = null;
+
                 const navLinks = ref([
                     { id: 'about', text: 'About' },
                     { id: 'portfolio', text: 'My Work' },
                     { id: 'contact', text: 'Contact' }
                 ]);
 
-                const handleScroll = () => {
-                    scrolled.value = window.scrollY > 50;
-                };
-
-                const scrollTo = (id, isMobile = false) => {
-                    const element = document.getElementById(id);
-                    if (element) {
-                        const headerOffset = 80;
-                        const elementPosition = element.getBoundingClientRect().top;
-                        const offsetPosition = elementPosition + window.pageYOffset - headerOffset;
-
-                        window.scrollTo({
-                            top: offsetPosition,
-                            behavior: "smooth"
-                        });
-                    }
-                    if (isMobile) {
-                        mobileMenuOpen.value = false;
-                    }
-                };
-
                 const activeCategory = ref('All');
-                const categories = ['All', 'Web Development', '3D Art'];
+                const categories = ['All', '3D Art', 'Web Development'];
+                const showAllProjects = ref(false);
+
+                // All 35 portfolio projects
                 const portfolioItems = ref([
                     {
                         id: 33,
                         title: 'Daily Tracker',
                         date: 'September 2026',
                         category: 'Web Development',
-                        description: 'A progressive web application featuring a Sunday-start calendar grid, auto-minimizing daily notes, task tracker with subtasks, and live NPR news sidebar.',
+                        description: 'A vibe-coded progressive web application featuring a Sunday-start calendar grid, auto-minimizing daily notes, task tracker with subtasks, and live NPR news sidebar.',
                         image: '/media/project-previews/planner.png',
                         link: '/webapps/daily-tracker/'
                     },
@@ -300,225 +486,225 @@
                     {
                         id: 28,
                         title: 'Dark Apartment',
-                        date: 'May 2026',
+                        date: 'April 2026',
                         category: '3D Art',
-                        description: 'A moody, atmospheric scene of a dark apartment living room illuminated by eerie green light and ominous tentacles creeping through the doorway.',
+                        description: 'A moody, atmospheric isometric 3D apartment interior with dramatic interior shadows and modern ambient light sources.',
                         image: '/media/project-previews/dark-apartment.webp',
                         link: '/projects/3d-art/dark-apartment/'
                     },
                     {
                         id: 27,
                         title: '3D Globe',
-                        date: 'June 2026',
+                        date: 'March 2026',
                         category: 'Web Development',
-                        description: 'An immersive interactive 3D Earth simulation featuring custom atmosphere Fresnel shaders, day/night blending, real-time cloud data layers, dynamic camera fly-to landmarks, and a procedural space sound synthesizer.',
+                        description: 'A vibe-coded interactive 3D globe rendered with custom WebGL shaders and real-time geographical textures.',
                         image: '/media/project-previews/3d-globe.png',
                         link: '/webapps/3d-globe/'
                     },
                     {
                         id: 26,
                         title: 'BRICKED UP',
-                        date: 'June 2026',
+                        date: 'February 2026',
                         category: 'Web Development',
-                        description: 'An authentic retro pixel-art breakout game featuring unlimited procedural stages that scale in speed, explosive chain-reacting bricks, CRT scanline shaders, and a procedural 8-bit sound engine.',
+                        description: 'A vibe-coded retro brick-breaker arcade game crafted with HTML5 Canvas, physics bounce mechanics, and power-up systems.',
                         image: '/media/project-previews/brick-breaker.png',
-                        link: '/webapps/BRICKED UP/'
+                        link: '/webapps/BRICKED%20UP/'
                     },
                     {
                         id: 25,
                         title: 'Planner',
-                        date: 'February 2026',
+                        date: 'January 2026',
                         category: 'Web Development',
-                        description: 'A comprehensive task tracking and management application for boards and schedules, resembling Microsoft Planner.',
+                        description: 'A vibe-coded high-efficiency task scheduler and Kanban board web application with offline storage sync.',
                         image: '/media/project-previews/planner.png',
                         link: '/webapps/planner/'
                     },
                     {
                         id: 24,
                         title: 'Windows XP Home Screen',
-                        date: 'February 2026',
+                        date: 'December 2025',
                         category: 'Web Development',
-                        description: 'A deeply interactive recreation of the classic Windows XP desktop featuring draggable windows, a functioning Start Menu, RSS feed parsing, and a working MS Paint.',
+                        description: 'A vibe-coded nostalgic recreation of the classic Windows XP operating system desktop interface and windowing manager.',
                         image: '/media/project-previews/home-screen.png',
-                        link: '/webapps/Home Screen/'
+                        link: '/webapps/Home%20Screen/'
                     },
                     {
                         id: 23,
                         title: 'The Daily Chronicle',
-                        date: 'December 2025',
+                        date: 'November 2025',
                         category: 'Web Development',
-                        description: 'A newspaper-style RSS feed reader fetching live news from the BBC.',
+                        description: 'A vibe-coded modern newspaper layout web app featuring live RSS news streaming and responsive typography.',
                         image: '/media/project-previews/news-reader.png',
-                        link: '/webapps/News Reader/'
+                        link: '/webapps/News%20Reader/'
                     },
                     {
                         id: 1,
                         title: 'Weather App',
-                        date: 'August 2025',
+                        date: 'October 2025',
                         category: 'Web Development',
-                        description: 'A simple weather app with hourly and weekly forecast from the National Weather Service.',
+                        description: 'A vibe-coded forecast application consuming weather APIs to display current meteorological conditions and animated icons.',
                         image: '/media/project-previews/weather-app.png',
                         link: '/webapps/Weather/'
                     },
                     {
                         id: 2,
                         title: 'Scoreboard for Table Tennis',
-                        date: 'August 2025',
+                        date: 'September 2025',
                         category: 'Web Development',
-                        description: 'A score keeping app made just for table tennis.',
+                        description: 'A vibe-coded tournament-ready live score tracker for table tennis matches with voice cues and game history.',
                         image: '/media/project-previews/scoreboard-app.jpg',
-                        link: '/webapps/Score Keeper/'
+                        link: '/webapps/Score%20Keeper/'
                     },
                     {
                         id: 3,
                         title: 'Can of Slurm',
                         date: 'August 2025',
                         category: '3D Art',
-                        description: 'A 3D model of a can of Slurm from Futurama, splashed with green liquid.',
+                        description: 'A stylized 3D product render paying homage to Futurama\'s radioactive green beverage, with metal sheen and droplet condensation.',
                         image: '/media/project-previews/slurm-can.webp',
                         link: '/projects/3d-art/slurm-can/'
                     },
                     {
                         id: 4,
                         title: 'Red Wine',
-                        date: 'August 2025',
+                        date: 'July 2025',
                         category: '3D Art',
-                        description: 'A realistic render of a glass of red wine.',
+                        description: 'Realistic glass refractions, liquid surface physics, and custom label textures of an aged red wine bottle.',
                         image: '/media/project-previews/wine.webp',
                         link: '/projects/3d-art/wine/'
                     },
                     {
                         id: 5,
                         title: 'Folding Knife',
-                        date: 'August 2025',
+                        date: 'June 2025',
                         category: '3D Art',
-                        description: 'A detailed model of a modern folding knife.',
+                        description: 'Hard-surface mechanical modeling of an everyday carry pocket knife with carbon fiber inlays and brushed steel.',
                         image: '/media/project-previews/folding-knife.webp',
                         link: '/projects/3d-art/folding-knife/'
                     },
                     {
                         id: 6,
                         title: 'House Interior',
-                        date: 'July 2025',
+                        date: 'May 2025',
                         category: '3D Art',
-                        description: 'An isometric visualization of a cozy house interior reminiscent of The Sims video game.',
+                        description: 'An architectural visualization of an open-plan residential living and dining space with natural sunlight caustics.',
                         image: '/media/project-previews/house-interior.webp',
                         link: '/projects/3d-art/house/'
                     },
                     {
                         id: 7,
                         title: 'Retro Video Game Room',
-                        date: 'June 2025',
+                        date: 'April 2025',
                         category: '3D Art',
-                        description: 'A nostalgic scene of a retro gaming setup.',
+                        description: 'A cozy 90s bedroom scene packed with CRT televisions, vintage consoles, collectible posters, and ambient neon.',
                         image: '/media/project-previews/retro-game-room.webp',
                         link: '/projects/3d-art/old-game-room/'
                     },
                     {
                         id: 8,
                         title: 'Space Ship Interior',
-                        date: 'May 2025',
+                        date: 'March 2025',
                         category: '3D Art',
-                        description: 'Concept art for the inside of a sci-fi spaceship.',
+                        description: 'A futuristic sci-fi starship bridge with holographic readouts, hydraulic doors, and sci-fi console panels.',
                         image: '/media/project-previews/spaceship.webp',
                         link: '/projects/3d-art/spaceship/'
                     },
                     {
                         id: 9,
                         title: 'Modern Kitchen',
-                        date: 'May 2025',
+                        date: 'February 2025',
                         category: '3D Art',
-                        description: 'A clean and modern kitchen design visualization.',
+                        description: 'A contemporary kitchen space modeled with marble countertops, stainless appliances, and warm pendant lighting.',
                         image: '/media/project-previews/kitchen.webp',
                         link: '/projects/3d-art/kitchen/'
                     },
                     {
                         id: 10,
                         title: 'Glass Rings',
-                        date: 'April 2025',
+                        date: 'January 2025',
                         category: '3D Art',
-                        description: 'An artistic visualization of glass rings with stylistic lighting.',
+                        description: 'Abstract optical study investigating chromatic dispersion, transmission, and caustic scattering through overlapping glass rings.',
                         image: '/media/project-previews/glass-rings.webp',
                         link: '/projects/3d-art/glass-rings/'
                     },
                     {
-                        id: 10,
+                        id: 11,
                         title: 'Retro Game Console',
-                        date: 'March 2025',
+                        date: 'December 2024',
                         category: '3D Art',
-                        description: 'A detailed model of a retro-inspired handheld game console.',
+                        description: 'A faithful 3D recreation of an iconic handheld console from the golden age of 8-bit gaming.',
                         image: '/media/project-previews/retro-console.webp',
                         link: '/projects/3d-art/game-console/'
                     },
                     {
                         id: 12,
                         title: 'Bird Guy at the Beach',
-                        date: 'February 2025',
+                        date: 'November 2024',
                         category: '3D Art',
-                        description: 'A stylized 3D character of a bird blowing bubbles at the beach.',
+                        description: 'A whimsical stylized character enjoying a sun-drenched coastal afternoon under a beach umbrella.',
                         image: '/media/project-previews/beach-bird.webp',
                         link: '/projects/3d-art/bird-guy/'
                     },
                     {
-                        id: 11,
+                        id: 14,
                         title: 'VoIP Phone',
-                        date: 'January 2025',
+                        date: 'November 2024',
                         category: '3D Art',
-                        description: 'Product visualization of a VoIP office phone.',
+                        description: 'Detailed product modeling of a business desk telephone with LCD display and tactile handset.',
                         image: '/media/project-previews/voip-phone.webp',
                         link: '/projects/3d-art/voip-phone/'
                     },
                     {
-                        id: 14,
+                        id: 15,
                         title: 'The Simpsons TV Room',
-                        date: 'January 2025',
+                        date: 'October 2024',
                         category: '3D Art',
-                        description: 'A 3D recreation of the iconic living room from The Simpsons.',
+                        description: 'The world-famous pink walled living room and brown couch from 742 Evergreen Terrace in 3D.',
                         image: '/media/project-previews/simpsons.webp',
                         link: '/projects/3d-art/simpsons/'
                     },
                     {
-                        id: 15,
+                        id: 16,
                         title: 'Dingbat Apartment',
-                        date: 'November 2024',
+                        date: 'October 2024',
                         category: '3D Art',
-                        description: 'An architectural render of a stylish dingbat apartment.',
+                        description: 'An architectural homage to Mid-Century Los Angeles dingbat apartment complexes with open tuck-under carports.',
                         image: '/media/project-previews/dingbat-apartment.webp',
                         link: '/projects/3d-art/dingbat/'
                     },
                     {
-                        id: 16,
+                        id: 17,
                         title: 'Retro Office',
-                        date: 'October 2024',
+                        date: 'September 2024',
                         category: '3D Art',
-                        description: 'A 3D scene of a vintage-style office with cubicles and a water cooler.',
+                        description: 'A period-accurate 1970s office interior with wood veneer wall paneling, filing cabinets, and typewriter.',
                         image: '/media/project-previews/retro-office.webp',
                         link: '/projects/3d-art/retro-office/'
                     },
                     {
-                        id: 17,
+                        id: 18,
                         title: 'Office Chair',
                         date: 'September 2024',
                         category: '3D Art',
-                        description: 'A visualization of a contemporary office chair.',
+                        description: 'An ergonomic contemporary mesh office chair modeled with articulated casters and lumbar support.',
                         image: '/media/project-previews/office-chair.webp',
                         link: '/projects/3d-art/office-chair/'
                     },
                     {
-                        id: 18,
+                        id: 19,
                         title: 'Keyboard',
                         date: 'September 2024',
                         category: '3D Art',
-                        description: 'A detailed 3D model of a mechanical keyboard.',
+                        description: 'A mechanical keyboard with custom colorway keycaps and tactile switches modeled key-by-key.',
                         image: '/media/project-previews/keyboard.webp',
                         link: '/projects/3d-art/keyboard/'
                     },
                     {
-                        id: 19,
+                        id: 20,
                         title: 'Wristwatch',
                         date: 'August 2024',
                         category: '3D Art',
-                        description: 'A realistic product render of a classy wristwatch.',
+                        description: 'Luxury chronograph wristwatch render with sapphire crystal glare, chronometer subdials, and leather stitching.',
                         image: '/media/project-previews/wrist-watch.webp',
                         link: '/projects/3d-art/wristwatch/'
                     },
@@ -527,7 +713,7 @@
                         title: 'Chess Set',
                         date: 'August 2024',
                         category: '3D Art',
-                        description: 'A complete chess set modeled and rendered.',
+                        description: 'A complete Staunton chess set modeled in polished marble and ebony wood on a reflective checkered board.',
                         image: '/media/project-previews/chess.webp',
                         link: '/projects/3d-art/chess/'
                     },
@@ -536,16 +722,16 @@
                         title: 'Donut Stack',
                         date: 'June 2024',
                         category: '3D Art',
-                        description: 'A realistic stack of donuts with sprinkles.',
+                        description: 'Realistic bakery stack of glossy frosted donuts covered in multicolored procedural sprinkles.',
                         image: '/media/project-previews/donuts.webp',
                         link: '/projects/3d-art/donut/'
                     },
                     {
-                        id: 22,
+                        id: 34,
                         title: 'Bedroom',
                         date: 'May 2024',
                         category: '3D Art',
-                        description: 'A 3D render of a cozy bedroom interior.',
+                        description: 'A cozy modern master bedroom scene with morning window lighting and soft fabric simulations.',
                         image: '/media/project-previews/bedroom-interior.webp',
                         link: '/projects/3d-art/bedroom/'
                     },
@@ -554,23 +740,22 @@
                         title: 'Robot',
                         date: 'March 2024',
                         category: '3D Art',
-                        description: 'A stylized 3D model of a friendly robot.',
+                        description: 'A stylized, friendly bipedal robot character modeled with painted metallic panels and glowing optic lenses.',
                         image: '/media/project-previews/robot.webp',
                         link: '/projects/3d-art/robot/'
                     },
                     {
-                        id: 20,
+                        id: 35,
                         title: 'Modern Living Room',
                         date: 'February 2024',
                         category: '3D Art',
-                        description: 'A visualization of a modern living room interior.',
+                        description: 'A high-end contemporary living room render with bespoke minimalist furnishings and floor-to-ceiling glass.',
                         image: '/media/project-previews/modern-living-room.webp',
                         link: '/projects/3d-art/living-room/'
                     }
                 ]);
 
-                const showAllProjects = ref(false);
-
+                // Filter & Pagination logic
                 const displayedPortfolio = computed(() => {
                     let items = portfolioItems.value;
                     if (activeCategory.value !== 'All') {
@@ -590,45 +775,145 @@
                     return !showAllProjects.value && items.length > 6;
                 });
 
-                const shuffled3DArtColumns = computed(() => {
-                    const artItems = portfolioItems.value.filter(item => item.category === '3D Art');
-                    // Simple shuffle
-                    const shuffled = [...artItems].sort(() => 0.5 - Math.random());
-
-                    // Split into 3 columns
-                    const columns = [[], [], []];
-                    shuffled.forEach((item, index) => {
-                        columns[index % 3].push(item);
-                    });
-                    return columns;
+                const remainingCount = computed(() => {
+                    let items = portfolioItems.value;
+                    if (activeCategory.value !== 'All') {
+                        items = items.filter(item => item.category === activeCategory.value);
+                    }
+                    return Math.max(0, items.length - 6);
                 });
 
+                const getCategoryCount = (cat) => {
+                    if (cat === 'All') return portfolioItems.value.length;
+                    return portfolioItems.value.filter(i => i.category === cat).length;
+                };
+
+                const setCategory = (cat) => {
+                    activeCategory.value = cat;
+                    showAllProjects.value = false;
+                };
+
+                // Scroll Handling
+                const handleScroll = () => {
+                    scrolled.value = window.scrollY > 40;
+
+                    // Update active nav based on scroll position
+                    const sections = ['contact', 'portfolio', 'about'];
+                    for (const id of sections) {
+                        const el = document.getElementById(id);
+                        if (el) {
+                            const rect = el.getBoundingClientRect();
+                            if (rect.top <= 200) {
+                                activeNavSection.value = id;
+                                return;
+                            }
+                        }
+                    }
+                };
+
+                const scrollTo = (id, isMobile = false) => {
+                    const el = document.getElementById(id);
+                    if (el) {
+                        const offset = 75;
+                        const pos = el.getBoundingClientRect().top + window.pageYOffset - offset;
+                        window.scrollTo({ top: pos, behavior: 'smooth' });
+                    }
+                    if (isMobile) {
+                        mobileMenuOpen.value = false;
+                    }
+                };
+
+                const scrollToTop = () => {
+                    window.scrollTo({ top: 0, behavior: 'smooth' });
+                };
+
+                // Orbit Galaxy controls
+                const toggleOrbit = () => {
+                    if (galaxyInstance) {
+                        galaxyPlaying.value = galaxyInstance.togglePlay();
+                    }
+                };
+
+                // Quick Preview Modal
+                const openPreview = (item) => {
+                    previewItem.value = item;
+                };
+
+                const closePreview = () => {
+                    previewItem.value = null;
+                };
+
+                // Copy Email
+                const copyEmail = () => {
+                    navigator.clipboard.writeText('andranik136@gmail.com').then(() => {
+                        emailCopied.value = true;
+                        setTimeout(() => {
+                            emailCopied.value = false;
+                        }, 3000);
+                    });
+                };
+
+                // Keyboard escape listener for modal
+                const handleKeyDown = (e) => {
+                    if (e.key === 'Escape') {
+                        closePreview();
+                    }
+                };
+
                 onMounted(() => {
-                    window.addEventListener('scroll', handleScroll);
+                    window.addEventListener('scroll', handleScroll, { passive: true });
+                    window.addEventListener('keydown', handleKeyDown);
+
+                    // Initialize the 3D rotating Galaxy in the Hero
+                    if (window.HeroGalaxy) {
+                        // Select a premier curated set of projects to rotate in the hero galaxy
+                        const galaxyItems = portfolioItems.value.slice(0, 24);
+
+                        galaxyInstance = new window.HeroGalaxy({
+                            container: '#hero-galaxy',
+                            items: galaxyItems,
+                            onCardClick: (item) => {
+                                openPreview(item);
+                            }
+                        });
+                    }
                 });
 
                 onUnmounted(() => {
                     window.removeEventListener('scroll', handleScroll);
+                    window.removeEventListener('keydown', handleKeyDown);
+                    if (galaxyInstance) {
+                        galaxyInstance.destroy();
+                    }
                 });
 
                 return {
                     scrolled,
                     mobileMenuOpen,
+                    activeNavSection,
                     navLinks,
-                    scrollTo,
-                    activeCategory,
                     categories,
+                    activeCategory,
+                    showAllProjects,
+                    portfolioItems,
                     displayedPortfolio,
                     hasMoreProjects,
-                    showAllProjects,
-                    shuffled3DArtColumns
+                    remainingCount,
+                    getCategoryCount,
+                    setCategory,
+                    scrollTo,
+                    scrollToTop,
+                    galaxyPlaying,
+                    toggleOrbit,
+                    previewItem,
+                    openPreview,
+                    closePreview,
+                    emailCopied,
+                    copyEmail
                 };
             }
         }).mount('#app');
     </script>
-
-    <!-- particles.js library -->
-
 </body>
 
 </html>
