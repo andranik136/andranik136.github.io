@@ -1,0 +1,263 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>Spotted - Retro Alien Exploration & Adventure RPG</title>
+
+  <!-- Retro Pixel Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&family=Outfit:wght@400;600;800;900&family=VT323&display=swap" rel="stylesheet">
+
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <!-- Fullscreen Edge-to-Edge Canvas Container -->
+  <div id="game-app" class="game-fullscreen-viewport">
+    
+    <div class="scanlines"></div>
+    <canvas id="gameCanvas"></canvas>
+
+    <!-- START / TITLE SCREEN OVERLAY -->
+    <div id="start-screen-overlay" class="start-overlay">
+      <div class="title-card">
+        <div class="saucer-banner">
+          <span class="animated-saucer">🛸</span>
+        </div>
+        <h1 class="game-main-title">SPOTTED</h1>
+        <p class="game-tagline">AN ALIEN CONSPIRACY EXPLORATION RPG</p>
+
+        <div class="title-menu-buttons">
+          <button id="btn-start-new" class="retro-menu-btn primary-btn">▶ NEW INVESTIGATION</button>
+          <button id="btn-start-continue" class="retro-menu-btn">⏩ CONTINUE</button>
+          <button id="btn-start-saveload" class="retro-menu-btn">💾 SAVE / LOAD</button>
+          <button id="btn-start-settings" class="retro-menu-btn">⚙️ SETTINGS</button>
+        </div>
+
+        <div class="start-credits">
+          Starring <span class="protagonist-highlight">Cole Welps</span> • Find the Insider, Infiltrate Area 51, and See the Truth!
+        </div>
+      </div>
+    </div>
+
+    <!-- Top In-Game Mystery HUD Bar (Floats over Fullscreen Canvas) -->
+    <header class="game-hud hidden">
+      <div class="hud-left">
+        <a href="/" class="back-link" title="Return to Portfolio">◀ PORTFOLIO</a>
+        <div class="logo-box">
+          <span class="ufo-icon">🛸</span>
+          <span class="hud-logo-text">SPOTTED</span>
+        </div>
+        <div id="hud-sector" class="hud-pill">Sector [0, 0]</div>
+        <div id="hud-time" class="hud-pill time-pill">10:45 PM</div>
+      </div>
+
+      <div class="hud-center">
+        <div class="xp-container">
+          <div class="xp-labels">
+            <span id="hud-level" class="level-badge">LVL 1</span>
+            <span id="hud-title" class="title-badge">Cole Welps (Amateur Spotter)</span>
+          </div>
+          <div class="xp-bar-track">
+            <div id="hud-xp-progress" class="xp-bar-fill" style="width: 0%;"></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="hud-right">
+        <!-- EMF Meter Gauge -->
+        <div class="emf-widget" title="EMF Anomaly Proximity">
+          <span class="emf-label">EMF</span>
+          <div class="emf-dial">
+            <div id="emf-meter-needle" class="emf-needle"></div>
+          </div>
+          <div id="emf-meter-led" class="emf-led"></div>
+        </div>
+
+        <!-- Controls Toolbar -->
+        <div class="hud-buttons">
+          <button id="btn-open-corkboard" class="hud-btn" title="Evidence Board & Inventory (Tab/I)">📋 CORKBOARD</button>
+          <button id="btn-snap-photo" class="hud-btn" title="Take Polaroid Snapshot (C)">📷 SNAP</button>
+          <button id="btn-hud-save" class="hud-btn" title="Save / Load Game">💾 SAVE</button>
+          <button id="btn-toggle-music" class="hud-btn active" title="Toggle Music">🎵</button>
+          <button id="btn-toggle-sound" class="hud-btn active" title="Toggle Sound">🔊</button>
+        </div>
+      </div>
+    </header>
+
+    <!-- Floating Active Quest Tracker Card -->
+    <div class="quest-tracker-card hidden">
+      <div class="quest-badge">ACTIVE OBJECTIVE</div>
+      <div id="hud-quest-title" class="quest-title">Case #1: The Scrambled Airwaves</div>
+      <div id="hud-quest-desc" class="quest-desc">Talk to Mrs. Gable in front of your flat in Sector [0, 0].</div>
+    </div>
+
+    <!-- Mobile Virtual Controls -->
+    <div class="mobile-controls">
+      <div id="touch-dpad" class="touch-dpad">
+        <div class="dpad-btn up">▲</div>
+        <div class="dpad-btn left">◀</div>
+        <div class="dpad-center">●</div>
+        <div class="dpad-btn right">▶</div>
+        <div class="dpad-btn down">▼</div>
+      </div>
+
+      <div class="touch-actions">
+        <button id="btn-touch-b" class="action-btn btn-b">B<span class="sub-label">SPRINT</span></button>
+        <button id="btn-touch-a" class="action-btn btn-a">A<span class="sub-label">TALK / E</span></button>
+      </div>
+    </div>
+
+    <!-- Floating Bottom Controls Guide -->
+    <footer class="controls-guide">
+      <div class="key-hint"><kbd>W</kbd><kbd>A</kbd><kbd>S</kbd><kbd>D</kbd> or <kbd>Arrows</kbd> Move</div>
+      <div class="key-hint"><kbd>Shift</kbd> Sprint</div>
+      <div class="key-hint"><kbd>E</kbd> / <kbd>Space</kbd> Interact & Talk</div>
+      <div class="key-hint"><kbd>Tab</kbd> / <kbd>I</kbd> Corkboard & Inventory</div>
+      <div class="key-hint"><kbd>C</kbd> Camera Snapshot</div>
+      <div class="key-hint"><kbd>F</kbd> Wear Tin Foil Hat</div>
+      <div class="key-hint"><kbd>Esc</kbd> Settings</div>
+    </footer>
+
+    <!-- MODAL: Conspiracy Corkboard & Evidence Board -->
+    <div id="corkboard-modal" class="modal-overlay hidden">
+      <div class="corkboard-frame">
+        <div class="corkboard-header">
+          <div class="cork-title">
+            <span class="red-pushpin-icon">📍</span>
+            <h2>CLASSIFIED CONSPIRACY CORKBOARD</h2>
+            <span class="cork-sub">COLE WELPS • EVIDENCE & RED STRINGS</span>
+          </div>
+          <button id="btn-close-corkboard" class="close-btn" title="Close (Esc)">✕</button>
+        </div>
+
+        <div class="corkboard-body">
+          <div id="corkboard-surface" class="cork-surface">
+            <svg id="corkboard-strings" class="cork-strings" width="100%" height="100%"></svg>
+          </div>
+
+          <aside class="corkboard-sidebar">
+            <h3 class="sidebar-title">🎒 INVESTIGATOR GEAR</h3>
+            <div id="inventory-list" class="inventory-tray"></div>
+            <div class="case-notes-card">
+              <h4>📁 MISSION GOAL</h4>
+              <p>Search town, locate Agent Miller (The Insider) near Sector [1, 1], acquire the Area 51 Keycard, and see the live alien inside the bunker!</p>
+            </div>
+          </aside>
+        </div>
+      </div>
+    </div>
+
+    <!-- MODAL: Local Save & Load Manager -->
+    <div id="saveload-modal" class="modal-overlay hidden">
+      <div class="retro-modal-panel">
+        <div class="modal-panel-header">
+          <h3>💾 SAVE / LOAD INVESTIGATION</h3>
+          <button id="btn-close-saveload" class="close-btn">✕</button>
+        </div>
+
+        <div class="save-slots-container">
+          <!-- Slot 1 -->
+          <div class="save-slot-card">
+            <div class="slot-header">SLOT 1</div>
+            <div id="slot-1-info" class="slot-info">Empty Save Slot</div>
+            <div class="slot-actions">
+              <button class="slot-save-btn modal-btn" data-slot="1">SAVE</button>
+              <button class="slot-load-btn modal-btn" data-slot="1">LOAD</button>
+            </div>
+          </div>
+
+          <!-- Slot 2 -->
+          <div class="save-slot-card">
+            <div class="slot-header">SLOT 2</div>
+            <div id="slot-2-info" class="slot-info">Empty Save Slot</div>
+            <div class="slot-actions">
+              <button class="slot-save-btn modal-btn" data-slot="2">SAVE</button>
+              <button class="slot-load-btn modal-btn" data-slot="2">LOAD</button>
+            </div>
+          </div>
+
+          <!-- Slot 3 -->
+          <div class="save-slot-card">
+            <div class="slot-header">SLOT 3</div>
+            <div id="slot-3-info" class="slot-info">Empty Save Slot</div>
+            <div class="slot-actions">
+              <button class="slot-save-btn modal-btn" data-slot="3">SAVE</button>
+              <button class="slot-load-btn modal-btn" data-slot="3">LOAD</button>
+            </div>
+          </div>
+        </div>
+
+        <div class="save-import-export-row">
+          <button id="btn-export-save" class="modal-btn secondary">EXPORT JSON</button>
+          <button id="btn-import-save" class="modal-btn secondary">IMPORT JSON</button>
+          <input type="file" id="import-save-file" accept=".json" style="display:none">
+        </div>
+      </div>
+    </div>
+
+    <!-- MODAL: Settings -->
+    <div id="settings-modal" class="modal-overlay hidden">
+      <div class="retro-modal-panel">
+        <div class="modal-panel-header">
+          <h3>⚙️ INVESTIGATION SETTINGS</h3>
+          <button id="btn-close-settings" class="close-btn">✕</button>
+        </div>
+
+        <div class="settings-content">
+          <div class="setting-row">
+            <label>Music Volume (BGM):</label>
+            <input type="range" id="setting-bgm" min="0" max="1" step="0.05" value="0.5">
+          </div>
+          <div class="setting-row">
+            <label>Sound FX Volume (SFX):</label>
+            <input type="range" id="setting-sfx" min="0" max="1" step="0.05" value="0.7">
+          </div>
+          <div class="setting-row">
+            <label>CRT Retro Scanlines:</label>
+            <input type="checkbox" id="setting-scanlines" checked>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- MODAL: BUSTED / GAME OVER SCREEN -->
+    <div id="busted-screen-modal" class="busted-overlay hidden">
+      <div class="busted-card">
+        <div class="stamp-classified">CLASSIFIED & SUPPRESSED</div>
+        <h2 class="busted-title">BUSTED BY THE FEDS!</h2>
+        
+        <div class="mugshot-box">
+          <div class="mugshot-silhouette">👤</div>
+          <div class="inmate-tag">WELPS, COLE • INMATE #5109</div>
+        </div>
+
+        <div class="busted-story">
+          <p><strong>OFFICIAL PRESS STATEMENT:</strong></p>
+          <p>"Federal authorities have detained local conspiracy theorist <strong>Cole Welps</strong> after an unauthorized breach into the sub-basement facility. Officials report that Welps suffered severe hallucinations from an overcooked diner smashburger and claims to have seen 'a live alien in a pickle jar.' The Department of Weather Balloons assures the public that all operations are totally normal and completely boring."</p>
+        </div>
+
+        <div class="busted-stats">
+          <div class="stat-pill"><span id="stat-level">Level 9</span></div>
+          <div class="stat-pill"><span id="stat-xp">1,500 XP</span></div>
+          <div class="stat-pill"><span id="stat-evidence">5 Clues Uncovered</span></div>
+        </div>
+
+        <div class="busted-actions">
+          <button id="btn-busted-restart" class="retro-menu-btn primary-btn">RESTART INVESTIGATION</button>
+          <button id="btn-busted-load" class="retro-menu-btn">LOAD BEFORE INFILTRATION</button>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- Scripts -->
+  <script src="audio.js"></script>
+  <script src="sprites.js"></script>
+  <script src="world.js"></script>
+  <script src="quests.js"></script>
+  <script src="game.js"></script>
+</body>
+</html>

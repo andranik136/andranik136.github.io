@@ -1,0 +1,3565 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>Mars Code — Grimdark Tactical Morse Decryption Terminal</title>
+  <meta name="description" content="Project Mars Code: Systems Dossier. An unshielded listening coffin beneath the Antarctic crust. Transcribe intercepted Martian dreadnought Morse code before the disciplinary skull spike triggers.">
+
+  <!-- Retro Monospace & Military Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=VT323&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+
+  <style>
+    /* ==========================================================================
+       MARS CODE: RETRO CRT HUD & TACTICAL STYLING
+       Palettes: Sick Ward Green (#33FF33) / Decayed Phosphor Amber (#E5A93C)
+       ========================================================================== */
+    :root {
+      --bg-deep: #050805;
+      --bg-panel: rgba(8, 14, 8, 0.88);
+      --bg-panel-border: rgba(51, 255, 51, 0.32);
+      --phosphor-primary: #33ff33;
+      --phosphor-bright: #66ff66;
+      --phosphor-glow: rgba(51, 255, 51, 0.45);
+      --phosphor-dim: rgba(51, 255, 51, 0.22);
+      --phosphor-faint: rgba(51, 255, 51, 0.08);
+      --alert-crimson: #ff2233;
+      --alert-glow: rgba(255, 34, 51, 0.6);
+      --warning-amber: #e5a93c;
+      --crt-scanline-color: rgba(0, 0, 0, 0.45);
+      --crt-curve-radius: 12px;
+      --font-mono: 'Share Tech Mono', 'VT323', monospace;
+      --font-display: 'VT323', monospace;
+    }
+
+    /* Decayed Phosphor Amber Theme Variant */
+    body.theme-amber {
+      --bg-deep: #080603;
+      --bg-panel: rgba(18, 12, 6, 0.9);
+      --bg-panel-border: rgba(229, 169, 60, 0.35);
+      --phosphor-primary: #e5a93c;
+      --phosphor-bright: #ffc966;
+      --phosphor-glow: rgba(229, 169, 60, 0.5);
+      --phosphor-dim: rgba(229, 169, 60, 0.24);
+      --phosphor-faint: rgba(229, 169, 60, 0.08);
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      user-select: none;
+      -webkit-user-select: none;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    html, body {
+      width: 100%;
+      height: 100%;
+      height: 100dvh;
+      min-height: 100dvh;
+      overflow: hidden;
+      background-color: #000;
+      font-family: var(--font-mono);
+      color: var(--phosphor-primary);
+      text-shadow: 0 0 4px var(--phosphor-glow);
+      -webkit-text-size-adjust: 100%;
+      touch-action: manipulation;
+    }
+
+    /* Outer Monitor Bezel Housing */
+    #monitor-frame {
+      position: absolute;
+      inset: 0;
+      display: flex;
+      flex-direction: column;
+      background: radial-gradient(circle at center, #151915 0%, #030403 95%);
+      padding: 8px;
+      overflow: hidden;
+      height: 100%;
+      height: 100dvh;
+    }
+
+    /* CRT Screen Housing with glass curvature */
+    #crt-screen {
+      position: relative;
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      background-color: var(--bg-deep);
+      border-radius: var(--crt-curve-radius);
+      border: 2px solid var(--phosphor-dim);
+      box-shadow: inset 0 0 70px rgba(0, 0, 0, 0.95), 0 0 20px rgba(0,0,0,0.85);
+      overflow: hidden;
+    }
+
+    /* CRT Shader Overlays: Scanlines, Vignette, Jitter */
+    .crt-scanlines {
+      pointer-events: none;
+      position: absolute;
+      inset: 0;
+      z-index: 100;
+      background: linear-gradient(
+        rgba(18, 16, 16, 0) 50%,
+        var(--crt-scanline-color) 50%
+      );
+      background-size: 100% 4px;
+      opacity: 0.75;
+    }
+
+    .crt-vignette {
+      pointer-events: none;
+      position: absolute;
+      inset: 0;
+      z-index: 101;
+      background: radial-gradient(
+        circle at 50% 50%,
+        rgba(0, 0, 0, 0) 55%,
+        rgba(0, 0, 0, 0.6) 85%,
+        rgba(0, 0, 0, 0.95) 100%
+      );
+      box-shadow: inset 0 0 90px rgba(0, 0, 0, 0.9);
+    }
+
+    .crt-flicker {
+      pointer-events: none;
+      position: absolute;
+      inset: 0;
+      z-index: 102;
+      background: rgba(51, 255, 51, 0.015);
+      opacity: 0.9;
+      animation: cathodeFlicker 0.15s infinite;
+    }
+
+    @keyframes cathodeFlicker {
+      0% { opacity: 0.96; }
+      50% { opacity: 1.0; }
+      100% { opacity: 0.95; }
+    }
+
+    /* Screen Jitter triggered by prolonged void exposure & sanity fatigue */
+    .screen-jitter {
+      animation: jitterGlitch 0.22s infinite alternate !important;
+    }
+
+    @keyframes jitterGlitch {
+      0% { transform: translate(0, 0); }
+      20% { transform: translate(-3px, 1px) skewX(0.7deg); }
+      40% { transform: translate(2px, -2px); }
+      60% { transform: translate(-2px, 2px); }
+      80% { transform: translate(3px, 1px) skewX(-0.7deg); }
+      100% { transform: translate(0, 0); }
+    }
+
+    /* Crimson Flash for Stim Injection */
+    #stim-flash-overlay {
+      pointer-events: none;
+      position: absolute;
+      inset: 0;
+      z-index: 120;
+      background: radial-gradient(circle, rgba(255, 0, 50, 0.75) 15%, rgba(180, 0, 20, 0.95) 90%);
+      opacity: 0;
+      transition: opacity 0.08s ease-out;
+    }
+
+    #stim-flash-overlay.active {
+      opacity: 1;
+    }
+
+    /* Blood Smear & Skull Spike Failure Overlay */
+    #blood-smear-overlay {
+      pointer-events: none;
+      position: absolute;
+      inset: 0;
+      z-index: 130;
+      background: radial-gradient(circle at 50% 40%, rgba(190, 10, 20, 0.7), rgba(30, 0, 5, 0.96)),
+                  repeating-linear-gradient(45deg, rgba(140, 0, 10, 0.4) 0px, rgba(80, 0, 10, 0.7) 12px, transparent 20px);
+      opacity: 0;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      transition: opacity 0.3s ease-in;
+    }
+
+    #blood-smear-overlay.active {
+      opacity: 1;
+      pointer-events: all;
+    }
+
+    .fracture-lines {
+      position: absolute;
+      inset: 0;
+      background: radial-gradient(circle, transparent 60%, rgba(0,0,0,0.8) 100%);
+      pointer-events: none;
+    }
+
+    /* ==========================================================================
+       TERMINAL TOP BEZEL & STATUS STRIP
+       ========================================================================== */
+    .terminal-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 6px 14px;
+      background: linear-gradient(180deg, rgba(0, 0, 0, 0.85) 0%, rgba(10, 20, 10, 0.65) 100%);
+      border-bottom: 1px solid var(--phosphor-dim);
+      font-size: 12px;
+      letter-spacing: 1px;
+      z-index: 10;
+      flex-shrink: 0;
+    }
+
+    .badge-classified {
+      background: var(--alert-crimson);
+      color: #000;
+      font-weight: bold;
+      padding: 2px 7px;
+      border-radius: 2px;
+      text-shadow: none;
+      letter-spacing: 1.5px;
+      animation: pulseAlert 2s infinite;
+    }
+
+    @keyframes pulseAlert {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.75; }
+    }
+
+    .header-center {
+      display: flex;
+      gap: 16px;
+      font-size: 13px;
+    }
+
+    .header-actions {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .btn-bezel {
+      background: transparent;
+      border: 1px solid var(--phosphor-dim);
+      color: var(--phosphor-primary);
+      font-family: var(--font-mono);
+      font-size: 11px;
+      padding: 3px 8px;
+      cursor: pointer;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      transition: all 0.15s ease;
+    }
+
+    .btn-bezel:hover {
+      background: var(--phosphor-dim);
+      border-color: var(--phosphor-primary);
+      box-shadow: 0 0 8px var(--phosphor-glow);
+    }
+
+    .btn-bezel.badge-easy {
+      border-color: var(--phosphor-bright);
+      color: var(--phosphor-bright);
+    }
+
+    .btn-bezel.badge-hard {
+      border-color: var(--alert-crimson);
+      color: #ff99aa;
+    }
+
+    .btn-bezel.badge-arcade {
+      border-color: var(--warning-amber);
+      color: var(--warning-amber);
+      box-shadow: 0 0 6px rgba(229, 169, 60, 0.3);
+    }
+
+    /* Sub-Header Telemetry Strip */
+    .telemetry-strip {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 4px 14px;
+      background: rgba(0, 0, 0, 0.65);
+      border-bottom: 1px solid var(--phosphor-faint);
+      font-size: 12px;
+      letter-spacing: 0.5px;
+      flex-shrink: 0;
+      z-index: 10;
+    }
+
+    .telemetry-item {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .telemetry-val {
+      font-weight: bold;
+      color: var(--phosphor-bright);
+    }
+
+    .sanity-meter-wrap {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .meter-bar-outer {
+      width: 120px;
+      height: 10px;
+      border: 1px solid var(--phosphor-dim);
+      background: rgba(0, 0, 0, 0.85);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .meter-bar-fill {
+      height: 100%;
+      background: var(--phosphor-primary);
+      width: 100%;
+      box-shadow: 0 0 6px var(--phosphor-glow);
+      transition: width 0.25s linear, background-color 0.25s ease;
+    }
+
+    .meter-bar-fill.critical {
+      background: var(--alert-crimson);
+      box-shadow: 0 0 8px var(--alert-glow);
+      animation: pulseAlert 0.4s infinite;
+    }
+
+    /* ==========================================================================
+       MAIN VIEWPORT GRID LAYOUT
+       ========================================================================== */
+    .terminal-viewport {
+      flex: 1;
+      display: grid;
+      grid-template-rows: 165px 1fr 185px;
+      grid-template-columns: 1fr;
+      padding: 8px;
+      gap: 8px;
+      overflow: hidden;
+      position: relative;
+      z-index: 10;
+    }
+
+    /* UPPER: OSCILLOSCOPE HUD */
+    .viewport-upper {
+      border: 1px solid var(--phosphor-dim);
+      background: var(--bg-panel);
+      position: relative;
+      display: flex;
+      flex-direction: column;
+      border-radius: 4px;
+      overflow: hidden;
+    }
+
+    .panel-header {
+      padding: 3px 8px;
+      font-size: 11px;
+      background: rgba(0, 0, 0, 0.75);
+      border-bottom: 1px solid var(--phosphor-faint);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      letter-spacing: 1px;
+      flex-shrink: 0;
+    }
+
+    .scope-body {
+      flex: 1;
+      position: relative;
+      overflow: hidden;
+    }
+
+    #oscilloscopeCanvas {
+      width: 100%;
+      height: 100%;
+      display: block;
+    }
+
+    .scope-overlay-stats {
+      position: absolute;
+      top: 6px;
+      left: 10px;
+      font-size: 11px;
+      pointer-events: none;
+      line-height: 1.4;
+      opacity: 0.9;
+      text-shadow: 0 0 3px #000;
+    }
+
+    /* Real-Time Optical Morse Ribbon (Easy Mode) */
+    .scope-visual-stream {
+      position: absolute;
+      top: 26px;
+      left: 10px;
+      right: 10px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      pointer-events: none;
+      font-family: var(--font-mono);
+      font-size: 18px;
+      letter-spacing: 2px;
+      overflow-x: auto;
+      white-space: nowrap;
+      text-shadow: 0 0 8px var(--phosphor-glow);
+    }
+
+    .visual-letter-block {
+      display: inline-flex;
+      align-items: center;
+      padding: 2px 8px;
+      border: 1px solid var(--phosphor-dim);
+      background: rgba(0, 20, 5, 0.75);
+      border-radius: 3px;
+      gap: 6px;
+      transition: all 0.12s ease;
+    }
+
+    .visual-letter-block.active {
+      border-color: var(--phosphor-bright);
+      background: rgba(0, 40, 10, 0.9);
+      box-shadow: 0 0 12px var(--phosphor-glow);
+    }
+
+    .visual-letter-block.completed {
+      opacity: 0.95;
+      border-color: var(--phosphor-dim);
+    }
+
+    .visual-symbol {
+      display: inline-block;
+      font-weight: bold;
+      color: var(--phosphor-bright);
+      transition: transform 0.08s ease, color 0.08s ease;
+    }
+
+    .visual-symbol.dot {
+      font-size: 22px;
+      line-height: 1;
+    }
+
+    .visual-symbol.dash {
+      font-size: 20px;
+      line-height: 1;
+      letter-spacing: -1px;
+    }
+
+    .visual-symbol.pulse {
+      color: #ffffff !important;
+      text-shadow: 0 0 12px #ffffff, 0 0 20px var(--phosphor-bright);
+      transform: scale(1.25);
+    }
+
+    .visual-word-separator {
+      color: var(--warning-amber);
+      font-weight: bold;
+      margin: 0 8px;
+    }
+
+    .carrier-led {
+      display: inline-block;
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: #333;
+      margin-right: 4px;
+      vertical-align: middle;
+      border: 1px solid rgba(255,255,255,0.2);
+    }
+
+    .carrier-led.active {
+      background: var(--phosphor-bright);
+      box-shadow: 0 0 8px var(--phosphor-bright);
+    }
+
+    /* CENTER VIEWPORT (PPI RADAR + MORSE MATRIX) */
+    .viewport-center {
+      display: grid;
+      grid-template-columns: 310px 1fr;
+      gap: 8px;
+      overflow: hidden;
+      min-height: 0;
+    }
+
+    /* PPI RADAR / SONAR PANEL */
+    .panel-radar {
+      border: 1px solid var(--phosphor-dim);
+      background: var(--bg-panel);
+      display: flex;
+      flex-direction: column;
+      border-radius: 4px;
+      overflow: hidden;
+      position: relative;
+    }
+
+    .radar-canvas-wrap {
+      flex: 1;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      position: relative;
+      padding: 6px;
+      min-height: 0;
+    }
+
+    #radarCanvas {
+      max-width: 100%;
+      max-height: 100%;
+      aspect-ratio: 1 / 1;
+      display: block;
+    }
+
+    .radar-meta {
+      position: absolute;
+      bottom: 6px;
+      left: 8px;
+      right: 8px;
+      display: flex;
+      justify-content: space-between;
+      font-size: 10px;
+      opacity: 0.85;
+      pointer-events: none;
+    }
+
+    /* MORSE TRANSLATION MATRIX PANEL */
+    .panel-matrix {
+      border: 1px solid var(--phosphor-dim);
+      background: var(--bg-panel);
+      display: flex;
+      flex-direction: column;
+      border-radius: 4px;
+      overflow: hidden;
+    }
+
+    .matrix-body {
+      flex: 1;
+      padding: 8px;
+      overflow-y: auto;
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(82px, 1fr));
+      gap: 6px;
+      align-content: start;
+    }
+
+    .matrix-body::-webkit-scrollbar {
+      width: 5px;
+    }
+    .matrix-body::-webkit-scrollbar-thumb {
+      background: var(--phosphor-dim);
+    }
+
+    .morse-key-tile {
+      background: rgba(0, 0, 0, 0.65);
+      border: 1px solid var(--phosphor-dim);
+      border-radius: 3px;
+      padding: 5px 6px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      transition: all 0.12s ease;
+    }
+
+    .morse-key-tile:hover {
+      background: var(--phosphor-dim);
+      border-color: var(--phosphor-bright);
+      box-shadow: 0 0 6px var(--phosphor-glow);
+      transform: translateY(-1px);
+    }
+
+    .morse-key-tile.active-beep {
+      background: var(--phosphor-primary);
+      color: #000;
+      text-shadow: none;
+      transform: scale(0.96);
+    }
+
+    .key-char {
+      font-size: 16px;
+      font-weight: bold;
+      letter-spacing: 1px;
+    }
+
+    .key-code {
+      font-size: 13px;
+      letter-spacing: 2px;
+      opacity: 0.9;
+    }
+
+    /* LOWER: COMMAND CONSOLE & INDUSTRIAL CONTROLS */
+    .viewport-lower {
+      display: grid;
+      grid-template-columns: 1fr 340px;
+      gap: 8px;
+      overflow: hidden;
+      min-height: 0;
+    }
+
+    .panel-briefing {
+      border: 1px solid var(--phosphor-dim);
+      background: var(--bg-panel);
+      display: flex;
+      flex-direction: column;
+      border-radius: 4px;
+      overflow: hidden;
+      padding: 8px 10px;
+      gap: 6px;
+    }
+
+    .briefing-scroll {
+      flex: 1;
+      overflow-y: auto;
+      font-size: 13px;
+      line-height: 1.45;
+      padding-right: 4px;
+    }
+
+    .briefing-scroll::-webkit-scrollbar {
+      width: 4px;
+    }
+    .briefing-scroll::-webkit-scrollbar-thumb {
+      background: var(--phosphor-dim);
+    }
+
+    .briefing-title {
+      font-size: 12px;
+      font-weight: bold;
+      letter-spacing: 1px;
+      color: var(--phosphor-bright);
+      margin-bottom: 4px;
+      display: flex;
+      justify-content: space-between;
+    }
+
+    /* Terminal Command Line Input */
+    .command-line-box {
+      border: 1px solid var(--phosphor-primary);
+      background: rgba(0, 0, 0, 0.85);
+      border-radius: 3px;
+      padding: 6px 10px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      box-shadow: 0 0 8px var(--phosphor-faint);
+      margin-top: auto;
+    }
+
+    .prompt-symbol {
+      font-size: 16px;
+      font-weight: bold;
+      color: var(--phosphor-bright);
+    }
+
+    .command-input {
+      flex: 1;
+      background: transparent;
+      border: none;
+      outline: none;
+      color: var(--phosphor-bright);
+      font-family: var(--font-mono);
+      font-size: 17px;
+      letter-spacing: 2.5px;
+      text-transform: uppercase;
+      text-shadow: 0 0 6px var(--phosphor-glow);
+    }
+
+    .command-input::placeholder {
+      color: var(--phosphor-dim);
+      letter-spacing: 1px;
+      font-size: 13px;
+    }
+
+    .btn-inline-del {
+      background: rgba(255, 68, 85, 0.15);
+      border: 1px solid var(--alert-crimson);
+      color: #ff8899;
+      font-family: var(--font-mono);
+      font-size: 15px;
+      padding: 2px 9px;
+      border-radius: 3px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: all 0.12s ease;
+      touch-action: manipulation;
+      flex-shrink: 0;
+    }
+
+    .btn-inline-del:hover, .btn-inline-del:active {
+      background: rgba(255, 68, 85, 0.4);
+      color: #fff;
+      box-shadow: 0 0 8px rgba(255, 68, 85, 0.6);
+    }
+
+    /* Mobile Tactical Deck Tab Bar (Hidden on desktop) */
+    .mobile-tab-bar {
+      display: none;
+    }
+
+    /* Physical Controls Console */
+    .panel-controls {
+      border: 1px solid var(--phosphor-dim);
+      background: var(--bg-panel);
+      display: flex;
+      flex-direction: column;
+      border-radius: 4px;
+      padding: 8px;
+      gap: 8px;
+      justify-content: space-between;
+    }
+
+    .control-row {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 6px;
+    }
+
+    .control-row-secondary {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 6px;
+    }
+
+    .btn-tactile {
+      background: rgba(0, 0, 0, 0.7);
+      border: 1px solid var(--phosphor-dim);
+      color: var(--phosphor-primary);
+      font-family: var(--font-mono);
+      font-size: 12px;
+      padding: 8px 6px;
+      border-radius: 3px;
+      cursor: pointer;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 2px;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      transition: all 0.12s ease;
+    }
+
+    .btn-tactile:hover:not(:disabled) {
+      background: var(--phosphor-dim);
+      border-color: var(--phosphor-primary);
+      box-shadow: 0 0 10px var(--phosphor-glow);
+      transform: translateY(-1px);
+    }
+
+    .btn-tactile:active:not(:disabled) {
+      transform: translateY(1px);
+    }
+
+    .btn-tactile:disabled {
+      opacity: 0.4;
+      cursor: not-allowed;
+      border-color: rgba(255,255,255,0.1);
+    }
+
+    .btn-transmit {
+      grid-column: span 2;
+      background: linear-gradient(180deg, rgba(20, 50, 20, 0.8) 0%, rgba(5, 20, 5, 0.9) 100%);
+      border: 2px solid var(--phosphor-primary);
+      font-size: 14px;
+      font-weight: bold;
+      letter-spacing: 2px;
+      padding: 10px;
+      box-shadow: 0 0 12px var(--phosphor-glow);
+    }
+
+    .btn-stim {
+      background: linear-gradient(180deg, rgba(60, 20, 20, 0.8) 0%, rgba(30, 5, 5, 0.9) 100%);
+      border-color: #ff4455;
+      color: #ff7788;
+      box-shadow: 0 0 8px rgba(255, 68, 85, 0.25);
+    }
+
+    .btn-stim:hover:not(:disabled) {
+      background: rgba(180, 20, 40, 0.4);
+      border-color: #ff3344;
+      color: #fff;
+      box-shadow: 0 0 12px rgba(255, 68, 85, 0.6);
+    }
+
+    /* Mode & Difficulty Selection Cards */
+    .mode-select-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+      margin-top: 5px;
+      margin-bottom: 6px;
+    }
+
+    .mode-select-card {
+      background: rgba(0, 15, 5, 0.75);
+      border: 1px solid var(--phosphor-dim);
+      padding: 9px 11px;
+      border-radius: 4px;
+      cursor: pointer;
+      transition: all 0.15s ease;
+    }
+
+    .mode-select-card:hover {
+      border-color: var(--phosphor-bright);
+      background: rgba(0, 30, 10, 0.85);
+      box-shadow: 0 0 10px var(--phosphor-glow);
+    }
+
+    .mode-select-card.active {
+      border: 2px solid var(--phosphor-bright);
+      background: rgba(0, 35, 12, 0.95);
+      box-shadow: 0 0 14px var(--phosphor-glow);
+    }
+
+    .mode-card-title {
+      font-size: 13px;
+      font-weight: bold;
+      color: var(--phosphor-bright);
+      margin-bottom: 3px;
+      letter-spacing: 1px;
+    }
+
+    .mode-card-desc {
+      font-size: 11px;
+      line-height: 1.4;
+      opacity: 0.85;
+    }
+
+    /* ==========================================================================
+       MODALS: BOOT SCREEN, PERMADEATH DEBRIEF, VICTORY
+       ========================================================================== */
+    .terminal-modal-backdrop {
+      position: absolute;
+      inset: 0;
+      z-index: 150;
+      background: rgba(0, 5, 0, 0.94);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+    }
+
+    .terminal-modal-box {
+      max-width: 660px;
+      width: 100%;
+      background: #030803;
+      border: 2px solid var(--phosphor-primary);
+      box-shadow: 0 0 35px var(--phosphor-glow);
+      border-radius: 6px;
+      padding: 20px 24px;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      position: relative;
+    }
+
+    .modal-dossier-hdr {
+      border-bottom: 1px solid var(--phosphor-dim);
+      padding-bottom: 6px;
+      font-size: 12px;
+      letter-spacing: 1.5px;
+      display: flex;
+      justify-content: space-between;
+      color: var(--phosphor-bright);
+    }
+
+    .modal-title {
+      font-size: 26px;
+      font-family: var(--font-display);
+      letter-spacing: 2px;
+      color: var(--phosphor-bright);
+      text-shadow: 0 0 10px var(--phosphor-glow);
+      line-height: 1.1;
+    }
+
+    .modal-narrative {
+      font-size: 13px;
+      line-height: 1.5;
+      opacity: 0.95;
+    }
+
+    .modal-stats-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 10px;
+      background: rgba(0, 0, 0, 0.7);
+      border: 1px solid var(--phosphor-dim);
+      padding: 8px 10px;
+      border-radius: 4px;
+      font-size: 12px;
+    }
+
+    .modal-stat-card {
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+    }
+
+    .stat-label {
+      opacity: 0.7;
+      font-size: 10px;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    .stat-val {
+      font-size: 15px;
+      font-weight: bold;
+      color: var(--phosphor-bright);
+    }
+
+    .modal-actions {
+      display: flex;
+      gap: 12px;
+      margin-top: 4px;
+    }
+
+    .btn-modal-primary {
+      flex: 2;
+      background: var(--phosphor-primary);
+      color: #000;
+      border: none;
+      padding: 12px;
+      font-family: var(--font-mono);
+      font-size: 14px;
+      font-weight: bold;
+      letter-spacing: 1.5px;
+      border-radius: 3px;
+      cursor: pointer;
+      box-shadow: 0 0 15px var(--phosphor-glow);
+      text-shadow: none;
+      transition: all 0.15s ease;
+    }
+
+    .btn-modal-primary:hover {
+      background: var(--phosphor-bright);
+      box-shadow: 0 0 25px var(--phosphor-glow);
+      transform: translateY(-1px);
+    }
+
+    .btn-modal-secondary {
+      flex: 1;
+      background: transparent;
+      border: 1px solid var(--phosphor-dim);
+      color: var(--phosphor-primary);
+      padding: 12px;
+      font-family: var(--font-mono);
+      font-size: 12px;
+      letter-spacing: 1px;
+      border-radius: 3px;
+      cursor: pointer;
+      transition: all 0.15s ease;
+    }
+
+    .btn-modal-secondary:hover {
+      background: var(--phosphor-dim);
+    }
+
+    /* Red Failure Variant */
+    .modal-failure {
+      border-color: var(--alert-crimson) !important;
+      box-shadow: 0 0 35px var(--alert-glow) !important;
+    }
+
+    .modal-failure .modal-title {
+      color: var(--alert-crimson) !important;
+      text-shadow: 0 0 12px var(--alert-glow) !important;
+    }
+
+    /* ==========================================================================
+       MOBILE RESPONSIVE ADAPTATIONS (SHUFFLED UI FOR SMARTPHONES & TABLETS)
+       ========================================================================== */
+    @media (max-width: 900px) and (min-width: 769px) {
+      .viewport-center {
+        grid-template-columns: 240px 1fr;
+      }
+      .viewport-lower {
+        grid-template-columns: 1fr 280px;
+      }
+    }
+
+    @media (max-width: 768px) {
+      #monitor-frame {
+        padding: 3px;
+      }
+
+      #crt-screen {
+        border-radius: 4px;
+        border-width: 1px;
+      }
+
+      /* Compact Header for Mobile */
+      .terminal-header {
+        padding: 4px 6px;
+        font-size: 10px;
+        gap: 4px;
+        flex-wrap: wrap;
+      }
+
+      .header-left {
+        display: flex;
+        align-items: center;
+      }
+
+      .header-left span:nth-child(2) {
+        display: none; /* Hide verbose subtitle */
+      }
+
+      .badge-classified {
+        font-size: 9px;
+        padding: 1px 5px;
+      }
+
+      .header-center {
+        font-size: 10px;
+        gap: 6px;
+      }
+
+      .header-center span:nth-child(1) {
+        display: none; /* Hide Scribe on mobile to save space */
+      }
+
+      .header-actions {
+        gap: 3px;
+        flex-wrap: wrap;
+        width: 100%;
+        justify-content: flex-end;
+      }
+
+      .btn-bezel {
+        font-size: 9px;
+        padding: 2px 5px;
+        letter-spacing: 0;
+      }
+
+      /* Compact Telemetry Strip */
+      .telemetry-strip {
+        padding: 2px 6px;
+        font-size: 10px;
+        gap: 6px;
+        overflow-x: auto;
+        white-space: nowrap;
+        justify-content: space-between;
+      }
+
+      .telemetry-strip::-webkit-scrollbar {
+        display: none;
+      }
+
+      .telemetry-item {
+        font-size: 10px;
+        gap: 2px;
+      }
+
+      .telemetry-val {
+        font-size: 10px;
+      }
+
+      .telemetry-item.sanity-meter-wrap {
+        gap: 4px;
+      }
+
+      .meter-bar-outer {
+        width: 48px;
+        height: 7px;
+      }
+
+      #txt-stage-name {
+        max-width: 120px;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+      }
+
+      /* Main Terminal Viewport on Mobile */
+      .terminal-viewport {
+        display: flex;
+        flex-direction: column;
+        padding: 4px;
+        gap: 4px;
+        overflow: hidden;
+        flex: 1;
+        min-height: 0;
+      }
+
+      /* Upper Scope HUD */
+      .viewport-upper {
+        height: 80px;
+        min-height: 80px;
+        flex-shrink: 0;
+      }
+
+      .panel-header {
+        padding: 2px 6px;
+        font-size: 9px;
+      }
+
+      .scope-overlay-stats {
+        top: 2px;
+        left: 6px;
+        font-size: 9px;
+        line-height: 1.2;
+      }
+
+      .scope-visual-stream {
+        top: 20px;
+        left: 6px;
+        right: 6px;
+        font-size: 13px;
+        gap: 4px;
+      }
+
+      .visual-letter-block {
+        padding: 1px 4px;
+        gap: 3px;
+      }
+
+      .visual-symbol.dot {
+        font-size: 16px;
+      }
+
+      .visual-symbol.dash {
+        font-size: 14px;
+      }
+
+      /* Mobile Deck Tab Bar */
+      .mobile-tab-bar {
+        display: flex;
+        gap: 3px;
+        background: rgba(0, 0, 0, 0.85);
+        border: 1px solid var(--phosphor-dim);
+        border-radius: 3px;
+        padding: 2px;
+        flex-shrink: 0;
+      }
+
+      .mobile-tab-btn {
+        flex: 1;
+        background: transparent;
+        border: 1px solid transparent;
+        color: var(--phosphor-primary);
+        font-family: var(--font-mono);
+        font-size: 10px;
+        font-weight: bold;
+        letter-spacing: 0.5px;
+        padding: 5px 2px;
+        cursor: pointer;
+        border-radius: 2px;
+        text-align: center;
+        touch-action: manipulation;
+        transition: all 0.12s ease;
+      }
+
+      .mobile-tab-btn.active {
+        background: var(--phosphor-dim);
+        border-color: var(--phosphor-bright);
+        color: var(--phosphor-bright);
+        box-shadow: 0 0 6px var(--phosphor-glow);
+      }
+
+      /* Mobile Viewport Center (Card Switcher) */
+      .viewport-center {
+        display: flex;
+        flex-direction: column;
+        flex: 1;
+        min-height: 0;
+        gap: 0;
+      }
+
+      /* Mobile Tab Switching Rules */
+      .terminal-viewport[data-mobile-tab="matrix"] .panel-matrix {
+        display: flex !important;
+        flex: 1;
+        min-height: 0;
+      }
+      .terminal-viewport[data-mobile-tab="matrix"] .panel-radar {
+        display: none !important;
+      }
+
+      .terminal-viewport[data-mobile-tab="radar"] .panel-radar {
+        display: flex !important;
+        flex: 1;
+        min-height: 0;
+        align-items: center;
+        justify-content: center;
+      }
+      .terminal-viewport[data-mobile-tab="radar"] .panel-matrix {
+        display: none !important;
+      }
+
+      .terminal-viewport[data-mobile-tab="intel"] .panel-matrix {
+        display: none !important;
+      }
+      .terminal-viewport[data-mobile-tab="intel"] .panel-radar {
+        display: none !important;
+      }
+
+      /* Morse Matrix Keypad - 6x6 Thumb Grid */
+      .matrix-body {
+        padding: 3px;
+        display: grid;
+        grid-template-columns: repeat(6, 1fr);
+        gap: 3px;
+        align-content: start;
+        flex: 1;
+        min-height: 0;
+      }
+
+      .morse-key-tile {
+        padding: 3px 1px;
+        min-height: 36px;
+        touch-action: manipulation;
+      }
+
+      .key-char {
+        font-size: 14px;
+        line-height: 1.1;
+      }
+
+      .key-code {
+        font-size: 10px;
+        letter-spacing: 0.5px;
+      }
+
+      /* Lower Viewport on Mobile */
+      .viewport-lower {
+        display: flex;
+        flex-direction: column;
+        gap: 4px;
+        flex-shrink: 0;
+        min-height: 0;
+      }
+
+      /* Briefing behavior according to active tab */
+      .panel-briefing {
+        padding: 4px 6px;
+        gap: 3px;
+      }
+
+      /* In Matrix or Radar mode, collapse narrative scroll into a clean 1-line ticker */
+      .terminal-viewport:not([data-mobile-tab="intel"]) .briefing-scroll {
+        display: none;
+      }
+
+      /* In Intel mode, expand briefing narrative to fill center screen */
+      .terminal-viewport[data-mobile-tab="intel"] .panel-briefing {
+        display: flex !important;
+        flex: 1;
+        min-height: 0;
+      }
+
+      .terminal-viewport[data-mobile-tab="intel"] .briefing-scroll {
+        display: block !important;
+        flex: 1;
+        min-height: 0;
+        font-size: 12px;
+        line-height: 1.4;
+      }
+
+      .briefing-title {
+        font-size: 10px;
+        margin-bottom: 2px;
+      }
+
+      /* Command Line Box */
+      .command-line-box {
+        padding: 3px 6px;
+        gap: 4px;
+        margin-top: 0;
+      }
+
+      .prompt-symbol {
+        font-size: 12px;
+      }
+
+      .command-input {
+        font-size: 16px; /* Prevents iOS Safari auto-zoom */
+        letter-spacing: 1.5px;
+      }
+
+      .command-input::placeholder {
+        font-size: 10px;
+        letter-spacing: 0.5px;
+      }
+
+      /* Controls Console */
+      .panel-controls {
+        padding: 4px;
+        gap: 4px;
+        flex-shrink: 0;
+      }
+
+      .control-row {
+        grid-template-columns: 1fr 1fr 0.85fr 0.85fr;
+        gap: 3px;
+      }
+
+      .control-row-secondary {
+        display: none;
+      }
+
+      .btn-tactile {
+        padding: 6px 2px;
+        font-size: 10px;
+        min-height: 38px;
+        touch-action: manipulation;
+      }
+
+      .btn-transmit {
+        padding: 9px;
+        font-size: 12px;
+        letter-spacing: 1px;
+        min-height: 40px;
+      }
+
+      /* Mobile Modal adjustments */
+      .terminal-modal-backdrop {
+        padding: 6px;
+      }
+
+      .terminal-modal-box {
+        max-height: 94dvh;
+        overflow-y: auto;
+        -webkit-overflow-scrolling: touch;
+        padding: 12px 14px;
+        gap: 8px;
+      }
+
+      .modal-dossier-hdr {
+        font-size: 10px;
+      }
+
+      .modal-title {
+        font-size: 18px;
+      }
+
+      .modal-narrative {
+        font-size: 11px;
+        line-height: 1.35;
+        max-height: 90px;
+        overflow-y: auto;
+      }
+
+      .mode-select-grid {
+        grid-template-columns: 1fr;
+        gap: 6px;
+      }
+
+      .mode-select-card {
+        padding: 8px 10px;
+      }
+
+      .mode-card-title {
+        font-size: 12px;
+      }
+
+      .mode-card-desc {
+        font-size: 10px;
+        line-height: 1.3;
+      }
+
+      .modal-stats-grid {
+        grid-template-columns: 1fr;
+        gap: 6px;
+      }
+
+      .modal-stat-card {
+        padding: 6px 10px;
+      }
+
+      .modal-actions {
+        flex-direction: column;
+        gap: 6px;
+      }
+
+      .btn-modal-primary, .btn-modal-secondary {
+        width: 100%;
+        padding: 10px;
+        font-size: 12px;
+      }
+    }
+
+    @media (max-height: 520px) {
+      .viewport-upper {
+        height: 65px;
+        min-height: 65px;
+      }
+      .terminal-viewport {
+        gap: 3px;
+        padding: 2px;
+      }
+      .morse-key-tile {
+        min-height: 28px;
+        padding: 2px 1px;
+      }
+      .key-char {
+        font-size: 12px;
+      }
+      .key-code {
+        font-size: 9px;
+      }
+      .btn-tactile {
+        min-height: 32px;
+        padding: 4px 2px;
+      }
+    }
+  </style>
+</head>
+<body class="theme-green">
+  <!-- Outer Monitor Bezel -->
+  <div id="monitor-frame">
+    <!-- Inner CRT Screen -->
+    <div id="crt-screen">
+      <!-- CRT Shaders -->
+      <div class="crt-scanlines"></div>
+      <div class="crt-vignette"></div>
+      <div class="crt-flicker"></div>
+      <div id="stim-flash-overlay"></div>
+      <div id="blood-smear-overlay">
+        <!-- Rendered dynamically on disciplinary spike failure -->
+      </div>
+
+      <!-- Top Bezel Status Header -->
+      <header class="terminal-header">
+        <div class="header-left">
+          <span class="badge-classified">RESTRICTED // DIRE-ORD-3077</span>
+          <span style="margin-left: 8px; opacity: 0.85;">TERRAN WAR DIRECTORATE // DEEP SIGNAL CRYPT</span>
+        </div>
+        <div class="header-center">
+          <span>SCRIBE: <strong style="color:var(--phosphor-bright);">74-OMICRON</strong></span>
+          <span>DEFCON: <strong style="color:var(--alert-crimson);">1 ACTIVE</strong></span>
+        </div>
+        <div class="header-actions">
+          <button id="btn-gamemode-toggle" class="btn-bezel" title="Toggle Campaign or Arcade Mode">MODE: CAMPAIGN</button>
+          <button id="btn-difficulty-toggle" class="btn-bezel badge-easy" title="Toggle Decryption Difficulty Protocol">DIFFICULTY: EASY</button>
+          <button id="btn-theme-toggle" class="btn-bezel" title="Toggle CRT Phosphor Palette">PHOSPHOR: GREEN</button>
+          <button id="btn-audio-toggle" class="btn-bezel" title="Mute/Unmute Audio Engine">AUDIO: ON</button>
+          <a href="/" class="btn-bezel" style="text-decoration:none;" title="Exit to Portfolio">← ARCHIVE</a>
+        </div>
+      </header>
+
+      <!-- Sub-Header Telemetry Strip -->
+      <div class="telemetry-strip">
+        <div class="telemetry-item">
+          <span id="lbl-operation">STAGE:</span>
+          <span id="txt-stage-name" class="telemetry-val">1 // OPERATION SILENT EYE</span>
+        </div>
+        <div class="telemetry-item">
+          <span id="lbl-counter">INTERCEPT:</span>
+          <span id="txt-intercept-idx" class="telemetry-val">1 / 3</span>
+        </div>
+        <div class="telemetry-item">
+          <span>DIFFICULTY:</span>
+          <span id="txt-difficulty" class="telemetry-val" style="color:var(--phosphor-bright);">EASY [CADET]</span>
+        </div>
+        <div class="telemetry-item">
+          <span>VELOCITY:</span>
+          <span id="txt-wpm" class="telemetry-val">10 WPM</span>
+        </div>
+        <div class="telemetry-item">
+          <span>INTEL BONUS:</span>
+          <span id="txt-intel-bonus" class="telemetry-val">+500 PTS</span>
+        </div>
+        <div class="telemetry-item">
+          <span>SCORE:</span>
+          <span id="txt-total-score" class="telemetry-val">0000</span>
+        </div>
+        <div class="telemetry-item sanity-meter-wrap">
+          <span title="Neural fatigue caused by unshielded void radiation">SANITY:</span>
+          <div class="meter-bar-outer" title="Stimsulf-9 Neural Integrity">
+            <div id="meter-sanity-fill" class="meter-bar-fill"></div>
+          </div>
+          <span id="txt-bpm" style="font-size:11px; opacity:0.8;">HR: 76</span>
+        </div>
+      </div>
+
+      <!-- Main Terminal Viewport Grid -->
+      <main class="terminal-viewport" data-mobile-tab="matrix">
+
+        <!-- UPPER: REAL-TIME AUDIO OSCILLOSCOPE HUD -->
+        <section class="viewport-upper">
+          <div class="panel-header">
+            <div>
+              <span id="carrier-led" class="carrier-led"></span>
+              <strong>FFT AUDIO OSCILLOSCOPE // PHOBOS PROBE CARRIER LOCK (ARES-IV)</strong>
+            </div>
+            <div>
+              <span id="txt-snr" style="margin-right: 12px;">SNR: +22 dB</span>
+              <span style="opacity:0.7;">TIMEBASE: 5ms/DIV</span>
+            </div>
+          </div>
+          <div class="scope-body">
+            <canvas id="oscilloscopeCanvas"></canvas>
+            <div class="scope-overlay-stats">
+              <div>SIGNAL: <span id="txt-signal-status" style="color:var(--phosphor-bright);">MONITORING</span></div>
+              <div>TIMING: <span id="txt-pulse-indicator">DOT: 1t (120ms) | DASH: 3t (360ms)</span></div>
+            </div>
+            <!-- Optical Morse Telemetry Stream (Active in Easy Mode) -->
+            <div id="scope-visual-stream" class="scope-visual-stream">
+              <!-- Rendered in real-time in sync with audio tones -->
+            </div>
+          </div>
+        </section>
+
+        <!-- MOBILE TACTICAL DECK TABS (PORTRAIT & TOUCH SCREENS) -->
+        <div class="mobile-tab-bar" id="mobile-tab-bar">
+          <button id="tab-btn-matrix" class="mobile-tab-btn active" data-tab="matrix" type="button" title="Tactile 36-key Morse matrix keypad">
+            <span>⊞ MORSE KEYPAD</span>
+          </button>
+          <button id="tab-btn-radar" class="mobile-tab-btn" data-tab="radar" type="button" title="PPI Radar sector scan & fleet telemetry">
+            <span>☩ RADAR SECTOR</span>
+          </button>
+          <button id="tab-btn-intel" class="mobile-tab-btn" data-tab="intel" type="button" title="Directorate dispatch & mission intelligence">
+            <span>🗎 MISSION INTEL</span>
+          </button>
+        </div>
+
+        <!-- CENTER: PPI RADAR SWEEP (LEFT) & MORSE TRANSLATION MATRIX (RIGHT) -->
+        <div class="viewport-center">
+          <!-- Center-Left: PPI Sonar / Radar Sweep -->
+          <section class="panel-radar">
+            <div class="panel-header">
+              <strong>PPI RADAR // SECTOR SCAN</strong>
+              <span id="txt-radar-rpm" style="opacity:0.7;">30 RPM</span>
+            </div>
+            <div class="radar-canvas-wrap">
+              <canvas id="radarCanvas"></canvas>
+            </div>
+            <div class="radar-meta">
+              <span>TARGET: MARTIAN DREADNOUGHT</span>
+              <span id="txt-fleet-range">RANGE: 35,780 KM</span>
+            </div>
+          </section>
+
+          <!-- Center-Right: Interactive Morse Code Matrix -->
+          <section class="panel-matrix">
+            <div class="panel-header">
+              <strong>MORSE TRANSLATION MATRIX (CLICK TO PREVIEW TONE)</strong>
+              <span style="opacity:0.7;">ITU STANDARD FORMULA</span>
+            </div>
+            <div id="matrix-container" class="matrix-body">
+              <!-- Dynamically populated with A-Z, 0-9 tiles -->
+            </div>
+          </section>
+        </div>
+
+        <!-- LOWER: MISSION BRIEFING & INDUSTRIAL COMMAND DECK -->
+        <section class="viewport-lower">
+          <!-- Command Prompt & Intercept Briefing -->
+          <div class="panel-briefing">
+            <div class="briefing-title">
+              <span id="txt-brief-title">DIRECTORATE DISPATCH // FREQUENCY 88</span>
+              <span id="txt-replays-count" style="font-size:11px; opacity:0.8;">REPLAYS USED: 0</span>
+            </div>
+            <div id="briefing-content" class="briefing-scroll">
+              <!-- Briefing narrative inserted here -->
+            </div>
+            <!-- Military Command Line Input -->
+            <div class="command-line-box">
+              <span class="prompt-symbol">&gt; INTERCEPT_LOG:</span>
+              <input type="text" id="cmd-input" class="command-input" autocomplete="off" spellcheck="false" autofocus placeholder="TRANSCRIBE PLAINTEXT HERE">
+              <button type="button" id="btn-input-del" class="btn-inline-del" title="Delete last character">⌫</button>
+            </div>
+          </div>
+
+          <!-- Tactile Control Deck -->
+          <div class="panel-controls">
+            <div class="control-row">
+              <button id="btn-replay" class="btn-tactile" title="Replay incoming transmission (-100 pts)" type="button">
+                <span>⟳ REPLAY</span>
+                <span style="font-size:10px; opacity:0.7;">-100 PTS</span>
+              </button>
+              <button id="btn-stim" class="btn-tactile btn-stim" title="Administer Stimsulf-9 injection" type="button">
+                <span>💉 STIM</span>
+                <span id="txt-stim-doses" style="font-size:10px; opacity:0.8;">STIMSULF-9</span>
+              </button>
+              <button id="btn-space" class="btn-tactile" title="Insert Space" type="button">
+                <span>␣ SPACE</span>
+              </button>
+              <button id="btn-del" class="btn-tactile" title="Delete last character" type="button">
+                <span>⌫ DEL</span>
+              </button>
+            </div>
+            <div class="control-row control-row-secondary">
+              <button id="btn-clear" class="btn-tactile btn-clear" type="button">
+                <span>✖ CLEAR</span>
+              </button>
+              <button id="btn-ambience-toggle" class="btn-tactile" type="button">
+                <span id="txt-ambience-label">VACUUM: ON</span>
+              </button>
+            </div>
+            <button id="btn-transmit" class="btn-tactile btn-transmit" title="Send decoded plaintext to Terran War Directorate" type="button">
+              <span>⚡ TRANSMIT DECRYPTION [ENTER]</span>
+            </button>
+          </div>
+        </section>
+
+      </main>
+    </div>
+  </div>
+
+  <!-- MODAL CONTAINER (BOOT, FAILURE, VICTORY) -->
+  <div id="modal-container" class="terminal-modal-backdrop" style="display: flex;">
+    <div id="modal-box" class="terminal-modal-box">
+      <!-- Boot Dialog Initially -->
+      <div class="modal-dossier-hdr">
+        <span>SECURITY CLEARANCE: SCRIBE CLASS-4</span>
+        <span>ANTARCTIC CRYPT // VAULT-14</span>
+      </div>
+      <h1 class="modal-title">PROJECT MARS CODE</h1>
+      <p style="font-size:13px; color:var(--phosphor-bright); letter-spacing:1px; margin-top:-6px;">
+        A GRIMDARK TACTICAL MORSE DECRYPTION TERMINAL // YEAR 3077
+      </p>
+      <div class="modal-narrative">
+        <p>
+          Earth is under terminal siege by the <strong>Golgotha Combine</strong>—a cybernetic Martian post-human death cult. All digital networks have been corrupted by self-replicating scrap-code logic plagues.
+        </p>
+        <p style="margin-top:5px;">
+          Terran defense forces have reverted entirely to raw analog Morse code transmitted over vacuum tubes. Bolted into an unshielded listening coffin beneath the Antarctic crust, transcribe incoming Martian telemetry before the pneumatic skull spike fires.
+        </p>
+      </div>
+
+      <!-- 1. Game Mode Selection -->
+      <div>
+        <span style="font-size:11px; opacity:0.85; text-transform:uppercase; letter-spacing:1px; color:var(--phosphor-bright);">1. SELECT OPERATIONAL MODE:</span>
+        <div class="mode-select-grid">
+          <div id="card-gametype-campaign" class="mode-select-card active">
+            <div class="mode-card-title">CAMPAIGN SCRIPT</div>
+            <div class="mode-card-desc">
+              • 5 narrative military operations (15 intercepts)<br>
+              • Scripted dropouts, scrap-code shrieks & drift<br>
+              • Pre-aligned tungsten strikes & victory debrief
+            </div>
+          </div>
+          <div id="card-gametype-arcade" class="mode-select-card">
+            <div class="mode-card-title">ARCADE SURVIVAL</div>
+            <div class="mode-card-desc">
+              • Endless shuffled military messages<br>
+              • Escalating WPM velocity per cleared wave<br>
+              • Streak score multipliers & local leaderboard
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- 2. Difficulty Protocol Selection -->
+      <div>
+        <span style="font-size:11px; opacity:0.85; text-transform:uppercase; letter-spacing:1px; color:var(--phosphor-bright);">2. SELECT DECRYPTION PROTOCOL:</span>
+        <div class="mode-select-grid">
+          <div id="card-mode-easy" class="mode-select-card active">
+            <div class="mode-card-title">EASY MODE [CADET SCRIBE]</div>
+            <div class="mode-card-desc">
+              • Visual dots & dashes appear with audio wave<br>
+              • Expanded letter spacing (clear 6t pauses)<br>
+              • Grouped letter boundaries [ · — · ]
+            </div>
+          </div>
+          <div id="card-mode-hard" class="mode-select-card">
+            <div class="mode-card-title">HARD MODE [CRYPT-SCRIBE]</div>
+            <div class="mode-card-desc">
+              • Raw vacuum-tube audio (no visual symbols)<br>
+              • Standard military ITU cadence (3t gaps)<br>
+              • +50% Score Multiplier (1.5x)
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="modal-stats-grid">
+        <div class="modal-stat-card">
+          <span class="stat-label">Audio Engine</span>
+          <span class="stat-val">Pure Web Audio</span>
+        </div>
+        <div class="modal-stat-card">
+          <span class="stat-label">Discipline</span>
+          <span class="stat-val" style="color:var(--alert-crimson);">Pneumatic Permadeath</span>
+        </div>
+        <div class="modal-stat-card">
+          <span class="stat-label">Arcade Record</span>
+          <span id="txt-modal-best-arcade" class="stat-val">0 PTS</span>
+        </div>
+      </div>
+      <div class="modal-actions">
+        <button id="btn-start-game" class="btn-modal-primary">ENGAGE VACUUM TUBES & COMMENCE SHIFT</button>
+        <button id="btn-practice-mode" class="btn-modal-secondary">PRACTICE MATRIX</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ==========================================================================
+       GAME ENGINE & WEB AUDIO SCRIPT
+       ========================================================================== -->
+  <script>
+    /**
+     * PROJECT MARS CODE // MASTER APPLICATION SCRIPT
+     * Built to strict military specification TWD-GDD-MARSCODE-REV4.
+     */
+
+    // --- MORSE CODE DICTIONARY (ITU PARIS STANDARD) ---
+    const MORSE_TABLE = {
+      'A': '.-',    'B': '-...',  'C': '-.-.',  'D': '-..',
+      'E': '.',     'F': '..-.',  'G': '--.',   'H': '....',
+      'I': '..',    'J': '.---',  'K': '-.-',   'L': '.-..',
+      'M': '--',    'N': '-.',    'O': '---',   'P': '.--.',
+      'Q': '--.-',  'R': '.-.',   'S': '...',   'T': '-',
+      'U': '..-',   'V': '...-',  'W': '.--',   'X': '-..-',
+      'Y': '-.--',  'Z': '--..',
+      '0': '-----', '1': '.----', '2': '..---', '3': '...--',
+      '4': '....-', '5': '.....', '6': '-....', '7': '--...',
+      '8': '---..', '9': '----.'
+    };
+
+    // --- CAMPAIGN SCRIPT & TRANSMISSION REGISTRY (FROM DOSSIER) ---
+    const CAMPAIGN_STAGES = [
+      {
+        stageNumber: 1,
+        title: "STAGE 1 // OPERATION SILENT EYE",
+        wpm: 10,
+        carrierFreq: 680,
+        freqDrift: 0,
+        snr: "+22 dB",
+        dropouts: null,
+        scrapCodeBleed: false,
+        briefing: "Scribe 74. Martian harvesters have detached from the Phobos ship-breakers. Their sub-void relays are transmitting logistics orders over unshielded frequency 88. Transcribe the plaintext. Failure triggers pneumatic discipline.",
+        intercepts: [
+          {
+            id: "1.1",
+            target: "RADAR",
+            successLog: "Plaintext confirmed. Orbital battery Aegis-1 pre-aligned to Martian transit vectors. Scribe awarded 100ml nutrient mash. Shift continues.",
+            failureLog: "Misdecode forwarded. Aegis-1 caught powered down. Martian heavy raiders strike Earth orbital platform. Disciplinary piston fired. Scribe terminated."
+          },
+          {
+            id: "1.2",
+            target: "VECTOR",
+            successLog: "Vector decoded. Deep missile silos in Patagonia re-targeted. Combine escort raider evaporated in high atmosphere.",
+            failureLog: "Vector corrupt. Kinetic barrage missed Martian entry corridor. Defense grid compromised. Disciplinary piston fired."
+          },
+          {
+            id: "1.3",
+            target: "BEACON",
+            successLog: "Sub-void beacon located. Directional jamming array engaged. Phobos harvester blinded and ejected from orbit.",
+            failureLog: "Beacon unverified. Harvester established orbital beachhead. Antarctic sub-ice bunker detected. Disciplinary piston fired."
+          }
+        ]
+      },
+      {
+        stageNumber: 2,
+        title: "STAGE 2 // IRON RUST MOBILIZATION",
+        wpm: 14,
+        carrierFreq: 660,
+        freqDrift: 10, // ±10 Hz drift
+        snr: "+14 dB",
+        dropouts: null,
+        scrapCodeBleed: false,
+        briefing: "Martian ground silos in the Hellas Planitia have unsealed. Alphanumeric brevities are being bounced through the ionosphere. Audio exhibits frequency drift. Maintain carrier lock.",
+        intercepts: [
+          {
+            id: "2.1",
+            target: "SILO OPEN 7",
+            successLog: "Tungsten kinetic harpoons fired into Silo 7 exhaust ports before ignition. Enemy siege delayed 48 hours.",
+            failureLog: "Misreported silo state. Silo 7 ICBM array ignited unobstructed. Sydney trench redoubt vaporized. Disciplinary piston fired."
+          },
+          {
+            id: "2.2",
+            target: "FLOTILLA 09",
+            successLog: "Flotilla 09 transit trajectory relayed to Lunar Defense Bastion. Martian vanguard pulverized by mass-driver volley.",
+            failureLog: "Flotilla 09 mistranslated as civilian freighter. Lunar mining base wiped out by hyper-velocity particle cannon fire."
+          },
+          {
+            id: "2.3",
+            target: "GRID X4",
+            successLog: "Grid X4 defensive line reinforced. Automated flak railguns shredded Martian dropships in the upper stratosphere.",
+            failureLog: "Incorrect grid coordinates sent. Terran interceptors deployed to empty airspace. Martian drop-pods breached sector bunker."
+          }
+        ]
+      },
+      {
+        stageNumber: 3,
+        title: "STAGE 3 // OPERATION STATIC VEIL",
+        wpm: 18,
+        carrierFreq: 700,
+        freqDrift: 0,
+        snr: "+6 dB (SCRAP-CODE BLEED)",
+        dropouts: null,
+        scrapCodeBleed: true, // Synthetic vocal shrieks
+        briefing: "Martian electronic warfare has layered white-noise scrap-code across all bands. Synthetic vocal shrieks are bleeding into the tone. Ignore the audio screams; read the oscilloscope.",
+        intercepts: [
+          {
+            id: "3.1",
+            target: "ION BURN 4",
+            successLog: "Ion drive signature locked. Earth planetary battery fired counter-thrust interceptors. Martian warship drives fractured.",
+            failureLog: "Ion drive misread. Martian frigate performed high-thrust suicide dive into equatorial thermal plants. Disciplinary piston fired."
+          },
+          {
+            id: "3.2",
+            target: "WARHEAD ARMED",
+            successLog: "Counter-detonation frequencies broadcast. Martian nuclear torpedo disarmed 200km above the Pacific trench.",
+            failureLog: "Warhead arming misdecode. Atmospheric detonation boiled the sub-ice listening arrays. Scribe collar triggered."
+          },
+          {
+            id: "3.3",
+            target: "TARGET LUNAR 2",
+            successLog: "Lunar shields raised 180 seconds prior to impact. Planetary Helium-3 reserves secured. Scribe granted 2-hour sleep cycle.",
+            failureLog: "Incorrect target reported. Lunar reactor cores breached. Rolling blackouts cover the North American trench network."
+          }
+        ]
+      },
+      {
+        stageNumber: 4,
+        title: "STAGE 4 // OCCULTATION CRISIS",
+        wpm: 21,
+        carrierFreq: 640,
+        freqDrift: 0,
+        snr: "+2 dB",
+        dropouts: {
+          "4.1": ["COY", "TOR"],
+          "4.2": ["GA"],
+          "4.3": ["AT"]
+        },
+        scrapCodeBleed: false,
+        briefing: "Ares-IV is swinging behind Phobos. Shadow occultation will produce 0.8-second carrier dead zones. Reconstruct obscured characters from context and cadence.",
+        intercepts: [
+          {
+            id: "4.1",
+            target: "DECOY SECTOR 8",
+            successLog: "Directorate cannons held fire against holographic decoy flotilla. Main power capacitors preserved for real strike.",
+            failureLog: "Decoy misclassified as primary fleet. Main orbital batteries discharged into empty vacuum. Earth defenses drained."
+          },
+          {
+            id: "4.2",
+            target: "OMEGA PULSE",
+            successLog: "Omega Pulse EMP surge anticipated. Sub-ice relay capacitors grounded safely. Communications retained.",
+            failureLog: "Omega Pulse undetected. Electromagnetic blast fried Antarctic geothermal arrays. Terminal failure."
+          },
+          {
+            id: "4.3",
+            target: "LAUNCH AT 0400",
+            successLog: "Synchronized Martian strike schedule cracked. Directorate preemptive missiles launched at 0358. Martian siege delayed.",
+            failureLog: "Launch timestamp missed. Surprise bombardment ruptured Antarctic vault ceiling. Scribe terminated."
+          }
+        ]
+      },
+      {
+        stageNumber: 5,
+        title: "STAGE 5 // OPERATION TWILIGHT HAMMER (FINAL STAND)",
+        wpm: 25,
+        carrierFreq: 720,
+        freqDrift: 15,
+        snr: "-1 dB (TERMINAL CASCADE)",
+        dropouts: null,
+        scrapCodeBleed: true,
+        briefing: "Ares-IV has been intercepted by a Martian ram-drone. The probe is transmitting its death-rattle telemetry at maximum manual speed through total electronic countermeasures. This is the extinction salvo.",
+        intercepts: [
+          {
+            id: "5.1",
+            target: "INVASION VECTOR TANGO 9",
+            successLog: "Invasion Vector Tango 9 pinpointed. Automated orbital mines detonated across the primary entry corridor.",
+            failureLog: "Vector Tango 9 breached atmospheric cordon. Combine butcher-ships unsealed over continental shelters."
+          },
+          {
+            id: "5.2",
+            target: "EARTH GRID COMPROMISED",
+            successLog: "Air-gapped manual circuit breakers pulled. Scrap-code worm halted at the continental firewall.",
+            failureLog: "Grid compromise confirmed too late. Scrap-code infiltrated cryogenic life-support. Millions terminated."
+          },
+          {
+            id: "5.3",
+            target: "GLASS PLANET EARTH",
+            successLog: "Preemptive tungsten volley shreds the Martian dreadnought flagship. Ares-IV destroyed in action. Scribe disciplinary collar disarmed for 24 hours. Shift resumes at 0400.",
+            failureLog: "Kinetic payloads penetrate Earth's upper atmosphere. The bunker observation port flashes radioactive orange. Scribe skull spike triggered. Humanity ends."
+          }
+        ]
+      }
+    ];
+
+    // --- ARCADE TRANSMISSION BANK (SHUFFLED MESSAGES) ---
+    const ARCADE_MESSAGES_POOL = [
+      { target: "RADAR", brief: "Harvester probe telemetry detected. Decrypt carrier plaintext." },
+      { target: "VECTOR", brief: "Martian cruiser transit vector locked. Forward to missile silos." },
+      { target: "BEACON", brief: "Sub-void beacon active on frequency 88. Decode immediately." },
+      { target: "SILO OPEN 7", brief: "Ground silo unsealed in Hellas Planitia. Confirm state." },
+      { target: "FLOTILLA 09", brief: "Martian vanguard transit schedule intercepted." },
+      { target: "GRID X4", brief: "Martian dropship approach coordinates reported." },
+      { target: "ION BURN 4", brief: "High-thrust ion burn detected. Calculate burn duration." },
+      { target: "WARHEAD ARMED", brief: "Nuclear torpedo arming frequency intercepted." },
+      { target: "TARGET LUNAR 2", brief: "Combine bombardment platform targets Lunar reactor core." },
+      { target: "DECOY SECTOR 8", brief: "Holographic decoy fleet deployed in Sector 8." },
+      { target: "OMEGA PULSE", brief: "Electromagnetic pulse wave detected on Phobos frequency." },
+      { target: "LAUNCH AT 0400", brief: "Martian siege strike timetable confirmed." },
+      { target: "INVASION VECTOR TANGO 9", brief: "Extinction salvo coordinates intercepted." },
+      { target: "EARTH GRID COMPROMISED", brief: "Scrap-code logic worm spreading through planetary grid." },
+      { target: "GLASS PLANET EARTH", brief: "Final Martian command order. Earth must burn." },
+      { target: "RAIDER ESCORT", brief: "Fast Martian escorts flanking orbital defense platform." },
+      { target: "VALLEY OF MARS", brief: "Combine forge-temple coordinates decrypted from Hellas." },
+      { target: "TITAN DROP POD", brief: "Heavy biomechanical combat husks deployed into atmosphere." },
+      { target: "SUB VOID BREACH", brief: "Hull breach in Phobos relay platform Ares-IV." },
+      { target: "REACTOR BREACH 9", brief: "Thermal runaway in Combine planetary harvester." },
+      { target: "HELLAS SILO 3", brief: "Second ICBM salvo fueling in subterranean vent." },
+      { target: "SOLENOID FIRE", brief: "Automated Terran railgun batteries firing tungsten slugs." },
+      { target: "KINETIC VOLLEY", brief: "Mass-driver bombardment volley in transit from Martian moon." },
+      { target: "OXYGEN CORRIDOR", brief: "Atmospheric scrubbers offline in Sub-Ice Vault 14." },
+      { target: "PHOBOS DRIFT 01", brief: "Orbital decay detected on enemy listening post." },
+      { target: "TERMINAL COLLAR", brief: "Scribe disciplinary sensor reporting heart-rate spike." },
+      { target: "ION CANNON LOCK", brief: "Martian siege warship locking orbital firing solution." },
+      { target: "DARK SECTOR 4", brief: "Radar dead zone detected over South Pacific trench." },
+      { target: "BUNKER OMEGA 6", brief: "Emergency broadcast from North American command redoubt." },
+      { target: "GOLGOTHA SIEGE", brief: "Combine flag dreadnought descending through thermosphere." },
+      { target: "PLASMA CHARGE 8", brief: "High-energy plasma capacitors discharging." },
+      { target: "ANTARCTIC TRENCH", brief: "Sub-ice hydrophones detect kinetic impactors in glacier." },
+      { target: "DEEP CRYPT VAULT", brief: "Terran War Directorate automated relay checking in." },
+      { target: "HEAVY CARRIER 7", brief: "Combine super-dreadnought detected on outer sonar ring." },
+      { target: "ORBITAL DECAY", brief: "Ares-IV orbital trajectory falling into Martian gravity well." },
+      { target: "TUNGSTEN SLUG 2", brief: "Preemptive kinetic harpoon launched from Earth battery." },
+      { target: "RAM DRONE DETECT", brief: "Automated ram-drone closing on Scribe listening post." },
+      { target: "DEFENSE GRID 99", brief: "Final planetary shield perimeter holding against scrap-code." },
+      { target: "EXTINCTION SALVO", brief: "Terminal countdown initiated. Decrypt final telemetry." },
+      { target: "SECTOR DELTA 5", brief: "Combine raiders unsealing drop bays over continental shelf." },
+      { target: "MASS DRIVER 03", brief: "Lunar defense bastion firing counter-battery volley." },
+      { target: "VOID STALKER 8", brief: "Silent Martian stealth corvette detected on PPI sonar." },
+      { target: "LOGIC PLAGUE", brief: "Scrap-code signature detected on primary carrier wavelength." }
+    ];
+
+    // Helper: Check if character in string is part of an occultation dropout substring
+    function isCharacterDroppedOut(fullText, charIndex, dropouts) {
+      if (!dropouts || dropouts.length === 0) return false;
+      for (const sub of dropouts) {
+        let searchPos = 0;
+        while (true) {
+          const idx = fullText.indexOf(sub, searchPos);
+          if (idx === -1) break;
+          if (charIndex >= idx && charIndex < idx + sub.length) {
+            return true;
+          }
+          searchPos = idx + 1;
+        }
+      }
+      return false;
+    }
+
+    // --- PROCEDURAL AUDIO SYNTHESIS ENGINE (PURE WEB AUDIO) ---
+    class CryptAudioEngine {
+      constructor() {
+        this.ctx = null;
+        this.masterGain = null;
+        this.carrierGain = null;
+        this.carrierOsc = null;
+        this.lfoOsc = null;
+        this.lfoGain = null;
+        this.analyser = null;
+        this.atmosphereGain = null;
+        this.heartbeatGain = null;
+        this.muted = false;
+        this.ambienceActive = true;
+        this.currentWpm = 10;
+        this.currentBaseFreq = 680;
+        this.scheduledEvents = [];
+        this.heartbeatInterval = null;
+        this.heartRate = 72;
+        this.isPlayingTransmission = false;
+        this.onTransmissionComplete = null;
+      }
+
+      init() {
+        if (!this.ctx) {
+          const AudioCtx = window.AudioContext || window.webkitAudioContext;
+          this.ctx = new AudioCtx();
+        }
+
+        if (this.ctx.state === 'suspended') {
+          this.ctx.resume();
+        }
+
+        if (this.masterGain) return;
+
+        // Master Gain
+        this.masterGain = this.ctx.createGain();
+        this.masterGain.gain.setValueAtTime(0.85, this.ctx.currentTime);
+        this.masterGain.connect(this.ctx.destination);
+
+        // Analyser for real-time oscilloscope HUD
+        this.analyser = this.ctx.createAnalyser();
+        this.analyser.fftSize = 1024;
+        this.analyser.smoothingTimeConstant = 0.65;
+        this.analyser.connect(this.masterGain);
+
+        // Carrier Gain (for Morse beeps)
+        this.carrierGain = this.ctx.createGain();
+        this.carrierGain.gain.setValueAtTime(0, this.ctx.currentTime);
+        this.carrierGain.connect(this.analyser);
+
+        // Carrier Oscillator: Sine / band-limited wave
+        this.carrierOsc = this.ctx.createOscillator();
+        this.carrierOsc.type = 'sine';
+        this.carrierOsc.frequency.setValueAtTime(this.currentBaseFreq, this.ctx.currentTime);
+
+        // LFO for frequency drift
+        this.lfoOsc = this.ctx.createOscillator();
+        this.lfoOsc.type = 'sine';
+        this.lfoOsc.frequency.setValueAtTime(0.3, this.ctx.currentTime);
+        this.lfoGain = this.ctx.createGain();
+        this.lfoGain.gain.setValueAtTime(0, this.ctx.currentTime);
+        this.lfoOsc.connect(this.lfoGain);
+        this.lfoGain.connect(this.carrierOsc.frequency);
+
+        this.carrierOsc.connect(this.carrierGain);
+        this.carrierOsc.start();
+        this.lfoOsc.start();
+
+        this.initAtmosphere();
+        this.initHeartbeat();
+      }
+
+      setCarrierFreq(freq, driftHz = 0) {
+        if (!this.ctx) return;
+        this.currentBaseFreq = freq;
+        this.carrierOsc.frequency.setTargetAtTime(freq, this.ctx.currentTime, 0.05);
+        this.lfoGain.gain.setTargetAtTime(driftHz, this.ctx.currentTime, 0.05);
+      }
+
+      initAtmosphere() {
+        if (!this.ctx) return;
+        const bufferSize = this.ctx.sampleRate * 3;
+        const brownBuffer = this.ctx.createBuffer(2, bufferSize, this.ctx.sampleRate);
+
+        for (let ch = 0; ch < 2; ch++) {
+          const data = brownBuffer.getChannelData(ch);
+          let lastOut = 0.0;
+          for (let i = 0; i < bufferSize; i++) {
+            const white = Math.random() * 2 - 1;
+            lastOut = (lastOut + 0.02 * white) / 1.02;
+            data[i] = lastOut * 3.5;
+          }
+        }
+
+        const noiseNode = this.ctx.createBufferSource();
+        noiseNode.buffer = brownBuffer;
+        noiseNode.loop = true;
+
+        // Bandpass Filter at 800 Hz (vacuum tube hiss)
+        const bandpass = this.ctx.createBiquadFilter();
+        bandpass.type = 'bandpass';
+        bandpass.frequency.setValueAtTime(800, this.ctx.currentTime);
+        bandpass.Q.setValueAtTime(1.2, this.ctx.currentTime);
+
+        // Lowpass for Antarctic sub-ice hull rumble (95 Hz)
+        const iceRumble = this.ctx.createBiquadFilter();
+        iceRumble.type = 'lowpass';
+        iceRumble.frequency.setValueAtTime(95, this.ctx.currentTime);
+
+        this.atmosphereGain = this.ctx.createGain();
+        this.atmosphereGain.gain.setValueAtTime(0.09, this.ctx.currentTime);
+
+        noiseNode.connect(bandpass);
+        noiseNode.connect(iceRumble);
+        bandpass.connect(this.atmosphereGain);
+        iceRumble.connect(this.atmosphereGain);
+        this.atmosphereGain.connect(this.analyser);
+
+        noiseNode.start();
+      }
+
+      initHeartbeat() {
+        this.heartbeatGain = this.ctx.createGain();
+        this.heartbeatGain.gain.setValueAtTime(0.0, this.ctx.currentTime);
+        this.heartbeatGain.connect(this.masterGain);
+
+        this.startHeartbeatLoop(72);
+      }
+
+      startHeartbeatLoop(bpm) {
+        if (this.heartbeatInterval) clearInterval(this.heartbeatInterval);
+        this.heartRate = bpm;
+        const intervalMs = (60 / bpm) * 1000;
+        this.heartbeatInterval = setInterval(() => {
+          this.triggerCardiacThud();
+        }, intervalMs);
+      }
+
+      triggerCardiacThud() {
+        if (!this.ctx || this.muted) return;
+        const t = this.ctx.currentTime;
+        this.playSubBassThump(t, 55, 38, 0.12, 0.25);
+        this.playSubBassThump(t + 0.14, 68, 44, 0.09, 0.18);
+      }
+
+      playSubBassThump(time, freqStart, freqEnd, duration, volume) {
+        const osc = this.ctx.createOscillator();
+        const gain = this.ctx.createGain();
+        osc.type = 'sine';
+        osc.frequency.setValueAtTime(freqStart, time);
+        osc.frequency.exponentialRampToValueAtTime(freqEnd, time + duration);
+
+        gain.gain.setValueAtTime(0, time);
+        gain.gain.linearRampToValueAtTime(volume * this.heartbeatGain.gain.value, time + 0.015);
+        gain.gain.exponentialRampToValueAtTime(0.001, time + duration);
+
+        osc.connect(gain);
+        gain.connect(this.masterGain);
+        osc.start(time);
+        osc.stop(time + duration + 0.02);
+      }
+
+      setHeartRate(bpm, intensity = 0.35) {
+        this.startHeartbeatLoop(bpm);
+        if (this.heartbeatGain && this.ctx) {
+          this.heartbeatGain.gain.setTargetAtTime(intensity, this.ctx.currentTime, 0.1);
+        }
+      }
+
+      // 12ms burst of high-passed White Noise (fc = 4500 Hz, Q = 8.0) typewriter key click
+      playKeyClick() {
+        if (!this.ctx) this.init();
+        if (this.ctx.state === 'suspended') this.ctx.resume();
+        if (this.muted) return;
+
+        const bufferSize = Math.floor(this.ctx.sampleRate * 0.012);
+        const noiseBuffer = this.ctx.createBuffer(1, bufferSize, this.ctx.sampleRate);
+        const output = noiseBuffer.getChannelData(0);
+        for (let i = 0; i < bufferSize; i++) {
+          output[i] = Math.random() * 2 - 1;
+        }
+
+        const whiteNode = this.ctx.createBufferSource();
+        whiteNode.buffer = noiseBuffer;
+
+        const hpFilter = this.ctx.createBiquadFilter();
+        hpFilter.type = 'highpass';
+        hpFilter.frequency.setValueAtTime(4500, this.ctx.currentTime);
+        hpFilter.Q.setValueAtTime(8.0, this.ctx.currentTime);
+
+        const clickGain = this.ctx.createGain();
+        clickGain.gain.setValueAtTime(0.35, this.ctx.currentTime);
+        clickGain.gain.exponentialRampToValueAtTime(0.01, this.ctx.currentTime + 0.012);
+
+        // Tactile solenoid relay thud
+        const thudOsc = this.ctx.createOscillator();
+        const thudGain = this.ctx.createGain();
+        thudOsc.type = 'triangle';
+        thudOsc.frequency.setValueAtTime(90, this.ctx.currentTime);
+        thudOsc.frequency.exponentialRampToValueAtTime(30, this.ctx.currentTime + 0.015);
+        thudGain.gain.setValueAtTime(0.4, this.ctx.currentTime);
+        thudGain.gain.exponentialRampToValueAtTime(0.001, this.ctx.currentTime + 0.015);
+
+        whiteNode.connect(hpFilter);
+        hpFilter.connect(clickGain);
+        clickGain.connect(this.masterGain);
+
+        thudOsc.connect(thudGain);
+        thudGain.connect(this.masterGain);
+
+        whiteNode.start();
+        thudOsc.start();
+        thudOsc.stop(this.ctx.currentTime + 0.02);
+      }
+
+      // Needle Injection Audio Slam for Stimsulf-9
+      playStimInject() {
+        if (!this.ctx) this.init();
+        if (this.ctx.state === 'suspended') this.ctx.resume();
+        if (this.muted) return;
+
+        const t = this.ctx.currentTime;
+        const punchOsc = this.ctx.createOscillator();
+        const punchGain = this.ctx.createGain();
+        punchOsc.type = 'sawtooth';
+        punchOsc.frequency.setValueAtTime(1400, t);
+        punchOsc.frequency.exponentialRampToValueAtTime(120, t + 0.04);
+        punchGain.gain.setValueAtTime(0.5, t);
+        punchGain.gain.exponentialRampToValueAtTime(0.01, t + 0.04);
+        punchOsc.connect(punchGain);
+        punchGain.connect(this.masterGain);
+        punchOsc.start(t);
+        punchOsc.stop(t + 0.05);
+
+        const noiseLen = Math.floor(this.ctx.sampleRate * 0.35);
+        const noiseBuf = this.ctx.createBuffer(1, noiseLen, this.ctx.sampleRate);
+        const data = noiseBuf.getChannelData(0);
+        for (let i = 0; i < noiseLen; i++) data[i] = Math.random() * 2 - 1;
+        const src = this.ctx.createBufferSource();
+        src.buffer = noiseBuf;
+
+        const bp = this.ctx.createBiquadFilter();
+        bp.type = 'bandpass';
+        bp.frequency.setValueAtTime(2200, t);
+        bp.Q.setValueAtTime(2.0, t);
+
+        const hissGain = this.ctx.createGain();
+        hissGain.gain.setValueAtTime(0.6, t);
+        hissGain.gain.exponentialRampToValueAtTime(0.01, t + 0.35);
+
+        src.connect(bp);
+        bp.connect(hissGain);
+        hissGain.connect(this.masterGain);
+        src.start(t);
+      }
+
+      // Disciplinary Pneumatic Skull Spike Failure Sound
+      playDisciplinarySpike() {
+        if (!this.ctx) this.init();
+        if (this.ctx.state === 'suspended') this.ctx.resume();
+
+        const t = this.ctx.currentTime;
+        const osc = this.ctx.createOscillator();
+        const gain = this.ctx.createGain();
+        osc.type = 'square';
+        osc.frequency.setValueAtTime(160, t);
+        osc.frequency.exponentialRampToValueAtTime(20, t + 0.35);
+        gain.gain.setValueAtTime(0.9, t);
+        gain.gain.exponentialRampToValueAtTime(0.001, t + 0.4);
+        osc.connect(gain);
+        gain.connect(this.masterGain);
+        osc.start(t);
+        osc.stop(t + 0.45);
+
+        const klaxon = this.ctx.createOscillator();
+        const klaxonGain = this.ctx.createGain();
+        klaxon.type = 'sawtooth';
+        klaxon.frequency.setValueAtTime(940, t + 0.15);
+        klaxonGain.gain.setValueAtTime(0, t);
+        klaxonGain.gain.setValueAtTime(0.4, t + 0.15);
+        klaxonGain.gain.exponentialRampToValueAtTime(0.01, t + 1.2);
+
+        klaxon.frequency.setValueAtTime(940, t + 0.15);
+        klaxon.frequency.setValueAtTime(1180, t + 0.35);
+        klaxon.frequency.setValueAtTime(940, t + 0.55);
+        klaxon.frequency.setValueAtTime(1180, t + 0.75);
+
+        klaxon.connect(klaxonGain);
+        klaxonGain.connect(this.masterGain);
+        klaxon.start(t + 0.15);
+        klaxon.stop(t + 1.3);
+      }
+
+      // Radar ping chime when PPI sweep line crosses Martian assault dreadnought
+      playRadarPing() {
+        if (!this.ctx || this.muted) return;
+        const t = this.ctx.currentTime;
+        const osc = this.ctx.createOscillator();
+        const gain = this.ctx.createGain();
+        osc.type = 'sine';
+        osc.frequency.setValueAtTime(1760, t);
+        osc.frequency.exponentialRampToValueAtTime(880, t + 0.12);
+        gain.gain.setValueAtTime(0.12, t);
+        gain.gain.exponentialRampToValueAtTime(0.001, t + 0.15);
+        osc.connect(gain);
+        gain.connect(this.masterGain);
+        osc.start(t);
+        osc.stop(t + 0.18);
+      }
+
+      // Synthetic Scrap-Code screech bleed
+      triggerScrapCodeBleed(duration = 0.25) {
+        if (!this.ctx || this.muted) return;
+        const t = this.ctx.currentTime;
+        const scream = this.ctx.createOscillator();
+        const gain = this.ctx.createGain();
+        scream.type = 'sawtooth';
+        scream.frequency.setValueAtTime(1200 + Math.random() * 800, t);
+        scream.frequency.linearRampToValueAtTime(400 + Math.random() * 400, t + duration);
+        gain.gain.setValueAtTime(0.18, t);
+        gain.gain.exponentialRampToValueAtTime(0.001, t + duration);
+        scream.connect(gain);
+        gain.connect(this.analyser);
+        scream.start(t);
+        scream.stop(t + duration + 0.02);
+      }
+
+      // Stop any scheduled transmission
+      stopTransmission() {
+        if (!this.ctx) return;
+        this.scheduledEvents.forEach(id => clearTimeout(id));
+        this.scheduledEvents = [];
+        this.carrierGain.gain.cancelScheduledValues(this.ctx.currentTime);
+        this.carrierGain.gain.setValueAtTime(0, this.ctx.currentTime);
+        this.isPlayingTransmission = false;
+        document.getElementById('carrier-led').classList.remove('active');
+      }
+
+      // Play a single character preview (for Morse matrix click)
+      playCharPreview(char, wpm = 14) {
+        this.stopTransmission();
+        const code = MORSE_TABLE[char.toUpperCase()];
+        if (!code) return;
+        this.playMorseString(char, wpm, null, false, 'hard');
+      }
+
+      // Transmit full Morse sequence
+      playMorseString(text, wpm, dropouts = null, hasScrapCode = false, difficulty = 'easy', onSymbol = null, onLetterEnd = null, onWordEnd = null) {
+        if (!this.ctx) this.init();
+        if (this.ctx.state === 'suspended') this.ctx.resume();
+        this.stopTransmission();
+        this.isPlayingTransmission = true;
+        document.getElementById('carrier-led').classList.add('active');
+
+        const tUnit = 1.2 / wpm; // seconds per dot
+        let currentTime = this.ctx.currentTime + 0.05;
+        const upper = text.toUpperCase();
+
+        const isEasy = (difficulty === 'easy');
+        const intraCharGap = 1 * tUnit;
+        const letterGap = isEasy ? (6 * tUnit) : (3 * tUnit);
+        const wordGap = isEasy ? (10 * tUnit) : (7 * tUnit);
+
+        document.getElementById('txt-pulse-indicator').textContent =
+          `DOT: ${Math.round(tUnit * 1000)}ms | DASH: ${Math.round(tUnit * 3000)}ms | GAP: ${isEasy ? '6t (EASY)' : '3t (HARD)'}`;
+
+        for (let i = 0; i < upper.length; i++) {
+          const char = upper[i];
+
+          if (char === ' ') {
+            const extraGap = Math.max(0, wordGap - letterGap);
+            currentTime += extraGap;
+            if (onWordEnd && isEasy) {
+              const delayMs = Math.max(0, (currentTime - this.ctx.currentTime) * 1000);
+              this.scheduledEvents.push(setTimeout(() => {
+                onWordEnd();
+              }, delayMs));
+            }
+            continue;
+          }
+
+          const pattern = MORSE_TABLE[char];
+          const isDropout = isCharacterDroppedOut(upper, i, dropouts);
+
+          if (pattern) {
+            for (let symbolIdx = 0; symbolIdx < pattern.length; symbolIdx++) {
+              const symbol = pattern[symbolIdx];
+              const symbolDuration = (symbol === '.' ? 1 : 3) * tUnit;
+
+              // Schedule visual dot/dash callback in Easy mode
+              if (onSymbol && isEasy) {
+                const symbolStart = currentTime;
+                const delayMs = Math.max(0, (symbolStart - this.ctx.currentTime) * 1000);
+                this.scheduledEvents.push(setTimeout(() => {
+                  onSymbol({
+                    char: char,
+                    charIndex: i,
+                    symbol: symbol,
+                    symbolIdx: symbolIdx,
+                    totalSymbols: pattern.length,
+                    durationMs: symbolDuration * 1000,
+                    isDropout: isDropout
+                  });
+                }, delayMs));
+              }
+
+              if (!isDropout) {
+                this.carrierGain.gain.setValueAtTime(0, currentTime);
+                this.carrierGain.gain.linearRampToValueAtTime(0.48, currentTime + 0.005);
+                this.carrierGain.gain.setValueAtTime(0.48, currentTime + symbolDuration - 0.005);
+                this.carrierGain.gain.linearRampToValueAtTime(0, currentTime + symbolDuration);
+
+                if (hasScrapCode && Math.random() < 0.22) {
+                  const delayMs = (currentTime - this.ctx.currentTime) * 1000;
+                  this.scheduledEvents.push(setTimeout(() => {
+                    this.triggerScrapCodeBleed(0.2);
+                  }, delayMs));
+                }
+              }
+
+              currentTime += symbolDuration;
+
+              // Intra-character space (1 unit silence)
+              if (symbolIdx < pattern.length - 1) {
+                currentTime += intraCharGap;
+              }
+            }
+
+            // Schedule letter complete callback
+            if (onLetterEnd && isEasy) {
+              const letterEnd = currentTime;
+              const delayMs = Math.max(0, (letterEnd - this.ctx.currentTime) * 1000);
+              this.scheduledEvents.push(setTimeout(() => {
+                onLetterEnd({
+                  char: char,
+                  charIndex: i
+                });
+              }, delayMs));
+            }
+          }
+
+          // Letter space (6t in Easy, 3t in Hard)
+          if (i < upper.length - 1 && upper[i + 1] !== ' ') {
+            currentTime += letterGap;
+          }
+        }
+
+        // Schedule end of transmission callback
+        const totalDurationMs = (currentTime - this.ctx.currentTime) * 1000;
+        this.scheduledEvents.push(setTimeout(() => {
+          this.isPlayingTransmission = false;
+          document.getElementById('carrier-led').classList.remove('active');
+          if (this.onTransmissionComplete) {
+            this.onTransmissionComplete();
+          }
+        }, Math.max(100, totalDurationMs)));
+      }
+
+      toggleAudio() {
+        this.muted = !this.muted;
+        if (this.masterGain && this.ctx) {
+          this.masterGain.gain.setValueAtTime(this.muted ? 0 : 0.85, this.ctx.currentTime);
+        }
+        return !this.muted;
+      }
+
+      toggleAmbience() {
+        this.ambienceActive = !this.ambienceActive;
+        if (this.atmosphereGain && this.ctx) {
+          this.atmosphereGain.gain.setValueAtTime(this.ambienceActive ? 0.09 : 0, this.ctx.currentTime);
+        }
+        return this.ambienceActive;
+      }
+    }
+
+    // --- GAME ENGINE STATE & LOGIC CONTROLLER ---
+    class MarsCodeGame {
+      constructor() {
+        this.audio = new CryptAudioEngine();
+        this.gameMode = localStorage.getItem('mars_code_gamemode') || 'campaign'; // 'campaign' or 'arcade'
+        this.difficulty = localStorage.getItem('mars_code_difficulty') || 'easy'; // 'easy' or 'hard'
+        
+        // Campaign state
+        this.currentStageIdx = 0;
+        this.currentInterceptIdx = 0;
+
+        // Arcade Survival state
+        this.arcadeWave = 1;
+        this.arcadeStreak = 0;
+        this.arcadeBestStreak = parseInt(localStorage.getItem('mars_code_arcade_beststreak') || '0', 10);
+        this.arcadeHighScore = parseInt(localStorage.getItem('mars_code_arcade_highscore') || '0', 10);
+        this.arcadeDeck = [];
+        this.arcadeDeckIndex = 0;
+        this.currentArcadeItem = null;
+
+        this.score = 0;
+        this.intelBonus = 500;
+        this.replaysCount = 0;
+        this.sanity = 100.0;
+        this.stimDoses = 3;
+        this.stimActiveTimer = 0;
+        this.inPracticeMode = false;
+        this.gameActive = false;
+        this.theme = 'green';
+        this.fleetRangeKm = 35780;
+        this.radarAngle = 0;
+        this.fleetBlips = [];
+        this.radarPingDebounce = false;
+        this.pulseHistory = [];
+
+        // Visual stream state for Easy Mode
+        this.visualLetterBlocks = [];
+        this.currentActiveBlock = null;
+
+        // UI Element References
+        this.cmdInput = document.getElementById('cmd-input');
+        this.btnTransmit = document.getElementById('btn-transmit');
+        this.btnReplay = document.getElementById('btn-replay');
+        this.btnStim = document.getElementById('btn-stim');
+        this.btnClear = document.getElementById('btn-clear');
+        this.btnAudioToggle = document.getElementById('btn-audio-toggle');
+        this.btnAmbienceToggle = document.getElementById('btn-ambience-toggle');
+        this.btnThemeToggle = document.getElementById('btn-theme-toggle');
+        this.btnModeToggle = document.getElementById('btn-gamemode-toggle');
+        this.btnDifficultyToggle = document.getElementById('btn-difficulty-toggle');
+        this.meterSanityFill = document.getElementById('meter-sanity-fill');
+        this.briefingContent = document.getElementById('briefing-content');
+        this.modalContainer = document.getElementById('modal-container');
+        this.modalBox = document.getElementById('modal-box');
+        this.bloodOverlay = document.getElementById('blood-smear-overlay');
+        this.stimOverlay = document.getElementById('stim-flash-overlay');
+        this.visualStreamEl = document.getElementById('scope-visual-stream');
+
+        // Mobile UI Deck References
+        this.activeMobileTab = 'matrix';
+        this.btnDel = document.getElementById('btn-del');
+        this.btnInputDel = document.getElementById('btn-input-del');
+        this.btnSpace = document.getElementById('btn-space');
+        this.mobileTabBar = document.getElementById('mobile-tab-bar');
+
+        // Canvases
+        this.scopeCanvas = document.getElementById('oscilloscopeCanvas');
+        this.scopeCtx = this.scopeCanvas.getContext('2d');
+        this.radarCanvas = document.getElementById('radarCanvas');
+        this.radarCtx = this.radarCanvas.getContext('2d');
+
+        this.initDOM();
+        this.updateModeUI();
+        this.updateDifficultyUI();
+        this.resizeCanvases();
+        window.addEventListener('resize', () => this.resizeCanvases());
+      }
+
+      setMobileTab(tab) {
+        this.activeMobileTab = tab;
+        this.audio.playKeyClick();
+
+        const tabBtns = document.querySelectorAll('.mobile-tab-btn');
+        tabBtns.forEach(btn => {
+          btn.classList.toggle('active', btn.dataset.tab === tab);
+        });
+
+        const viewport = document.querySelector('.terminal-viewport');
+        if (viewport) {
+          viewport.setAttribute('data-mobile-tab', tab);
+        }
+
+        setTimeout(() => {
+          this.resizeCanvases();
+        }, 30);
+      }
+
+      initDOM() {
+        // Mobile Tab Bar Setup
+        const tabBtns = document.querySelectorAll('.mobile-tab-btn');
+        tabBtns.forEach(btn => {
+          btn.addEventListener('click', (e) => {
+            if (e) e.preventDefault();
+            const targetTab = btn.dataset.tab;
+            this.setMobileTab(targetTab);
+          });
+        });
+
+        // Build Morse Matrix Tiles
+        const matrixContainer = document.getElementById('matrix-container');
+        matrixContainer.innerHTML = '';
+        Object.keys(MORSE_TABLE).forEach(char => {
+          const tile = document.createElement('div');
+          tile.className = 'morse-key-tile';
+          tile.title = `Tap to preview tone & transcribe ${char}`;
+          tile.innerHTML = `
+            <span class="key-char">${char}</span>
+            <span class="key-code">${MORSE_TABLE[char]}</span>
+          `;
+          tile.addEventListener('click', (e) => {
+            if (e) e.preventDefault();
+            this.audio.playKeyClick();
+            const wpm = this.getCurrentWPM();
+            this.audio.playCharPreview(char, wpm);
+            tile.classList.add('active-beep');
+            setTimeout(() => tile.classList.remove('active-beep'), 250);
+
+            // Direct tactile transcription into intercept log
+            if (!this.cmdInput.disabled) {
+              this.cmdInput.value += char;
+            }
+          });
+          matrixContainer.appendChild(tile);
+        });
+
+        // Command Line Keyboard Solenoid / Key Click
+        this.cmdInput.addEventListener('keydown', (e) => {
+          this.audio.playKeyClick();
+          if (e.key === 'Enter') {
+            this.submitDecryption();
+          }
+        });
+
+        this.btnTransmit.addEventListener('click', () => {
+          this.audio.playKeyClick();
+          this.submitDecryption();
+        });
+
+        this.btnReplay.addEventListener('click', () => {
+          this.replayCurrentIntercept();
+        });
+
+        this.btnStim.addEventListener('click', () => {
+          this.administerStim();
+        });
+
+        this.btnClear.addEventListener('click', () => {
+          this.audio.playKeyClick();
+          this.cmdInput.value = '';
+          this.cmdInput.focus();
+        });
+
+        // Tactile Delete / Backspace Handlers
+        const handleDeleteChar = (e) => {
+          if (e) e.preventDefault();
+          this.audio.playKeyClick();
+          if (this.cmdInput.value.length > 0) {
+            this.cmdInput.value = this.cmdInput.value.slice(0, -1);
+          }
+        };
+
+        if (this.btnDel) this.btnDel.addEventListener('click', handleDeleteChar);
+        if (this.btnInputDel) this.btnInputDel.addEventListener('click', handleDeleteChar);
+
+        // Tactile Space Bar Handler
+        if (this.btnSpace) {
+          this.btnSpace.addEventListener('click', (e) => {
+            if (e) e.preventDefault();
+            this.audio.playKeyClick();
+            if (!this.cmdInput.disabled) {
+              this.cmdInput.value += ' ';
+            }
+          });
+        }
+
+        this.btnAudioToggle.addEventListener('click', () => {
+          const on = this.audio.toggleAudio();
+          this.btnAudioToggle.textContent = `AUDIO: ${on ? 'ON' : 'MUTED'}`;
+        });
+
+        this.btnAmbienceToggle.addEventListener('click', () => {
+          const active = this.audio.toggleAmbience();
+          document.getElementById('txt-ambience-label').textContent = `VACUUM HISS: ${active ? 'ON' : 'OFF'}`;
+        });
+
+        this.btnThemeToggle.addEventListener('click', () => {
+          this.toggleTheme();
+        });
+
+        // Game Mode Toggle (Campaign / Arcade)
+        this.btnModeToggle.addEventListener('click', () => {
+          this.toggleGameMode();
+        });
+
+        // Difficulty Mode Toggle in Bezel
+        this.btnDifficultyToggle.addEventListener('click', () => {
+          this.toggleDifficulty();
+        });
+
+        // Modal Game Mode Selection Cards
+        const cardCampaign = document.getElementById('card-gametype-campaign');
+        const cardArcade = document.getElementById('card-gametype-arcade');
+        if (cardCampaign && cardArcade) {
+          cardCampaign.addEventListener('click', () => {
+            this.setGameMode('campaign');
+          });
+          cardArcade.addEventListener('click', () => {
+            this.setGameMode('arcade');
+          });
+        }
+
+        // Modal Difficulty Cards
+        const cardEasy = document.getElementById('card-mode-easy');
+        const cardHard = document.getElementById('card-mode-hard');
+        if (cardEasy && cardHard) {
+          cardEasy.addEventListener('click', () => {
+            this.setDifficulty('easy');
+          });
+          cardHard.addEventListener('click', () => {
+            this.setDifficulty('hard');
+          });
+        }
+
+        // Boot Button
+        document.getElementById('btn-start-game').addEventListener('click', () => {
+          this.startGame(false);
+        });
+
+        // Practice Matrix Button
+        document.getElementById('btn-practice-mode').addEventListener('click', () => {
+          this.startGame(true);
+        });
+
+        // Global hotkeys (Ctrl+Space = Stim)
+        window.addEventListener('keydown', (e) => {
+          if (e.key === ' ' && e.ctrlKey) {
+            e.preventDefault();
+            this.administerStim();
+          }
+        });
+      }
+
+      toggleGameMode() {
+        this.setGameMode(this.gameMode === 'campaign' ? 'arcade' : 'campaign');
+        if (this.gameActive) {
+          this.startSelectedMode();
+        }
+      }
+
+      setGameMode(mode) {
+        this.gameMode = mode;
+        localStorage.setItem('mars_code_gamemode', mode);
+        this.updateModeUI();
+      }
+
+      updateModeUI() {
+        const isArcade = (this.gameMode === 'arcade');
+        this.btnModeToggle.textContent = isArcade ? 'MODE: ARCADE' : 'MODE: CAMPAIGN';
+        this.btnModeToggle.className = `btn-bezel ${isArcade ? 'badge-arcade' : ''}`;
+
+        const cardCampaign = document.getElementById('card-gametype-campaign');
+        const cardArcade = document.getElementById('card-gametype-arcade');
+        if (cardCampaign && cardArcade) {
+          if (isArcade) {
+            cardArcade.classList.add('active');
+            cardCampaign.classList.remove('active');
+          } else {
+            cardCampaign.classList.add('active');
+            cardArcade.classList.remove('active');
+          }
+        }
+
+        const lblOp = document.getElementById('lbl-operation');
+        const lblCount = document.getElementById('lbl-counter');
+        if (lblOp && lblCount) {
+          lblOp.textContent = isArcade ? 'OPERATION:' : 'STAGE:';
+          lblCount.textContent = isArcade ? 'WAVE:' : 'INTERCEPT:';
+        }
+
+        const txtModalRecord = document.getElementById('txt-modal-best-arcade');
+        if (txtModalRecord) {
+          txtModalRecord.textContent = `${this.arcadeHighScore.toLocaleString()} PTS (STREAK: ${this.arcadeBestStreak})`;
+        }
+      }
+
+      toggleDifficulty() {
+        this.setDifficulty(this.difficulty === 'easy' ? 'hard' : 'easy');
+        if (this.gameActive) {
+          this.replayCurrentIntercept();
+        }
+      }
+
+      setDifficulty(mode) {
+        this.difficulty = mode;
+        localStorage.setItem('mars_code_difficulty', mode);
+        this.updateDifficultyUI();
+      }
+
+      updateDifficultyUI() {
+        const isEasy = (this.difficulty === 'easy');
+        this.btnDifficultyToggle.textContent = isEasy ? 'DIFFICULTY: EASY' : 'DIFFICULTY: HARD';
+        this.btnDifficultyToggle.className = `btn-bezel ${isEasy ? 'badge-easy' : 'badge-hard'}`;
+
+        const txtDiff = document.getElementById('txt-difficulty');
+        if (txtDiff) {
+          txtDiff.textContent = isEasy ? 'EASY [CADET]' : 'HARD [1.5x]';
+          txtDiff.style.color = isEasy ? 'var(--phosphor-bright)' : 'var(--alert-crimson)';
+        }
+
+        const cardEasy = document.getElementById('card-mode-easy');
+        const cardHard = document.getElementById('card-mode-hard');
+        if (cardEasy && cardHard) {
+          if (isEasy) {
+            cardEasy.classList.add('active');
+            cardHard.classList.remove('active');
+          } else {
+            cardHard.classList.add('active');
+            cardEasy.classList.remove('active');
+          }
+        }
+
+        if (!isEasy && this.visualStreamEl) {
+          this.visualStreamEl.innerHTML = `<span style="font-size:12px; opacity:0.75; letter-spacing:1px; color:var(--alert-crimson);">[HARD MODE // RAW VACUUM CARRIER // NO OPTICAL TELEMETRY]</span>`;
+        } else if (isEasy && this.visualStreamEl && !this.audio.isPlayingTransmission && this.visualLetterBlocks.length === 0) {
+          this.visualStreamEl.innerHTML = `<span style="font-size:12px; opacity:0.75; letter-spacing:1px;">[EASY MODE // OPTICAL MORSE DECODER ACTIVE // 6t LETTER SPACING]</span>`;
+        }
+      }
+
+      toggleTheme() {
+        this.theme = (this.theme === 'green' ? 'amber' : 'green');
+        document.body.className = `theme-${this.theme}`;
+        this.btnThemeToggle.textContent = `PHOSPHOR: ${this.theme.toUpperCase()}`;
+      }
+
+      resizeCanvases() {
+        if (this.scopeCanvas) {
+          this.scopeCanvas.width = this.scopeCanvas.parentElement.clientWidth * window.devicePixelRatio;
+          this.scopeCanvas.height = this.scopeCanvas.parentElement.clientHeight * window.devicePixelRatio;
+        }
+        if (this.radarCanvas) {
+          const size = Math.min(
+            this.radarCanvas.parentElement.clientWidth,
+            this.radarCanvas.parentElement.clientHeight
+          ) * window.devicePixelRatio;
+          this.radarCanvas.width = size;
+          this.radarCanvas.height = size;
+        }
+      }
+
+      getCurrentStage() {
+        return CAMPAIGN_STAGES[this.currentStageIdx];
+      }
+
+      getCurrentIntercept() {
+        if (this.gameMode === 'arcade') {
+          return this.currentArcadeItem;
+        }
+        return this.getCurrentStage().intercepts[this.currentInterceptIdx];
+      }
+
+      getCurrentWPM() {
+        if (this.gameMode === 'arcade') {
+          // Speed ramps with streak: 10 WPM to 26 WPM
+          return Math.min(26, 10 + Math.floor(this.arcadeStreak * 1.5));
+        }
+        return this.getCurrentStage().wpm;
+      }
+
+      startGame(practiceMode = false) {
+        this.inPracticeMode = practiceMode;
+        this.modalContainer.style.display = 'none';
+        this.audio.init();
+        this.gameActive = true;
+        this.score = 0;
+        this.sanity = 100.0;
+        this.stimDoses = 3;
+
+        this.startSelectedMode();
+        this.startLoop();
+        this.cmdInput.focus();
+      }
+
+      startSelectedMode() {
+        if (this.gameMode === 'arcade') {
+          this.initArcadeMode();
+        } else {
+          this.initCampaignMode();
+        }
+      }
+
+      initCampaignMode() {
+        this.currentStageIdx = 0;
+        this.currentInterceptIdx = 0;
+        this.initStage(0);
+      }
+
+      initArcadeMode() {
+        this.arcadeWave = 1;
+        this.arcadeStreak = 0;
+        this.initArcadeDeck();
+        this.generateFleetBlips();
+        this.loadArcadeWave();
+      }
+
+      // Shuffled Deck for Arcade Mode
+      initArcadeDeck() {
+        this.arcadeDeck = [...ARCADE_MESSAGES_POOL];
+        // Fisher-Yates shuffle
+        for (let i = this.arcadeDeck.length - 1; i > 0; i--) {
+          const j = Math.floor(Math.random() * (i + 1));
+          [this.arcadeDeck[i], this.arcadeDeck[j]] = [this.arcadeDeck[j], this.arcadeDeck[i]];
+        }
+        this.arcadeDeckIndex = 0;
+      }
+
+      initStage(stageIdx) {
+        this.currentStageIdx = stageIdx;
+        this.currentInterceptIdx = 0;
+        const stage = this.getCurrentStage();
+
+        this.audio.setCarrierFreq(stage.carrierFreq, stage.freqDrift);
+
+        document.getElementById('txt-stage-name').textContent = stage.title;
+        document.getElementById('txt-wpm').textContent = `${stage.wpm} WPM`;
+        document.getElementById('txt-carrier').textContent = `${stage.carrierFreq} HZ`;
+        document.getElementById('txt-snr').textContent = `SNR: ${stage.snr}`;
+
+        this.generateFleetBlips();
+        this.loadIntercept(this.currentInterceptIdx);
+      }
+
+      loadArcadeWave() {
+        if (this.arcadeDeckIndex >= this.arcadeDeck.length) {
+          this.initArcadeDeck(); // Reshuffle when deck exhausted
+        }
+
+        const item = this.arcadeDeck[this.arcadeDeckIndex++];
+        const wpm = this.getCurrentWPM();
+        const baseFreq = 660 + (this.arcadeWave % 5) * 15;
+        const drift = (this.arcadeWave > 5) ? 10 : 0;
+
+        this.currentArcadeItem = {
+          id: `ARC-${this.arcadeWave}`,
+          target: item.target,
+          brief: item.brief,
+          wpm: wpm,
+          carrierFreq: baseFreq,
+          successLog: `Sub-void transmission decrypted. Martian vector neutralized. Streak continues: ${this.arcadeStreak + 1}.`,
+          failureLog: `Misdecode intercepted. Martian dreadnought payload breached bunker ceiling. Survival run terminated.`
+        };
+
+        this.audio.setCarrierFreq(baseFreq, drift);
+
+        this.intelBonus = 500;
+        this.replaysCount = 0;
+        this.fleetRangeKm = Math.max(800, 35000 - (this.arcadeWave * 1200));
+
+        document.getElementById('txt-stage-name').textContent = `ARCADE SURVIVAL // SHUFFLED STREAM`;
+        document.getElementById('txt-intercept-idx').textContent = `WAVE ${this.arcadeWave} (STREAK: ${this.arcadeStreak})`;
+        document.getElementById('txt-wpm').textContent = `${wpm} WPM`;
+        document.getElementById('txt-intel-bonus').textContent = `+${this.intelBonus} PTS`;
+        document.getElementById('txt-total-score').textContent = this.score.toString().padStart(4, '0');
+        document.getElementById('txt-replays-count').textContent = `REPLAYS USED: ${this.replaysCount}`;
+        document.getElementById('txt-signal-status').textContent = 'RECEIVING SHUFFLED CARRIER...';
+
+        this.resetVisualStream();
+
+        this.briefingContent.innerHTML = `
+          <div style="margin-bottom:6px; color:var(--phosphor-bright);">
+            <strong>ARCADE SURVIVAL // WAVE ${this.arcadeWave} // SHUFFLED SIGNAL</strong>
+            <span style="float:right; font-size:11px; color:${this.difficulty === 'hard' ? 'var(--alert-crimson)' : 'var(--phosphor-bright)'};">
+              ${this.difficulty === 'hard' ? 'HARD (1.5x MULTIPLIER)' : 'EASY MODE'} · BEST STREAK: ${this.arcadeBestStreak}
+            </span>
+          </div>
+          <p style="margin-bottom:6px;">${item.brief}</p>
+          <div style="font-size:11px; opacity:0.85; border-left: 2px solid var(--phosphor-dim); padding-left: 6px;">
+            ARES-IV SHUFFLED STREAM: Velocity calibrated at ${wpm} WPM. Submitting incorrect letter triggers instant disciplinary termination.
+          </div>
+        `;
+
+        this.cmdInput.value = '';
+        this.cmdInput.disabled = false;
+        this.btnTransmit.disabled = false;
+        this.cmdInput.focus();
+
+        setTimeout(() => {
+          this.playCurrentTransmission();
+        }, 600);
+      }
+
+      generateFleetBlips() {
+        this.fleetBlips = [];
+        const count = 3 + (this.gameMode === 'arcade' ? (this.arcadeWave % 6) * 2 : this.currentStageIdx * 2);
+        for (let i = 0; i < count; i++) {
+          this.fleetBlips.push({
+            angle: (Math.PI * 2 * (i / count)) + (Math.random() * 0.4 - 0.2),
+            distFactor: 0.85 + Math.random() * 0.12,
+            pulse: 0,
+            active: true
+          });
+        }
+      }
+
+      loadIntercept(interceptIdx) {
+        if (this.gameMode === 'arcade') {
+          this.loadArcadeWave();
+          return;
+        }
+
+        this.currentInterceptIdx = interceptIdx;
+        const stage = this.getCurrentStage();
+        const intercept = this.getCurrentIntercept();
+
+        this.intelBonus = 500;
+        this.replaysCount = 0;
+        this.fleetRangeKm = 35780 - (this.currentStageIdx * 6000) - (this.currentInterceptIdx * 800);
+
+        document.getElementById('txt-stage-name').textContent = stage.title;
+        document.getElementById('txt-intercept-idx').textContent = `${interceptIdx + 1} / ${stage.intercepts.length}`;
+        document.getElementById('txt-wpm').textContent = `${stage.wpm} WPM`;
+        document.getElementById('txt-intel-bonus').textContent = `+${this.intelBonus} PTS`;
+        document.getElementById('txt-total-score').textContent = this.score.toString().padStart(4, '0');
+        document.getElementById('txt-replays-count').textContent = `REPLAYS USED: ${this.replaysCount}`;
+        document.getElementById('txt-signal-status').textContent = 'RECEIVING TRANSMISSION...';
+
+        this.resetVisualStream();
+
+        this.briefingContent.innerHTML = `
+          <div style="margin-bottom:6px; color:var(--phosphor-bright);">
+            <strong>OPERATIONAL DISPATCH // STAGE ${stage.stageNumber}.${interceptIdx + 1}</strong>
+            <span style="float:right; font-size:11px; color:${this.difficulty === 'hard' ? 'var(--alert-crimson)' : 'var(--phosphor-bright)'};">
+              ${this.difficulty === 'hard' ? 'HARD MODE (1.5x MULTIPLIER)' : 'EASY MODE ACTIVE'}
+            </span>
+          </div>
+          <p style="margin-bottom:6px;">${stage.briefing}</p>
+          <div style="font-size:11px; opacity:0.85; border-left: 2px solid var(--phosphor-dim); padding-left: 6px;">
+            ARES-IV ORBITAL PROBE: Intercept frequency 88 locked. Plaintext verification required before orbital firing envelope closes.
+          </div>
+        `;
+
+        this.cmdInput.value = '';
+        this.cmdInput.disabled = false;
+        this.btnTransmit.disabled = false;
+        this.cmdInput.focus();
+
+        setTimeout(() => {
+          this.playCurrentTransmission();
+        }, 600);
+      }
+
+      resetVisualStream() {
+        this.visualLetterBlocks = [];
+        this.currentActiveBlock = null;
+        if (this.visualStreamEl) {
+          if (this.difficulty === 'easy') {
+            this.visualStreamEl.innerHTML = '';
+          } else {
+            this.visualStreamEl.innerHTML = `<span style="font-size:12px; opacity:0.75; letter-spacing:1px; color:var(--alert-crimson);">[HARD MODE // RAW VACUUM CARRIER // NO OPTICAL TELEMETRY]</span>`;
+          }
+        }
+      }
+
+      playCurrentTransmission() {
+        const intercept = this.getCurrentIntercept();
+        const wpm = this.getCurrentWPM();
+        let dropouts = null;
+        let scrapCode = false;
+
+        if (this.gameMode === 'campaign') {
+          const stage = this.getCurrentStage();
+          dropouts = stage.dropouts ? stage.dropouts[intercept.id] : null;
+          scrapCode = stage.scrapCodeBleed;
+        } else {
+          // In arcade mode, add sporadic scrap code at higher waves
+          scrapCode = (this.arcadeWave >= 8 && Math.random() < 0.4);
+        }
+
+        this.resetVisualStream();
+
+        this.audio.playMorseString(
+          intercept.target,
+          wpm,
+          dropouts,
+          scrapCode,
+          this.difficulty,
+          (data) => this.handleVisualSymbol(data),
+          (data) => this.handleVisualLetterEnd(data),
+          () => this.handleVisualWordEnd()
+        );
+      }
+
+      handleVisualSymbol(data) {
+        if (this.difficulty !== 'easy' || !this.visualStreamEl) return;
+
+        if (data.symbolIdx === 0 || !this.currentActiveBlock || this.currentActiveBlock.charIndex !== data.charIndex) {
+          const block = document.createElement('div');
+          block.className = 'visual-letter-block active';
+          block.dataset.charIndex = data.charIndex;
+
+          const openBracket = document.createElement('span');
+          openBracket.style.opacity = '0.5';
+          openBracket.textContent = '[';
+          block.appendChild(openBracket);
+
+          this.visualStreamEl.appendChild(block);
+          this.currentActiveBlock = {
+            el: block,
+            char: data.char,
+            charIndex: data.charIndex,
+            symbols: []
+          };
+          this.visualLetterBlocks.push(this.currentActiveBlock);
+        }
+
+        const symEl = document.createElement('span');
+        const isDot = (data.symbol === '.');
+        symEl.className = `visual-symbol ${isDot ? 'dot' : 'dash'} pulse`;
+        symEl.textContent = isDot ? '·' : '—';
+
+        if (data.isDropout) {
+          symEl.style.opacity = '0.35';
+          symEl.title = 'Signal Obscured (Phobos Occultation)';
+        }
+
+        this.currentActiveBlock.el.appendChild(symEl);
+        this.currentActiveBlock.symbols.push({ symbol: data.symbol, el: symEl });
+
+        this.visualStreamEl.scrollLeft = this.visualStreamEl.scrollWidth;
+
+        setTimeout(() => {
+          symEl.classList.remove('pulse');
+        }, Math.max(50, data.durationMs * 0.85));
+      }
+
+      handleVisualLetterEnd(data) {
+        if (this.difficulty !== 'easy' || !this.currentActiveBlock) return;
+        const closeBracket = document.createElement('span');
+        closeBracket.style.opacity = '0.5';
+        closeBracket.textContent = ']';
+        this.currentActiveBlock.el.appendChild(closeBracket);
+
+        this.currentActiveBlock.el.classList.remove('active');
+        this.currentActiveBlock.el.classList.add('completed');
+      }
+
+      handleVisualWordEnd() {
+        if (this.difficulty !== 'easy' || !this.visualStreamEl) return;
+        const sep = document.createElement('span');
+        sep.className = 'visual-word-separator';
+        sep.textContent = ' // ';
+        this.visualStreamEl.appendChild(sep);
+        this.visualStreamEl.scrollLeft = this.visualStreamEl.scrollWidth;
+      }
+
+      replayCurrentIntercept() {
+        if (!this.gameActive) return;
+        this.replaysCount++;
+        this.intelBonus = Math.max(0, this.intelBonus - 100);
+        document.getElementById('txt-intel-bonus').textContent = `+${this.intelBonus} PTS`;
+        document.getElementById('txt-replays-count').textContent = `REPLAYS USED: ${this.replaysCount}`;
+        this.audio.playKeyClick();
+        this.playCurrentTransmission();
+      }
+
+      administerStim() {
+        if (!this.gameActive || this.stimDoses <= 0) return;
+        this.stimDoses--;
+        this.sanity = 100.0;
+        this.stimActiveTimer = 15.0;
+
+        this.audio.playStimInject();
+        this.stimOverlay.classList.add('active');
+        setTimeout(() => this.stimOverlay.classList.remove('active'), 250);
+
+        const elevatedBpm = 110 + (3 - this.stimDoses) * 15;
+        this.audio.setHeartRate(elevatedBpm, 0.5);
+
+        document.getElementById('txt-stim-doses').textContent = `DOSES: ${this.stimDoses}`;
+        document.getElementById('txt-bpm').textContent = `HR: ${elevatedBpm}`;
+
+        this.updateSanityMeter();
+      }
+
+      updateSanityMeter() {
+        this.meterSanityFill.style.width = `${Math.max(0, Math.min(100, this.sanity))}%`;
+        if (this.sanity < 30) {
+          this.meterSanityFill.classList.add('critical');
+          document.getElementById('crt-screen').classList.add('screen-jitter');
+        } else {
+          this.meterSanityFill.classList.remove('critical');
+          document.getElementById('crt-screen').classList.remove('screen-jitter');
+        }
+      }
+
+      submitDecryption() {
+        if (!this.gameActive) return;
+        const inputRaw = this.cmdInput.value.trim().toUpperCase();
+        const target = this.getCurrentIntercept().target.toUpperCase();
+
+        if (inputRaw.length === 0) return;
+
+        if (inputRaw === target) {
+          // --- SUCCESSFUL TRANSMISSION ---
+          this.audio.stopTransmission();
+          const multiplier = (this.difficulty === 'hard') ? 1.5 : 1.0;
+          
+          let earned = 0;
+          if (this.gameMode === 'arcade') {
+            this.arcadeStreak++;
+            if (this.arcadeStreak > this.arcadeBestStreak) {
+              this.arcadeBestStreak = this.arcadeStreak;
+              localStorage.setItem('mars_code_arcade_beststreak', this.arcadeBestStreak);
+            }
+            const streakBonus = this.arcadeStreak * 150;
+            earned = Math.round((1000 + this.intelBonus + streakBonus) * multiplier);
+            this.score += earned;
+
+            if (this.score > this.arcadeHighScore) {
+              this.arcadeHighScore = this.score;
+              localStorage.setItem('mars_code_arcade_highscore', this.arcadeHighScore);
+            }
+
+            document.getElementById('txt-total-score').textContent = this.score.toString().padStart(4, '0');
+
+            this.briefingContent.innerHTML = `
+              <div style="color:var(--phosphor-bright); font-weight:bold; margin-bottom:4px;">
+                [✓] SHUFFLED TRANSMISSION CONFIRMED // STREAK: ${this.arcadeStreak}
+              </div>
+              <p style="color:var(--phosphor-bright); margin-bottom:6px;">${this.getCurrentIntercept().successLog}</p>
+              <div style="font-size:12px; opacity:0.9;">
+                AWARD: +${earned} PTS (INTEL: +${this.intelBonus} | STREAK BONUS: +${streakBonus} ${multiplier > 1 ? '· 1.5x HARD' : ''})
+              </div>
+            `;
+
+            this.cmdInput.disabled = true;
+            this.btnTransmit.disabled = true;
+
+            setTimeout(() => {
+              this.arcadeWave++;
+              this.loadArcadeWave();
+            }, 2100);
+
+          } else {
+            // Campaign Mode
+            earned = Math.round((1000 + this.intelBonus) * multiplier);
+            this.score += earned;
+            document.getElementById('txt-total-score').textContent = this.score.toString().padStart(4, '0');
+
+            this.briefingContent.innerHTML = `
+              <div style="color:var(--phosphor-bright); font-weight:bold; margin-bottom:4px;">
+                [✓] PLAINTEXT VERIFIED // TRANSMISSION LOGGED (${this.difficulty.toUpperCase()} MODE)
+              </div>
+              <p style="color:var(--phosphor-bright); margin-bottom:6px;">${this.getCurrentIntercept().successLog}</p>
+              <div style="font-size:12px; opacity:0.9;">
+                AWARD: +${earned} PTS (INTEL BONUS: +${this.intelBonus} PTS ${multiplier > 1 ? '· 1.5x HARD MULTIPLIER' : ''})
+              </div>
+            `;
+
+            this.cmdInput.disabled = true;
+            this.btnTransmit.disabled = true;
+
+            setTimeout(() => {
+              if (this.currentInterceptIdx + 1 < this.getCurrentStage().intercepts.length) {
+                this.loadIntercept(this.currentInterceptIdx + 1);
+              } else if (this.currentStageIdx + 1 < CAMPAIGN_STAGES.length) {
+                this.initStage(this.currentStageIdx + 1);
+              } else {
+                this.triggerCampaignVictory();
+              }
+            }, 2400);
+          }
+
+        } else {
+          // --- FAILURE: DISCIPLINARY PNEUMATIC SKULL SPIKE TERMINATION ---
+          this.triggerDisciplinarySpikeFailure(inputRaw, target);
+        }
+      }
+
+      triggerDisciplinarySpikeFailure(userInput, expectedTarget) {
+        this.gameActive = false;
+        this.audio.stopTransmission();
+        this.audio.playDisciplinarySpike();
+
+        this.bloodOverlay.innerHTML = `
+          <div class="fracture-lines"></div>
+          <div style="text-align:center; padding:20px; z-index:10; text-shadow:0 0 10px #000;">
+            <div style="font-size:38px; font-weight:bold; color:#ff2233; letter-spacing:3px;">
+              PNEUMATIC SPIKE DEPLOYED
+            </div>
+            <div style="font-size:18px; color:#fff; letter-spacing:2px; margin-top:8px;">
+              CRANIAL TERMINATION OF SCRIBE UNIT 74-OMICRON CONFIRMED
+            </div>
+          </div>
+        `;
+        this.bloodOverlay.classList.add('active');
+
+        setTimeout(() => {
+          this.showFailureModal(userInput, expectedTarget);
+        }, 1200);
+      }
+
+      showFailureModal(userInput, expectedTarget) {
+        const intercept = this.getCurrentIntercept();
+        const isArcade = (this.gameMode === 'arcade');
+
+        this.modalBox.className = "terminal-modal-box modal-failure";
+        this.modalBox.innerHTML = `
+          <div class="modal-dossier-hdr" style="color:var(--alert-crimson);">
+            <span>COURT-MARTIAL RECORD // TERMINAL CASUALTY</span>
+            <span>DIRE-ORD-3077 VIOLATION [${isArcade ? 'ARCADE MODE' : 'CAMPAIGN'}]</span>
+          </div>
+          <h1 class="modal-title" style="color:var(--alert-crimson);">DISCIPLINARY SPIKE ACTIVATED</h1>
+          <div class="modal-narrative" style="color:#ffcccc;">
+            <p><strong>FAILURE DEBRIEF:</strong> ${intercept.failureLog}</p>
+            <div style="background:rgba(0,0,0,0.85); border:1px solid var(--alert-crimson); padding:10px; margin-top:10px; border-radius:3px; font-family:var(--font-mono);">
+              <div>EXPECTED PLAINTEXT: <strong style="color:var(--phosphor-bright);">${expectedTarget}</strong></div>
+              <div>TRANSMITTED ERROR:  <strong style="color:var(--alert-crimson);">${userInput || '[EMPTY / CORRUPT]'}</strong></div>
+            </div>
+          </div>
+          <div class="modal-stats-grid" style="border-color:var(--alert-crimson);">
+            <div class="modal-stat-card">
+              <span class="stat-label">Final Score</span>
+              <span class="stat-val" style="color:var(--alert-crimson);">${this.score}</span>
+            </div>
+            <div class="modal-stat-card">
+              <span class="stat-label">${isArcade ? 'Survival Waves' : 'Failing Stage'}</span>
+              <span class="stat-val">${isArcade ? `Wave ${this.arcadeWave} (Streak ${this.arcadeStreak})` : `Stage ${this.currentStageIdx + 1}.${this.currentInterceptIdx + 1}`}</span>
+            </div>
+            <div class="modal-stat-card">
+              <span class="stat-label">${isArcade ? 'Best Arcade Run' : 'Protocol'}</span>
+              <span class="stat-val">${isArcade ? `${this.arcadeHighScore} PTS (Streak: ${this.arcadeBestStreak})` : this.difficulty.toUpperCase()}</span>
+            </div>
+          </div>
+          <div class="modal-actions">
+            <button id="btn-retry" class="btn-modal-primary" style="background:var(--alert-crimson); color:#fff;">
+              CONSCRIPT REPLACEMENT SCRIBE (${isArcade ? 'RESTART ARCADE' : 'RETRY STAGE'})
+            </button>
+            <button id="btn-switch-mode" class="btn-modal-secondary">
+              SWITCH TO ${isArcade ? 'CAMPAIGN' : 'ARCADE'}
+            </button>
+            <button id="btn-exit" class="btn-modal-secondary" onclick="window.location.href='/'">
+              PORTFOLIO ARCHIVE
+            </button>
+          </div>
+        `;
+
+        this.modalContainer.style.display = 'flex';
+        document.getElementById('btn-retry').addEventListener('click', () => {
+          this.bloodOverlay.classList.remove('active');
+          this.modalBox.className = "terminal-modal-box";
+          this.startGame(false);
+        });
+        document.getElementById('btn-switch-mode').addEventListener('click', () => {
+          this.bloodOverlay.classList.remove('active');
+          this.modalBox.className = "terminal-modal-box";
+          this.toggleGameMode();
+          this.startGame(false);
+        });
+      }
+
+      triggerCampaignVictory() {
+        this.gameActive = false;
+        this.audio.stopTransmission();
+
+        this.modalBox.className = "terminal-modal-box";
+        this.modalBox.innerHTML = `
+          <div class="modal-dossier-hdr">
+            <span>CAMPAIGN COMPLETE // EARTH PERSISTS</span>
+            <span>TERRAN WAR DIRECTORATE CITATION [${this.difficulty.toUpperCase()} MODE]</span>
+          </div>
+          <h1 class="modal-title" style="color:var(--phosphor-bright);">MARTIAN SIEGE REPULSED</h1>
+          <div class="modal-narrative">
+            <p>
+              Preemptive tungsten volley shreds the Martian dreadnought flagship. Ares-IV destroyed in action. Scribe disciplinary collar disarmed for 24 hours. Shift resumes at 0400.
+            </p>
+            <p style="margin-top:8px;">
+              Your precision Morse decryption beneath the Antarctic crust has preserved the final human redoubt against the cybernetic Golgotha Combine.
+            </p>
+          </div>
+          <div class="modal-stats-grid">
+            <div class="modal-stat-card">
+              <span class="stat-label">Total Score</span>
+              <span class="stat-val" style="color:var(--phosphor-bright);">${this.score}</span>
+            </div>
+            <div class="modal-stat-card">
+              <span class="stat-label">Stages Cleared</span>
+              <span class="stat-val">5 / 5 Complete</span>
+            </div>
+            <div class="modal-stat-card">
+              <span class="stat-label">Arcade Record</span>
+              <span class="stat-val">${this.arcadeHighScore} PTS</span>
+            </div>
+          </div>
+          <div class="modal-actions">
+            <button id="btn-victory-arcade" class="btn-modal-primary">DEPLOY TO ARCADE SURVIVAL</button>
+            <button id="btn-victory-retry" class="btn-modal-secondary">REPLAY CAMPAIGN</button>
+            <button class="btn-modal-secondary" onclick="window.location.href='/'">PORTFOLIO</button>
+          </div>
+        `;
+
+        this.modalContainer.style.display = 'flex';
+        document.getElementById('btn-victory-arcade').addEventListener('click', () => {
+          this.setGameMode('arcade');
+          this.startGame(false);
+        });
+        document.getElementById('btn-victory-retry').addEventListener('click', () => {
+          this.setGameMode('campaign');
+          this.startGame(false);
+        });
+      }
+
+      startLoop() {
+        let lastTime = performance.now();
+
+        const loop = (now) => {
+          const dt = (now - lastTime) / 1000;
+          lastTime = now;
+
+          if (this.gameActive) {
+            if (this.stimActiveTimer > 0) {
+              this.stimActiveTimer -= dt;
+            } else {
+              this.sanity = Math.max(0, this.sanity - (dt * 1.2));
+            }
+            this.updateSanityMeter();
+
+            if (this.sanity < 30 && Math.random() < 0.04) {
+              this.audio.playKeyClick();
+            }
+
+            this.radarAngle = (this.radarAngle + Math.PI * dt) % (Math.PI * 2);
+
+            this.fleetBlips.forEach(blip => {
+              if (blip.distFactor > 0.15) {
+                blip.distFactor -= dt * 0.003;
+              }
+              const angleDiff = Math.abs((this.radarAngle - blip.angle + Math.PI * 2) % (Math.PI * 2));
+              if (angleDiff < 0.06 && !this.radarPingDebounce) {
+                blip.pulse = 1.0;
+                this.audio.playRadarPing();
+                this.radarPingDebounce = true;
+                setTimeout(() => this.radarPingDebounce = false, 120);
+              } else {
+                blip.pulse = Math.max(0, blip.pulse - dt * 0.8);
+              }
+            });
+
+            this.fleetRangeKm = Math.max(120, Math.floor(this.fleetRangeKm - dt * 18));
+            document.getElementById('txt-fleet-range').textContent = `RANGE: ${this.fleetRangeKm.toLocaleString()} KM`;
+          }
+
+          if (this.audio && this.audio.analyser) {
+            const arr = new Uint8Array(64);
+            this.audio.analyser.getByteFrequencyData(arr);
+            let maxAmp = 0;
+            for (let i = 0; i < arr.length; i++) {
+              if (arr[i] > maxAmp) maxAmp = arr[i];
+            }
+            this.pulseHistory.push(maxAmp / 255.0);
+            if (this.pulseHistory.length > 200) {
+              this.pulseHistory.shift();
+            }
+          }
+
+          this.renderOscilloscope();
+          this.renderRadar();
+
+          requestAnimationFrame(loop);
+        };
+
+        requestAnimationFrame(loop);
+      }
+
+      renderOscilloscope() {
+        const ctx = this.scopeCtx;
+        const w = this.scopeCanvas.width;
+        const h = this.scopeCanvas.height;
+        if (!ctx || w === 0 || h === 0) return;
+
+        ctx.fillStyle = this.theme === 'amber' ? 'rgba(8, 6, 3, 0.28)' : 'rgba(5, 8, 5, 0.28)';
+        ctx.fillRect(0, 0, w, h);
+
+        // Graticule Grid
+        ctx.strokeStyle = this.theme === 'amber' ? 'rgba(229, 169, 60, 0.12)' : 'rgba(51, 255, 51, 0.12)';
+        ctx.lineWidth = 1;
+
+        const gridX = 10;
+        const gridY = 6;
+        for (let x = 0; x <= gridX; x++) {
+          ctx.beginPath();
+          ctx.moveTo((w / gridX) * x, 0);
+          ctx.lineTo((w / gridX) * x, h);
+          ctx.stroke();
+        }
+        for (let y = 0; y <= gridY; y++) {
+          ctx.beginPath();
+          ctx.moveTo(0, (h / gridY) * y);
+          ctx.lineTo(w, (h / gridY) * y);
+          ctx.stroke();
+        }
+
+        // Rolling Pulse Duration Tracker (bottom strip)
+        const stripHeight = 22 * window.devicePixelRatio;
+        const stripY = h - stripHeight - (4 * window.devicePixelRatio);
+        ctx.fillStyle = 'rgba(0, 0, 0, 0.4)';
+        ctx.fillRect(0, stripY, w, stripHeight);
+        ctx.strokeStyle = this.theme === 'amber' ? 'rgba(229, 169, 60, 0.2)' : 'rgba(51, 255, 51, 0.2)';
+        ctx.strokeRect(0, stripY, w, stripHeight);
+
+        if (this.pulseHistory.length > 1) {
+          const step = w / 200;
+          for (let i = 0; i < this.pulseHistory.length; i++) {
+            const amp = this.pulseHistory[i];
+            if (amp > 0.15) {
+              ctx.fillStyle = this.theme === 'amber' ? '#ffc966' : '#66ff66';
+              const bh = amp * (stripHeight - 4);
+              ctx.fillRect(i * step, stripY + stripHeight - bh - 2, step + 0.5, bh);
+            }
+          }
+        }
+
+        // Real-Time Waveform Trace from AnalyserNode
+        if (this.audio && this.audio.analyser) {
+          const bufferLength = this.audio.analyser.fftSize;
+          const dataArray = new Uint8Array(bufferLength);
+          this.audio.analyser.getByteTimeDomainData(dataArray);
+
+          ctx.lineWidth = 2.5;
+          ctx.strokeStyle = this.theme === 'amber' ? '#ffc966' : '#66ff66';
+          ctx.shadowBlur = 8;
+          ctx.shadowColor = this.theme === 'amber' ? '#e5a93c' : '#33ff33';
+
+          ctx.beginPath();
+          const sliceWidth = w / bufferLength;
+          let x = 0;
+
+          const waveCenterY = stripY / 2;
+          const waveAmpMax = Math.max(12 * window.devicePixelRatio, stripY * 0.42);
+
+          for (let i = 0; i < bufferLength; i++) {
+            const v = dataArray[i] / 128.0;
+            const y = waveCenterY + ((v - 1.0) * waveAmpMax * 0.85);
+
+            if (i === 0) {
+              ctx.moveTo(x, y);
+            } else {
+              ctx.lineTo(x, y);
+            }
+            x += sliceWidth;
+          }
+          ctx.stroke();
+          ctx.shadowBlur = 0;
+        }
+      }
+
+      renderRadar() {
+        const ctx = this.radarCtx;
+        const w = this.radarCanvas.width;
+        const h = this.radarCanvas.height;
+        if (!ctx || w === 0 || h === 0) return;
+
+        const cx = w / 2;
+        const cy = h / 2;
+        const radius = (Math.min(w, h) / 2) - 10;
+
+        ctx.fillStyle = this.theme === 'amber' ? 'rgba(8, 6, 3, 0.16)' : 'rgba(5, 8, 5, 0.16)';
+        ctx.fillRect(0, 0, w, h);
+
+        const primaryCol = this.theme === 'amber' ? '#e5a93c' : '#33ff33';
+        const faintCol = this.theme === 'amber' ? 'rgba(229, 169, 60, 0.22)' : 'rgba(51, 255, 51, 0.22)';
+
+        ctx.strokeStyle = faintCol;
+        ctx.lineWidth = 1;
+        const rings = [0.25, 0.5, 0.75, 1.0];
+        rings.forEach(r => {
+          ctx.beginPath();
+          ctx.arc(cx, cy, radius * r, 0, Math.PI * 2);
+          ctx.stroke();
+        });
+
+        ctx.beginPath();
+        ctx.moveTo(cx - radius, cy);
+        ctx.lineTo(cx + radius, cy);
+        ctx.moveTo(cx, cy - radius);
+        ctx.lineTo(cx, cy + radius);
+        ctx.stroke();
+
+        const sweepAngle = this.radarAngle;
+
+        ctx.strokeStyle = primaryCol;
+        ctx.lineWidth = 2;
+        ctx.beginPath();
+        ctx.moveTo(cx, cy);
+        ctx.lineTo(cx + Math.cos(sweepAngle) * radius, cy + Math.sin(sweepAngle) * radius);
+        ctx.stroke();
+
+        this.fleetBlips.forEach(blip => {
+          const bx = cx + Math.cos(blip.angle) * (radius * blip.distFactor);
+          const by = cy + Math.sin(blip.angle) * (radius * blip.distFactor);
+
+          const alpha = 0.4 + blip.pulse * 0.6;
+          ctx.fillStyle = this.theme === 'amber'
+            ? `rgba(255, 120, 40, ${alpha})`
+            : `rgba(255, 50, 50, ${alpha})`;
+          ctx.shadowBlur = blip.pulse > 0 ? 12 : 4;
+          ctx.shadowColor = '#ff2233';
+
+          ctx.beginPath();
+          ctx.arc(bx, by, 3.5 + blip.pulse * 2.5, 0, Math.PI * 2);
+          ctx.fill();
+
+          if (blip.pulse > 0.2) {
+            ctx.strokeStyle = `rgba(255, 50, 50, ${blip.pulse * 0.7})`;
+            ctx.lineWidth = 1.5;
+            ctx.beginPath();
+            ctx.arc(bx, by, (1 - blip.pulse) * 16, 0, Math.PI * 2);
+            ctx.stroke();
+          }
+          ctx.shadowBlur = 0;
+        });
+
+        ctx.fillStyle = primaryCol;
+        ctx.beginPath();
+        ctx.arc(cx, cy, 3, 0, Math.PI * 2);
+        ctx.fill();
+      }
+    }
+
+    // Initialize Game on Window Load
+    window.addEventListener('DOMContentLoaded', () => {
+      window.marsCodeApp = new MarsCodeGame();
+    });
+  </script>
+</body>
+</html>
