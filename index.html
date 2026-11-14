@@ -243,7 +243,7 @@
                     </div>
                     <h2 class="section-title">Selected Works & Systems</h2>
                     <p class="section-subtitle">
-                        Explore front-end web applications, progressive tools, and detailed isometric 3D worlds.
+                        Explore front-end web applications, Linux desktop utilities, and detailed isometric 3D worlds.
                     </p>
                 </div>
 
@@ -266,7 +266,7 @@
 
                         <div class="portfolio-image-container" @click="openPreview(item)" style="cursor: pointer;">
                             <div class="portfolio-image" :style="{ backgroundImage: 'url(' + item.image + ')' }"></div>
-                            <span class="portfolio-category-badge" :class="item.category === '3D Art' ? 'category-3d' : 'category-web'">
+                            <span class="portfolio-category-badge" :class="item.category === '3D Art' ? 'category-3d' : (item.category === 'Desktop Apps' ? 'category-desktop' : 'category-web')">
                                 {{ item.category }}
                             </span>
                         </div>
@@ -275,14 +275,16 @@
                             <p class="portfolio-date">
                                 {{ item.date }}
                                 <span v-if="item.category === 'Web Development'" class="vibe-coded-tag">· Vibe-coded</span>
+                                <span v-else-if="item.category === 'Desktop Apps'" class="vibe-coded-tag">· Linux</span>
                             </p>
                             <h3>{{ item.title }}</h3>
                             <p>{{ item.description }}</p>
 
                             <div class="portfolio-footer">
-                                <a :href="item.link" class="btn-card-primary">
-                                    <span>View Project</span>
-                                    <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"></path><path d="m12 5 7 7-7 7"></path></svg>
+                                <a :href="item.link" :download="item.downloadName || null" class="btn-card-primary">
+                                    <span>{{ item.downloadName ? 'Download (.tar.gz)' : 'View Project' }}</span>
+                                    <svg v-if="item.downloadName" xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg>
+                                    <svg v-else xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"></path><path d="m12 5 7 7-7 7"></path></svg>
                                 </a>
                                 <button @click="openPreview(item)" class="btn-card-preview" title="Quick inspect">
                                     <span>Preview</span>
@@ -372,12 +374,13 @@
                 </div>
 
                 <div class="modal-meta-row">
-                    <span class="portfolio-category-badge" :class="previewItem.category === '3D Art' ? 'category-3d' : 'category-web'">
+                    <span class="portfolio-category-badge" :class="previewItem.category === '3D Art' ? 'category-3d' : (previewItem.category === 'Desktop Apps' ? 'category-desktop' : 'category-web')">
                         {{ previewItem.category }}
                     </span>
                     <span class="hud-label">
                         {{ previewItem.date }}
                         <span v-if="previewItem.category === 'Web Development'" class="vibe-coded-tag">· Vibe-coded</span>
+                        <span v-else-if="previewItem.category === 'Desktop Apps'" class="vibe-coded-tag">· Linux</span>
                     </span>
                 </div>
 
@@ -388,9 +391,10 @@
                     <button @click="closePreview" class="btn-hud-secondary" style="padding: 0.75rem 1.5rem;">
                         Close
                     </button>
-                    <a :href="previewItem.link" class="btn-hud-primary" style="padding: 0.75rem 1.75rem;">
-                        <span>Launch Full Project</span>
-                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"></path><path d="m12 5 7 7-7 7"></path></svg>
+                    <a :href="previewItem.link" :download="previewItem.downloadName || null" class="btn-hud-primary" style="padding: 0.75rem 1.75rem;">
+                        <span>{{ previewItem.downloadName ? 'Download Package (.tar.gz)' : 'Launch Full Project' }}</span>
+                        <svg v-if="previewItem.downloadName" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg>
+                        <svg v-else xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"></path><path d="m12 5 7 7-7 7"></path></svg>
                     </a>
                 </div>
             </div>
@@ -433,11 +437,21 @@
                 ]);
 
                 const activeCategory = ref('All');
-                const categories = ['All', '3D Art', 'Web Development'];
+                const categories = ['All', '3D Art', 'Web Development', 'Desktop Apps'];
                 const showAllProjects = ref(false);
 
                 // All portfolio projects
                 const portfolioItems = ref([
+                    {
+                        id: 37,
+                        title: 'Matrix System Monitor',
+                        date: 'November 2026',
+                        category: 'Desktop Apps',
+                        description: 'A retro black-and-phosphor-green PySide6 telemetry dashboard for Linux. Features live CPU, Memory/Swap, Network Down/Up, and GPU/Disk history graphs, streaming journalctl logs, a digital clock with full-month calendar, dynamic no-scroll resizing, and selectable vibrant color themes.',
+                        image: '/media/project-previews/matrix-monitor.png',
+                        link: '/desktop_apps/matrix-monitor.tar.gz',
+                        downloadName: 'matrix-monitor.tar.gz'
+                    },
                     {
                         id: 36,
                         title: 'Mars Code',

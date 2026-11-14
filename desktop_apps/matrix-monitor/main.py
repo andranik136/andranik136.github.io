@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Matrix System Monitor — Retro black & vibrant phosphor telemetry app for Linux/Bazzite."""
+"""Matrix System Monitor — Retro black & vibrant phosphor telemetry app for Linux."""
 
 from __future__ import annotations
 
@@ -53,7 +53,7 @@ class MatrixHeaderBar(QWidget):
 
     def __init__(self, on_theme_selected, parent: QWidget | None = None) -> None:
         super().__init__(parent)
-        self.left_text = "MATRIX_SYS_MON // BAZZITE"
+        self.left_text = "MATRIX_SYS_MON // LINUX"
         self.hint_text = "[F11] FULL  [M] MON  [T] 12/24H  [G] GPU/DISK  [SPACE] LOGS  [Q] QUIT"
         self.setSizePolicy(QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Fixed)
         self.setFixedHeight(28)

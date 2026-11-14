@@ -1027,7 +1027,8 @@ button {
 }
 
 .portfolio-category-badge.category-3d,
-.portfolio-category-badge.category-web {
+.portfolio-category-badge.category-web,
+.portfolio-category-badge.category-desktop {
     background: var(--amber-flame);
     color: var(--bg-deepest);
 }

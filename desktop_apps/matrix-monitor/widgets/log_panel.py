@@ -144,7 +144,7 @@ class LogStreamPanel(QWidget):
         prompt_y = log_rect.top() + len(visible) * line_h
         if prompt_y + line_h <= log_rect.bottom() + 2:
             cursor_char = "█" if (self._blink_on and not self.paused) else " "
-            prompt_text = f"root@bazzite:~# journalctl -f {cursor_char}"
+            prompt_text = f"root@linux:~# journalctl -f {cursor_char}"
             painter.setFont(font)
             painter.setPen(MatrixPalette.PRIMARY)
             painter.drawText(

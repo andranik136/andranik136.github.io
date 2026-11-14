@@ -1,6 +1,6 @@
 # Matrix System Monitor
 
-A retro black-and-vibrant-phosphor Linux/Bazzite desktop application designed to run full screen on a secondary monitor as informational ambiance.
+A retro black-and-vibrant-phosphor Linux desktop application designed to run full screen on a secondary monitor as informational ambiance.
 
 ## Features
 
@@ -37,7 +37,7 @@ Right-click anywhere for a menu, or use keyboard shortcuts:
 - `Esc`: Exit fullscreen
 - `Q` / `Ctrl+Q`: Quit
 
-## Desktop Launcher (Bazzite / KDE / GNOME)
+## Desktop Launcher (Linux / KDE / GNOME)
 
 Run `./install-desktop.sh` to install the SVG icon and `io.github.andranik136.MatrixMonitor.desktop` launcher into `~/.local/share/`.
 

@@ -1,5 +1,15 @@
 [
   {
+    "id": 37,
+    "title": "Matrix System Monitor",
+    "date": "November 2026",
+    "category": "Desktop Apps",
+    "description": "A retro black-and-phosphor-green PySide6 telemetry dashboard for Linux. Features live CPU, Memory/Swap, Network Down/Up, and GPU/Disk history graphs, streaming journalctl logs, a digital clock with full-month calendar, dynamic no-scroll resizing, and selectable vibrant color themes.",
+    "image": "/media/project-previews/matrix-monitor.png",
+    "link": "/desktop_apps/matrix-monitor.tar.gz",
+    "downloadName": "matrix-monitor.tar.gz"
+  },
+  {
     "id": 33,
     "title": "Daily Tracker",
     "date": "September 2026",

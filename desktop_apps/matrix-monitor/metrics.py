@@ -1,4 +1,4 @@
-"""System telemetry collector for Linux / Bazzite (CPU, Memory/Swap, Network, GPU, Disk)."""
+"""System telemetry collector for Linux (CPU, Memory/Swap, Network, GPU, Disk)."""
 
 from __future__ import annotations
 

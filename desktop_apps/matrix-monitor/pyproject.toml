@@ -1,7 +1,7 @@
 [project]
 name = "matrix-system-monitor"
 version = "0.2.0"
-description = "Retro black & vibrant phosphor system telemetry, log stream, clock, and calendar for Linux/Bazzite."
+description = "Retro black & vibrant phosphor system telemetry, log stream, clock, and calendar for Linux."
 readme = "README.md"
 requires-python = ">=3.11"
 dependencies = [
