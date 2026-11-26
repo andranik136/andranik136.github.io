@@ -69,9 +69,6 @@
 
                 <!-- 3D floating & rotating work cards -->
                 <div id="galaxy-cards-container"></div>
-
-                <!-- Central contrast pocket scrim -->
-                <div class="hero-scrim"></div>
             </div>
 
             <div class="hero-content">
@@ -131,22 +128,15 @@
                 <button type="button" class="about-toggle-bar" @click="aboutExpanded = !aboutExpanded"
                     :aria-expanded="aboutExpanded" aria-controls="about-panel">
                     <span class="about-toggle-left">
-                        <img src="/media/my-profile-img.jpg" alt="" class="about-toggle-avatar" aria-hidden="true">
-                        <span class="about-toggle-text">
-                            <span class="about-toggle-label">About Me</span>
-                            <span class="about-toggle-sub">California · {{ californiaTime }}</span>
+                        <span class="about-toggle-label">About Me</span>
+                        <span v-show="!aboutExpanded" class="about-toggle-preview">
+                            I’m <span>Andranik</span>. I build interactive web apps, 3D scenes, and playful digital tools.
                         </span>
                     </span>
 
-                    <span class="about-toggle-right">
-                        <span class="status-badge">
-                            <span class="status-dot" aria-hidden="true"></span>
-                            Available For Select Projects
-                        </span>
-                        <span class="about-toggle-action">
-                            <span>{{ aboutExpanded ? 'Hide' : 'Expand' }}</span>
-                            <svg class="about-toggle-chevron" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m6 9 6 6 6-6"></path></svg>
-                        </span>
+                    <span class="about-toggle-action">
+                        <span>{{ aboutExpanded ? 'Hide' : 'Expand' }}</span>
+                        <svg class="about-toggle-chevron" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m6 9 6 6 6-6"></path></svg>
                     </span>
                 </button>
 
@@ -242,22 +232,42 @@
             </section>
 
             <!-- Portfolio Section -->
-            <section id="portfolio" class="section">
-                <div class="section-header-block">
-                    <h2 class="section-title">Selected Works</h2>
-                    <p class="section-subtitle">
-                        Explore front-end web applications, Linux desktop utilities, animated explainer videos, and detailed isometric 3D worlds.
-                    </p>
-                </div>
-
-                <!-- Filter Pills -->
-                <div class="filter-buttons">
+            <section id="portfolio" class="section portfolio-section" aria-label="Selected Works">
+                <!-- Desktop Full-Width Filter Tabs -->
+                <div class="filter-buttons" role="tablist" aria-label="Filter projects by category">
                     <button v-for="category in categories" :key="category"
+                        type="button"
                         @click="setCategory(category)"
                         :aria-pressed="activeCategory === category"
                         class="filter-btn" :class="{ 'active': activeCategory === category }">
                         <span>{{ category }}</span>
                     </button>
+                </div>
+
+                <!-- Mobile Filter Dropdown Menu -->
+                <div class="filter-mobile-menu" :class="{ 'is-open': filterMenuOpen }">
+                    <button type="button" class="filter-menu-trigger"
+                        @click.stop="filterMenuOpen = !filterMenuOpen"
+                        :aria-expanded="filterMenuOpen"
+                        aria-controls="portfolio-filter-menu">
+                        <span class="filter-menu-trigger-text">
+                            <span class="filter-menu-kicker">Category</span>
+                            <span class="filter-menu-current">{{ activeCategory }}</span>
+                        </span>
+                        <svg class="filter-menu-chevron" xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m6 9 6 6 6-6"></path></svg>
+                    </button>
+
+                    <div v-show="filterMenuOpen" id="portfolio-filter-menu" class="filter-menu-dropdown" role="menu" @click.stop>
+                        <button v-for="category in categories" :key="'mobile-' + category"
+                            type="button"
+                            role="menuitemradio"
+                            :aria-checked="activeCategory === category"
+                            @click="setCategory(category)"
+                            class="filter-menu-item" :class="{ 'active': activeCategory === category }">
+                            <span>{{ category }}</span>
+                            <svg v-if="activeCategory === category" xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="20 6 9 17 4 12"></polyline></svg>
+                        </button>
+                    </div>
                 </div>
 
                 <!-- Projects Grid -->
@@ -375,36 +385,20 @@
             setup() {
                 const scrolled = ref(false);
                 const mobileMenuOpen = ref(false);
+                const filterMenuOpen = ref(false);
                 const aboutExpanded = ref(false);
                 const activeNavSection = ref('portfolio');
                 const previewItem = ref(null);
                 const galaxyPlaying = ref(true);
-                const californiaTime = ref('');
                 let galaxyInstance = null;
-                let clockTimer = null;
-
-                const updateCaliforniaTime = () => {
-                    try {
-                        californiaTime.value = new Intl.DateTimeFormat('en-US', {
-                            timeZone: 'America/Los_Angeles',
-                            hour: '2-digit',
-                            minute: '2-digit',
-                            hour12: true,
-                            timeZoneName: 'short'
-                        }).format(new Date());
-                    } catch {
-                        californiaTime.value = 'UTC-7';
-                    }
-                };
-                updateCaliforniaTime();
 
                 const navLinks = ref([
                     { id: 'about', text: 'About Me' },
                     { id: 'portfolio', text: 'My Work' }
                 ]);
 
-                const activeCategory = ref('All');
-                const categories = ['All', '3D Art', 'Web Development', 'Desktop Apps', 'Videos'];
+                const activeCategory = ref('3D Art');
+                const categories = ['3D Art', 'Web Development', 'Desktop Apps', 'Videos'];
                 const showAllProjects = ref(false);
 
                 // All portfolio projects
@@ -830,6 +824,7 @@
                 const setCategory = (cat) => {
                     activeCategory.value = cat;
                     showAllProjects.value = false;
+                    filterMenuOpen.value = false;
                 };
 
                 const padNumber = (num) => String(num).padStart(2, '0');
@@ -892,17 +887,24 @@
                     previewItem.value = null;
                 };
 
-                // Keyboard escape listener for modal
+                // Keyboard escape listener for modal & filter menu
                 const handleKeyDown = (e) => {
                     if (e.key === 'Escape') {
                         closePreview();
+                        filterMenuOpen.value = false;
+                    }
+                };
+
+                const handleDocumentClick = () => {
+                    if (filterMenuOpen.value) {
+                        filterMenuOpen.value = false;
                     }
                 };
 
                 onMounted(() => {
                     window.addEventListener('scroll', handleScroll, { passive: true });
                     window.addEventListener('keydown', handleKeyDown);
-                    clockTimer = setInterval(updateCaliforniaTime, 30000);
+                    document.addEventListener('click', handleDocumentClick);
 
                     // Initialize the 3D rotating Galaxy in the Hero
                     if (window.HeroGalaxy) {
@@ -922,9 +924,7 @@
                 onUnmounted(() => {
                     window.removeEventListener('scroll', handleScroll);
                     window.removeEventListener('keydown', handleKeyDown);
-                    if (clockTimer) {
-                        clearInterval(clockTimer);
-                    }
+                    document.removeEventListener('click', handleDocumentClick);
                     if (galaxyInstance) {
                         galaxyInstance.destroy();
                     }
@@ -933,6 +933,7 @@
                 return {
                     scrolled,
                     mobileMenuOpen,
+                    filterMenuOpen,
                     aboutExpanded,
                     activeNavSection,
                     navLinks,
@@ -948,7 +949,6 @@
                     setCategory,
                     padNumber,
                     jumpToCategory,
-                    californiaTime,
                     scrollTo,
                     scrollToTop,
                     galaxyPlaying,
