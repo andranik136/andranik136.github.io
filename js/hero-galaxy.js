@@ -1,12 +1,18 @@
 /**
- * Hero Galaxy - Multi-Depth Weightless Upward Drifting Gallery
- * Images slowly float upward across 3 distinct optical depth planes:
- * Background (blurry bokeh), Midground (soft focus), and Foreground (sharp in-focus).
- * Features collision-free staggered lanes, organic 3D rocking sway, and zero mouseover interference.
+ * Hero Slideshow - Full-Bleed 3D Art Ken Burns Background
+ * Cycles through 3D Art renders full-width & full-height with subtle
+ * Ken Burns pan/zoom motion and smooth crossfades (~4s per image).
  */
 
 (function () {
-    class HeroGalaxy {
+    const KEN_BURNS_PRESETS = [
+        { from: 'scale(1.00) translate3d(0%, 0%, 0)',      to: 'scale(1.085) translate3d(-1.4%, -0.9%, 0)' },
+        { from: 'scale(1.085) translate3d(1.4%, -0.8%, 0)', to: 'scale(1.01) translate3d(-1.0%, 0.8%, 0)' },
+        { from: 'scale(1.00) translate3d(-1.2%, 0.8%, 0)',  to: 'scale(1.08) translate3d(1.2%, -0.8%, 0)' },
+        { from: 'scale(1.08) translate3d(0.8%, 1.0%, 0)',   to: 'scale(1.00) translate3d(-1.1%, -0.6%, 0)' }
+    ];
+
+    class HeroSlideshow {
         constructor(options = {}) {
             this.container = typeof options.container === 'string'
                 ? document.querySelector(options.container)
@@ -14,362 +20,158 @@
 
             if (!this.container) return;
 
-            this.items = options.items || [];
-            this.canvas = this.container.querySelector('#galaxy-underlay');
-            this.cardsContainer = this.container.querySelector('#galaxy-cards-container');
-            this.ctx = this.canvas ? this.canvas.getContext('2d') : null;
+            const rawItems = options.items || [];
+            const filtered = rawItems.filter(item => !item.category || item.category === '3D Art');
+            this.items = this.shuffle(filtered);
 
-            this.width = window.innerWidth;
-            this.height = window.innerHeight;
-            this.dpr = Math.min(window.devicePixelRatio || 1, 2);
+            if (this.items.length === 0) return;
 
-            this.isMobile = this.width < 768;
+            this.duration = options.duration || 4000;
+            this.fadeDuration = options.fadeDuration || 1400;
+            this.currentIndex = 0;
+            this.activeSlot = 0;
+            this.presetIndex = 0;
+            this.timer = null;
+            this.animations = [null, null];
+            this.reducedMotion = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
-            this.isPlaying = true;
-            this.speedMultiplier = 1.0;
-            this.lastTime = performance.now();
+            this.buildDOM();
+            this.showSlide(0, true);
+            this.preloadIndex(1);
 
-            // Ambient background particles (drifting dust)
-            this.particles = [];
-            this.initParticles();
+            this.onVisibilityChange = this.onVisibilityChange.bind(this);
+            document.addEventListener('visibilitychange', this.onVisibilityChange);
 
-            // Weightless floating cards across 3 depth planes
-            this.cards = [];
-            this.initCards();
-
-            // Bindings
-            this.onResize = this.onResize.bind(this);
-            this.render = this.render.bind(this);
-
-            window.addEventListener('resize', this.onResize, { passive: true });
-            this.onResize();
-            requestAnimationFrame(this.render);
+            this.start();
         }
 
-        initParticles() {
-            this.particles = [];
-            const count = this.isMobile ? 35 : 70;
-            for (let i = 0; i < count; i++) {
-                this.particles.push({
-                    x: Math.random() * this.width,
-                    y: Math.random() * this.height,
-                    radius: 0.8 + Math.random() * 1.6,
-                    baseAlpha: 0.12 + Math.random() * 0.38,
-                    vy: -(10 + Math.random() * 16),
-                    vx: (Math.random() - 0.5) * 5,
-                    pulsePhase: Math.random() * Math.PI * 2,
-                    color: Math.random() < 0.4 ? '245, 180, 0' : '225, 229, 238'
+        shuffle(list) {
+            const arr = [...list];
+            for (let i = arr.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [arr[i], arr[j]] = [arr[j], arr[i]];
+            }
+            return arr;
+        }
+
+        buildDOM() {
+            this.container.innerHTML = '';
+
+            this.slides = [0, 1].map(() => {
+                const el = document.createElement('div');
+                el.className = 'hero-slide';
+                el.style.transitionDuration = `${this.fadeDuration}ms`;
+                this.container.appendChild(el);
+                return el;
+            });
+        }
+
+        preloadIndex(idx) {
+            if (this.items.length === 0) return;
+            const item = this.items[idx % this.items.length];
+            if (item && item.image) {
+                const img = new Image();
+                img.src = item.image;
+            }
+        }
+
+        runKenBurns(el, slot) {
+            if (this.animations[slot]) {
+                this.animations[slot].cancel();
+                this.animations[slot] = null;
+            }
+
+            if (this.reducedMotion || typeof el.animate !== 'function') {
+                el.style.transform = 'scale(1.02)';
+                return;
+            }
+
+            const preset = KEN_BURNS_PRESETS[this.presetIndex % KEN_BURNS_PRESETS.length];
+            this.presetIndex++;
+
+            // Keep motion running through the full hold + outgoing fade so it never freezes mid-dissolve
+            const motionDuration = this.duration + this.fadeDuration + 500;
+            this.animations[slot] = el.animate(
+                [
+                    { transform: preset.from },
+                    { transform: preset.to }
+                ],
+                {
+                    duration: motionDuration,
+                    easing: 'linear',
+                    fill: 'forwards'
+                }
+            );
+        }
+
+        showSlide(index, immediate = false) {
+            const item = this.items[index];
+            if (!item) return;
+
+            const nextSlot = immediate ? 0 : (this.activeSlot === 0 ? 1 : 0);
+            const incoming = this.slides[nextSlot];
+            const outgoing = this.slides[this.activeSlot];
+
+            incoming.style.backgroundImage = `url('${item.image}')`;
+            incoming.dataset.title = item.title || '';
+
+            if (immediate) {
+                incoming.style.zIndex = '2';
+                outgoing.style.zIndex = '1';
+                incoming.classList.add('is-active');
+                this.runKenBurns(incoming, nextSlot);
+            } else {
+                incoming.style.zIndex = '2';
+                outgoing.style.zIndex = '1';
+
+                // Start Ken Burns just before crossfade so incoming slide is already drifting
+                this.runKenBurns(incoming, nextSlot);
+
+                requestAnimationFrame(() => {
+                    incoming.classList.add('is-active');
+                    outgoing.classList.remove('is-active');
                 });
             }
+
+            this.activeSlot = nextSlot;
         }
 
-        initCards() {
-            if (!this.cardsContainer || this.items.length === 0) return;
-            this.cardsContainer.innerHTML = '';
-            this.cards = [];
+        next() {
+            if (this.items.length < 2) return;
+            this.currentIndex = (this.currentIndex + 1) % this.items.length;
+            this.showSlide(this.currentIndex, false);
+            this.preloadIndex(this.currentIndex + 1);
+        }
 
-            const isMobile = this.isMobile;
-            const baseW = isMobile ? 120 : 185;
-            const baseH = isMobile ? 80 : 120;
+        start() {
+            this.stop();
+            if (this.items.length < 2) return;
+            this.timer = setInterval(() => this.next(), this.duration);
+        }
 
-            // 3 distinct optical depth tiers:
-            // 1. Back: smaller, visibly blurred (5px bokeh), lower opacity/brightness, drifts slowest
-            // 2. Mid: medium size, lightly softened (2px blur), medium drift
-            // 3. Front: largest, crystal sharp in focus, full opacity & brightness, drifts fastest
-            const tierConfigs = {
-                back: {
-                    tier: 'back',
-                    scale: isMobile ? 0.60 : 0.62,
-                    blur: 5.0,
-                    opacity: 0.58,
-                    brightness: 0.76,
-                    speedY: 14,
-                    zIndex: 5
-                },
-                mid: {
-                    tier: 'mid',
-                    scale: isMobile ? 0.80 : 0.86,
-                    blur: 2.0,
-                    opacity: 0.82,
-                    brightness: 0.90,
-                    speedY: 22,
-                    zIndex: 15
-                },
-                front: {
-                    tier: 'front',
-                    scale: isMobile ? 1.02 : 1.12,
-                    blur: 0.0,
-                    opacity: 1.0,
-                    brightness: 1.02,
-                    speedY: 30,
-                    zIndex: 30
-                }
-            };
-
-            const margin = isMobile ? 16 : 48;
-            const usableW = Math.max(160, this.width - margin * 2);
-            const usableH = Math.max(200, this.height - 60);
-
-            // Stratified multi-zone grid to ensure organic, balanced spread across entire viewport
-            const cols = isMobile ? 3 : 5;
-            const rows = isMobile ? 3 : 4;
-            const colW = usableW / cols;
-            const rowH = usableH / rows;
-
-            // Generate full grid of spatial cells
-            const cells = [];
-            for (let r = 0; r < rows; r++) {
-                for (let c = 0; c < cols; c++) {
-                    cells.push({ col: c, row: r });
-                }
-            }
-
-            // Fisher-Yates shuffle for non-linear, unpredictable spatial assignment
-            for (let i = cells.length - 1; i > 0; i--) {
-                const j = Math.floor(Math.random() * (i + 1));
-                [cells[i], cells[j]] = [cells[j], cells[i]];
-            }
-
-            // Shuffle project items so each visit features a fresh mix of artwork
-            const shuffledItems = [...this.items];
-            for (let i = shuffledItems.length - 1; i > 0; i--) {
-                const j = Math.floor(Math.random() * (i + 1));
-                [shuffledItems[i], shuffledItems[j]] = [shuffledItems[j], shuffledItems[i]];
-            }
-
-            // Create balanced depth tier pool (equal proportion of background, midground, and foreground)
-            const perTier = isMobile ? 3 : 6;
-            const cardTierPool = [];
-            ['back', 'mid', 'front'].forEach(t => {
-                for (let k = 0; k < perTier; k++) {
-                    cardTierPool.push(t);
-                }
-            });
-
-            // Shuffle tiers so depths are organically intermingled across the screen
-            for (let i = cardTierPool.length - 1; i > 0; i--) {
-                const j = Math.floor(Math.random() * (i + 1));
-                [cardTierPool[i], cardTierPool[j]] = [cardTierPool[j], cardTierPool[i]];
-            }
-
-            const totalCards = Math.min(cardTierPool.length, cells.length);
-            const centerX = this.width / 2;
-            const centerY = this.height / 2;
-
-            for (let i = 0; i < totalCards; i++) {
-                const tierName = cardTierPool[i];
-                const tier = tierConfigs[tierName];
-                const cell = cells[i];
-                const item = shuffledItems[i % shuffledItems.length];
-
-                const width = baseW * tier.scale;
-                const height = baseH * tier.scale;
-
-                // Position within assigned spatial cell with organic intra-cell jitter
-                const cellMinX = margin + cell.col * colW;
-                const cellMinY = 20 + cell.row * rowH;
-                const jitterRangeX = Math.max(6, colW - width);
-                const jitterRangeY = Math.max(6, rowH - height);
-
-                let startX = cellMinX + Math.random() * jitterRangeX;
-                let startY = cellMinY + Math.random() * jitterRangeY;
-
-                // Soft center clearance for sharp foreground cards to protect headline legibility
-                if (tierName === 'front') {
-                    const cardCenterX = startX + width / 2;
-                    const cardCenterY = startY + height / 2;
-                    const dx = cardCenterX - centerX;
-                    const dy = cardCenterY - centerY;
-                    if (Math.abs(dx) < 220 && Math.abs(dy) < 140) {
-                        startX += (dx >= 0 ? 1 : -1) * (230 - Math.abs(dx));
-                    }
-                }
-
-                // Bound strictly inside viewport margins
-                startX = Math.max(margin, Math.min(this.width - margin - width, startX));
-                startY = Math.max(-height * 0.2, Math.min(this.height - height * 0.8, startY));
-
-                // Weightless harmonic lateral sway parameters
-                const swayFreqX = 0.20 + Math.random() * 0.25;
-                const swayAmpX = 14 + Math.random() * 18;
-                const phaseX = Math.random() * Math.PI * 2;
-                const phaseY = Math.random() * Math.PI * 2;
-
-                // Weightless 3D tilt
-                const baseRotZ = (Math.random() - 0.5) * 14; // -7 to +7 deg
-                const rotZSpeed = 0.2 + Math.random() * 0.3;
-                const rotZAmp = 1.5 + Math.random() * 2.5;
-                const tiltFreqX = 0.22 + Math.random() * 0.25;
-                const tiltFreqY = 0.22 + Math.random() * 0.25;
-
-                const cardEl = document.createElement('div');
-                cardEl.className = 'galaxy-card';
-                cardEl.style.width = `${Math.round(width)}px`;
-                cardEl.style.height = `${Math.round(height)}px`;
-                cardEl.style.zIndex = tier.zIndex;
-
-                // Optical depth of field blur & brightness
-                if (tier.blur > 0) {
-                    cardEl.style.filter = `blur(${tier.blur}px) brightness(${tier.brightness})`;
-                } else {
-                    cardEl.style.filter = `brightness(${tier.brightness})`;
-                }
-
-                // Pure image: no titles, no tags, zero hover interference
-                cardEl.innerHTML = `
-                    <div class="galaxy-card-inner">
-                        <div class="galaxy-card-media" style="background-image: url('${item.image}')">
-                            <div class="galaxy-card-overlay"></div>
-                        </div>
-                    </div>
-                `;
-
-                this.cardsContainer.appendChild(cardEl);
-
-                this.cards.push({
-                    el: cardEl,
-                    item,
-                    tier: tier.tier,
-                    baseX: startX,
-                    currentY: startY,
-                    driftSpeedY: tier.speedY + (Math.random() - 0.5) * 3,
-                    swayFreqX,
-                    swayAmpX,
-                    phaseX,
-                    phaseY,
-                    baseRotZ,
-                    rotZSpeed,
-                    rotZAmp,
-                    tiltFreqX,
-                    tiltFreqY,
-                    scale: tier.scale,
-                    maxOpacity: tier.opacity,
-                    blur: tier.blur,
-                    brightness: tier.brightness,
-                    width,
-                    height
-                });
+        stop() {
+            if (this.timer) {
+                clearInterval(this.timer);
+                this.timer = null;
             }
         }
 
-        onResize() {
-            const prevWidth = this.width;
-            this.width = this.container.clientWidth || window.innerWidth;
-            this.height = this.container.clientHeight || window.innerHeight;
-            const wasMobile = this.isMobile;
-            this.isMobile = this.width < 768;
-
-            if (this.canvas) {
-                this.canvas.width = Math.round(this.width * this.dpr);
-                this.canvas.height = Math.round(this.height * this.dpr);
-                this.canvas.style.width = `${this.width}px`;
-                this.canvas.style.height = `${this.height}px`;
-                if (this.ctx) {
-                    this.ctx.setTransform(this.dpr, 0, 0, this.dpr, 0, 0);
-                }
+        onVisibilityChange() {
+            if (document.hidden) {
+                this.stop();
+            } else {
+                this.start();
             }
-
-            // Re-stratify cards if crossing breakpoint or substantial screen resizing
-            if (wasMobile !== this.isMobile || Math.abs(prevWidth - this.width) > 250) {
-                this.initCards();
-            }
-        }
-
-        togglePlay() {
-            this.isPlaying = !this.isPlaying;
-            return this.isPlaying;
-        }
-
-        drawUnderlay(dt) {
-            if (!this.ctx) return;
-            const ctx = this.ctx;
-            ctx.clearRect(0, 0, this.width, this.height);
-
-            // Ambient star dust particles drifting upward
-            ctx.save();
-            this.particles.forEach(p => {
-                if (this.isPlaying) {
-                    p.y += p.vy * dt;
-                    p.x += p.vx * dt;
-                    p.pulsePhase += dt * 1.5;
-
-                    if (p.y < -10) {
-                        p.y = this.height + 10;
-                        p.x = Math.random() * this.width;
-                    }
-                    if (p.x < 0) p.x = this.width;
-                    if (p.x > this.width) p.x = 0;
-                }
-
-                const alpha = p.baseAlpha * (0.7 + 0.3 * Math.sin(p.pulsePhase));
-                ctx.fillStyle = `rgba(${p.color}, ${alpha.toFixed(2)})`;
-                ctx.beginPath();
-                ctx.arc(p.x, p.y, p.radius, 0, Math.PI * 2);
-                ctx.fill();
-            });
-            ctx.restore();
-        }
-
-        render(timestamp) {
-            const dt = Math.min((timestamp - this.lastTime) / 1000, 0.1);
-            this.lastTime = timestamp;
-
-            const t = timestamp / 1000;
-
-            // Draw ambient particles
-            this.drawUnderlay(dt);
-
-            // Update weightless upward floating cards
-            const margin = this.isMobile ? 16 : 48;
-            const usableW = Math.max(160, this.width - margin * 2);
-
-            this.cards.forEach((card) => {
-                if (this.isPlaying) {
-                    card.currentY -= card.driftSpeedY * this.speedMultiplier * dt;
-
-                    // Wrap-around when drifting past the top edge
-                    if (card.currentY < -card.height - 40) {
-                        card.currentY = this.height + 30 + Math.random() * 50;
-                        // Dynamically re-randomize horizontal position for fresh, non-repeating flight paths
-                        card.baseX = margin + Math.random() * Math.max(10, usableW - card.width);
-                    }
-                }
-
-                // Weightless horizontal sway
-                const swayX = Math.sin(t * card.swayFreqX + card.phaseX) * card.swayAmpX
-                            + Math.sin(t * 0.12 + card.phaseY) * 8;
-
-                const posX = card.baseX + swayX;
-                const posY = card.currentY;
-
-                // Subtle weightless 3D tilt & gentle rocking
-                const rotZ = card.baseRotZ + Math.sin(t * card.rotZSpeed + card.phaseX) * card.rotZAmp;
-                const rotX = Math.sin(t * card.tiltFreqX + card.phaseY) * 5;
-                const rotY = Math.cos(t * card.tiltFreqY + card.phaseX) * 5;
-
-                // Soft fade in at bottom, soft fade out at top
-                let edgeAlpha = 1.0;
-                const fadeZone = 130;
-
-                if (posY < fadeZone) {
-                    edgeAlpha = Math.max(0, (posY + card.height) / (fadeZone + card.height));
-                } else if (posY > this.height - fadeZone) {
-                    edgeAlpha = Math.max(0, (this.height - posY + 40) / fadeZone);
-                }
-
-                const finalOpacity = (card.maxOpacity * Math.min(1.0, edgeAlpha)).toFixed(2);
-
-                card.el.style.opacity = finalOpacity;
-                card.el.style.transform = `translate3d(${posX.toFixed(1)}px, ${posY.toFixed(1)}px, 0) rotateZ(${rotZ.toFixed(2)}deg) rotateX(${rotX.toFixed(2)}deg) rotateY(${rotY.toFixed(2)}deg)`;
-            });
-
-            requestAnimationFrame(this.render);
         }
 
         destroy() {
-            window.removeEventListener('resize', this.onResize);
+            this.stop();
+            document.removeEventListener('visibilitychange', this.onVisibilityChange);
+            this.animations.forEach(anim => anim && anim.cancel());
+            this.animations = [null, null];
         }
     }
 
-    window.HeroGalaxy = HeroGalaxy;
+    window.HeroSlideshow = HeroSlideshow;
+    window.HeroGalaxy = HeroSlideshow;
 })();
