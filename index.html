@@ -243,7 +243,7 @@
                     </div>
                     <h2 class="section-title">Selected Works & Systems</h2>
                     <p class="section-subtitle">
-                        Explore front-end web applications, Linux desktop utilities, and detailed isometric 3D worlds.
+                        Explore front-end web applications, Linux desktop utilities, animated explainer videos, and detailed isometric 3D worlds.
                     </p>
                 </div>
 
@@ -251,6 +251,7 @@
                 <div class="filter-buttons">
                     <button v-for="category in categories" :key="category"
                         @click="setCategory(category)"
+                        :aria-pressed="activeCategory === category"
                         class="filter-btn" :class="{ 'active': activeCategory === category }">
                         <span>{{ category }}</span>
                     </button>
@@ -266,9 +267,13 @@
 
                         <div class="portfolio-image-container" @click="openPreview(item)" style="cursor: pointer;">
                             <div class="portfolio-image" :style="{ backgroundImage: 'url(' + item.image + ')' }"></div>
-                            <span class="portfolio-category-badge" :class="item.category === '3D Art' ? 'category-3d' : (item.category === 'Desktop Apps' ? 'category-desktop' : 'category-web')">
+                            <span class="portfolio-category-badge" :class="getCategoryClass(item.category)">
                                 {{ item.category }}
                             </span>
+                            <div v-if="item.videoSrc" class="video-play-indicator" aria-hidden="true">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="currentColor"><polygon points="6 4 20 12 6 20 6 4"></polygon></svg>
+                            </div>
+                            <span v-if="item.duration" class="video-duration-badge">{{ item.duration }}</span>
                         </div>
 
                         <div class="portfolio-content">
@@ -276,14 +281,16 @@
                                 {{ item.date }}
                                 <span v-if="item.category === 'Web Development'" class="vibe-coded-tag">· Vibe-coded</span>
                                 <span v-else-if="item.category === 'Desktop Apps'" class="vibe-coded-tag">· Linux</span>
+                                <span v-else-if="item.category === 'Videos'" class="vibe-coded-tag">· Vyond / Adweek</span>
                             </p>
                             <h3>{{ item.title }}</h3>
                             <p>{{ item.description }}</p>
 
                             <div class="portfolio-footer">
                                 <a :href="item.link" :download="item.downloadName || null" class="btn-card-primary">
-                                    <span>{{ item.downloadName ? 'Download (.tar.gz)' : 'View Project' }}</span>
+                                    <span>{{ item.downloadName ? 'Download (.tar.gz)' : (item.videoSrc ? 'Watch Video' : 'View Project') }}</span>
                                     <svg v-if="item.downloadName" xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg>
+                                    <svg v-else-if="item.videoSrc" xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><polygon points="6 4 20 12 6 20 6 4"></polygon></svg>
                                     <svg v-else xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"></path><path d="m12 5 7 7-7 7"></path></svg>
                                 </a>
                                 <button @click="openPreview(item)" class="btn-card-preview" title="Quick inspect">
@@ -358,7 +365,7 @@
         </main>
 
         <!-- Quick Preview Modal -->
-        <div v-if="previewItem" class="hud-modal-backdrop" @click="closePreview">
+        <div v-if="previewItem" class="hud-modal-backdrop" @click="closePreview" role="dialog" aria-modal="true" :aria-label="previewItem.title">
             <div class="hud-modal-box" @click.stop>
                 <span class="tick tick-tl"></span>
                 <span class="tick tick-tr"></span>
@@ -370,17 +377,21 @@
                 </button>
 
                 <div class="modal-media-wrapper">
-                    <img :src="previewItem.image" :alt="previewItem.title">
+                    <video v-if="previewItem.videoSrc" :key="previewItem.videoSrc" :src="previewItem.videoSrc" :poster="previewItem.image" controls playsinline preload="metadata">
+                        Your browser does not support HTML5 video playback.
+                    </video>
+                    <img v-else :src="previewItem.image" :alt="previewItem.title">
                 </div>
 
                 <div class="modal-meta-row">
-                    <span class="portfolio-category-badge" :class="previewItem.category === '3D Art' ? 'category-3d' : (previewItem.category === 'Desktop Apps' ? 'category-desktop' : 'category-web')">
+                    <span class="portfolio-category-badge" :class="getCategoryClass(previewItem.category)">
                         {{ previewItem.category }}
                     </span>
                     <span class="hud-label">
                         {{ previewItem.date }}
                         <span v-if="previewItem.category === 'Web Development'" class="vibe-coded-tag">· Vibe-coded</span>
                         <span v-else-if="previewItem.category === 'Desktop Apps'" class="vibe-coded-tag">· Linux</span>
+                        <span v-else-if="previewItem.category === 'Videos'" class="vibe-coded-tag">· Vyond / Adweek</span>
                     </span>
                 </div>
 
@@ -392,7 +403,7 @@
                         Close
                     </button>
                     <a :href="previewItem.link" :download="previewItem.downloadName || null" class="btn-hud-primary" style="padding: 0.75rem 1.75rem;">
-                        <span>{{ previewItem.downloadName ? 'Download Package (.tar.gz)' : 'Launch Full Project' }}</span>
+                        <span>{{ previewItem.downloadName ? 'Download Package (.tar.gz)' : (previewItem.videoSrc ? 'Open Video Page' : 'Launch Full Project') }}</span>
                         <svg v-if="previewItem.downloadName" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg>
                         <svg v-else xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"></path><path d="m12 5 7 7-7 7"></path></svg>
                     </a>
@@ -437,7 +448,7 @@
                 ]);
 
                 const activeCategory = ref('All');
-                const categories = ['All', '3D Art', 'Web Development', 'Desktop Apps'];
+                const categories = ['All', '3D Art', 'Web Development', 'Desktop Apps', 'Videos'];
                 const showAllProjects = ref(false);
 
                 // All portfolio projects
@@ -784,6 +795,39 @@
                         description: 'A high-end contemporary living room render with bespoke minimalist furnishings and floor-to-ceiling glass.',
                         image: '/media/project-previews/modern-living-room.webp',
                         link: '/projects/3d-art/living-room/'
+                    },
+                    {
+                        id: 38,
+                        title: 'Salesforce — Onboarding New Media Subscribers',
+                        date: 'April 2021',
+                        category: 'Videos',
+                        duration: '3:39',
+                        description: 'Animated Adweek Branded explainer video ("How to Effectively Onboard New Media Subscribers and Drive Engagement") produced in Vyond under contract with Adweek for Salesforce.',
+                        image: '/media/project-previews/video-salesforce.webp',
+                        videoSrc: '/projects/videos/Salesforce%201%20-%20How%20to%20Effectively%20Onboard%20New%20Medi-720p-210329.mp4',
+                        link: '/projects/videos/salesforce/'
+                    },
+                    {
+                        id: 39,
+                        title: 'AAM — Publisher Audits & Fraud Risk',
+                        date: 'March 2021',
+                        category: 'Videos',
+                        duration: '4:15',
+                        description: 'Animated Adweek Branded explainer video ("How Publisher Audits Reduce Fraud Risk and Improve ROI") produced in Vyond under contract with Adweek for AAM.',
+                        image: '/media/project-previews/video-aam.webp',
+                        videoSrc: '/projects/videos/AAM%20-%20How%20Publisher%20Audits%20Reduce%20Fraud%20Risk%20and%20I-720p-210305.mp4',
+                        link: '/projects/videos/aam/'
+                    },
+                    {
+                        id: 40,
+                        title: 'Resonate — Targeting People, Not Profiles',
+                        date: 'March 2021',
+                        category: 'Videos',
+                        duration: '4:52',
+                        description: 'Animated Adweek Branded explainer video ("Targeting People, Not Profiles") produced in Vyond under contract with Adweek for Resonate.',
+                        image: '/media/project-previews/video-resonate.webp',
+                        videoSrc: '/projects/videos/Targeting%20People%2C%20Not%20Profiles%20-%20Resonate-720p-210219.mp4',
+                        link: '/projects/videos/resonate/'
                     }
                 ]);
 
@@ -818,6 +862,13 @@
                 const getCategoryCount = (cat) => {
                     if (cat === 'All') return portfolioItems.value.length;
                     return portfolioItems.value.filter(i => i.category === cat).length;
+                };
+
+                const getCategoryClass = (cat) => {
+                    if (cat === '3D Art') return 'category-3d';
+                    if (cat === 'Desktop Apps') return 'category-desktop';
+                    if (cat === 'Videos') return 'category-video';
+                    return 'category-web';
                 };
 
                 const setCategory = (cat) => {
@@ -932,6 +983,7 @@
                     hasMoreProjects,
                     remainingCount,
                     getCategoryCount,
+                    getCategoryClass,
                     setCategory,
                     scrollTo,
                     scrollToTop,

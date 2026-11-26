@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AAM — Publisher Audits &amp; Fraud Risk | Andranik Shirinian</title>
+
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:ital,wght@0,100..800;1,100..800&display=swap" rel="stylesheet">
+
+    <link rel="icon" href="/favicon.png" type="image/png">
+    <!-- Vue.js -->
+    <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
+
+    <link href="../../../page-style.css" rel="stylesheet">
+</head>
+<body style="background-image: url('../../../media/project-previews/video-aam.webp')">
+    <div id="app">
+        <!-- Header & Navigation -->
+        <header class="header" :class="{ 'scrolled': scrolled }">
+            <div class="container header-content">
+                <nav class="main-nav">
+                    <a v-for="link in navLinks" :key="link.id" :href="link.url" class="nav-link">{{ link.text }}</a>
+                </nav>
+                <button @click="mobileMenuOpen = !mobileMenuOpen" class="mobile-menu-button" :class="{ 'open': mobileMenuOpen }" aria-label="Toggle Navigation">
+                    <span class="hamburger-line top"></span>
+                    <span class="hamburger-line middle"></span>
+                    <span class="hamburger-line bottom"></span>
+                </button>
+            </div>
+            <!-- Mobile Menu -->
+            <div v-if="mobileMenuOpen" class="mobile-nav">
+                <a v-for="link in navLinks" :key="link.id" :href="link.url" @click="mobileMenuOpen = false" class="nav-link">{{ link.text }}</a>
+            </div>
+        </header>
+
+        <main>
+            <section class="project-section">
+                <div class="container">
+                    <header class="project-header">
+                        <h1 class="project-title">AAM — Publisher Audits &amp; Fraud Risk</h1>
+                        <div class="project-details">
+                            <div class="detail-item">
+                                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M6.75 3v2.25M17.25 3v2.25M3 18.75V7.5a2.25 2.25 0 012.25-2.25h13.5A2.25 2.25 0 0121 7.5v11.25m-18 0A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75m-18 0h18" /></svg>
+                                <span>March 2021</span>
+                            </div>
+                            <div class="detail-item">
+                                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M2.25 21h19.5m-18-18v18m10.5-18v18m6-13.5V21M6.75 6.75h.75m-.75 3h.75m-.75 3h.75m3-6h.75m-.75 3h.75m-.75 3h.75M6.75 21v-3.375c0-.621.504-1.125 1.125-1.125h2.25c.621 0 1.125.504 1.125 1.125V21M3 3h12m-.75 4.5H21m-3.75 3.75h.008v.008h-.008v-.008zm0 3h.008v.008h-.008v-.008zm0 3h.008v.008h-.008v-.008z" /></svg>
+                                <span>Client: AAM</span>
+                            </div>
+                            <div class="detail-item">
+                                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M20.25 14.15v4.25c0 1.094-.787 2.036-1.872 2.18-2.087.277-4.216.42-6.378.42s-4.291-.143-6.378-.42c-1.085-.144-1.872-1.086-1.872-2.18v-4.25m16.5 0a2.18 2.18 0 00.75-1.661V8.706c0-1.081-.768-2.015-1.837-2.175a48.114 48.114 0 00-3.413-.387m4.5 8.006c-.194.165-.42.295-.673.38A23.978 23.978 0 0112 15.75c-2.648 0-5.195-.429-7.577-1.22a2.016 2.016 0 01-.673-.38m0 0A2.18 2.18 0 013 12.489V8.706c0-1.081.768-2.015 1.837-2.175a48.111 48.111 0 013.413-.387m7.5 0V5.25A2.25 2.25 0 0013.5 3h-3a2.25 2.25 0 00-2.25 2.25v.894m7.5 0a48.667 48.667 0 00-7.5 0" /></svg>
+                                <span>Contracted by Adweek</span>
+                            </div>
+                            <div class="detail-item">
+                                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M15.75 10.5l4.72-4.72a.75.75 0 011.28.53v11.38a.75.75 0 01-1.28.53l-4.72-4.72M4.5 18.75h9a2.25 2.25 0 002.25-2.25v-9a2.25 2.25 0 00-2.25-2.25h-9A2.25 2.25 0 002.25 7.5v9a2.25 2.25 0 002.25 2.25z" /></svg>
+                                <span>Vyond · 4:15</span>
+                            </div>
+                        </div>
+                        <p class="project-description">
+                            An Adweek Branded animated explainer video titled <strong>"How Publisher Audits Reduce Fraud Risk and Improve ROI,"</strong> created for the Alliance for Audited Media (AAM).
+                        </p>
+                        <p class="project-description">
+                            Produced in Vyond under contract with Adweek, this explainer breaks down the scale of digital advertising fraud and shows how independent publisher audits build transparency and protect programmatic media spend.
+                        </p>
+                    </header>
+
+                    <div class="video-stage">
+                        <div class="video-player-frame">
+                            <div class="video-player-wrapper">
+                                <video controls playsinline preload="metadata" poster="../../../media/project-previews/video-aam.webp">
+                                    <source src="../AAM%20-%20How%20Publisher%20Audits%20Reduce%20Fraud%20Risk%20and%20I-720p-210305.mp4" type="video/mp4">
+                                    Your browser does not support HTML5 video playback.
+                                </video>
+                            </div>
+                            <div class="video-meta-bar">
+                                <span>FORMAT: 720P HD MP4</span>
+                                <span>TOOL: VYOND</span>
+                                <span>AGENCY: ADWEEK BRANDED</span>
+                            </div>
+                        </div>
+
+                        <div class="video-back-action">
+                            <a href="/#portfolio" class="btn-back-portfolio">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="m12 19-7-7 7-7"></path><path d="M19 12H5"></path></svg>
+                                <span>Back to My Work</span>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </section>
+        </main>
+
+        <!-- Footer -->
+        <footer class="footer">
+            <p>&copy; {{ new Date().getFullYear() }} Andranik Shirinian. All Rights Reserved.</p>
+        </footer>
+    </div>
+
+    <script>
+        const { createApp, ref, onMounted, onUnmounted } = Vue;
+
+        createApp({
+            setup() {
+                const scrolled = ref(false);
+                const mobileMenuOpen = ref(false);
+                const navLinks = ref([
+                    { id: 'portfolio', text: 'Back to Portfolio', url: '/#portfolio' },
+                    { id: 'contact', text: 'Contact', url: '/#contact' }
+                ]);
+
+                const handleScroll = () => {
+                    scrolled.value = window.scrollY > 50;
+                };
+
+                onMounted(() => {
+                    window.addEventListener('scroll', handleScroll, { passive: true });
+                });
+
+                onUnmounted(() => {
+                    window.removeEventListener('scroll', handleScroll);
+                });
+
+                return { scrolled, mobileMenuOpen, navLinks };
+            }
+        }).mount('#app');
+    </script>
+</body>
+</html>

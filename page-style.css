@@ -275,6 +275,83 @@ a:hover {
     line-height: 1.75;
 }
 
+/* Video Stage (Video Project Pages) */
+.video-stage {
+    max-width: 960px;
+    margin: 2.5rem auto 0;
+}
+
+.video-player-frame {
+    position: relative;
+    background: var(--bg-card);
+    border: 1px solid var(--border-accent);
+    border-radius: var(--radius-lg);
+    padding: 1rem;
+    box-shadow: 0 25px 60px rgba(0, 0, 0, 0.65), 0 0 36px rgba(245, 180, 0, 0.16);
+    backdrop-filter: blur(14px);
+}
+
+.video-player-wrapper {
+    position: relative;
+    aspect-ratio: 16 / 9;
+    background-color: #000000;
+    border-radius: var(--radius-md);
+    overflow: hidden;
+    border: 1px solid var(--border-subtle);
+}
+
+.video-player-wrapper video {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+    display: block;
+    background-color: #000000;
+}
+
+.video-meta-bar {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    align-items: center;
+    gap: 0.75rem;
+    margin-top: 1rem;
+    padding-top: 0.85rem;
+    border-top: 1px solid var(--border-subtle);
+    font-family: var(--font-mono);
+    font-size: 0.75rem;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--text-muted);
+}
+
+.video-back-action {
+    margin-top: 2.5rem;
+    text-align: center;
+}
+
+.btn-back-portfolio {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.55rem;
+    font-family: var(--font-mono);
+    font-size: 0.82rem;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    padding: 0.85rem 1.75rem;
+    border-radius: var(--radius-md);
+    background: var(--gradient-amber);
+    color: var(--bg-deepest);
+    box-shadow: var(--shadow-glow);
+    transition: transform 0.25s ease, box-shadow 0.25s ease;
+}
+
+.btn-back-portfolio:hover {
+    color: var(--bg-deepest);
+    transform: translateY(-2px);
+    box-shadow: 0 12px 32px rgba(255, 198, 47, 0.4);
+}
+
 /* Image Grid */
 .image-grid {
     margin-top: 3.5rem;
