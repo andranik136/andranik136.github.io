@@ -41,7 +41,7 @@
                 </nav>
 
                 <div class="header-actions">
-                    <a href="#contact" @click.prevent="scrollTo('contact')" class="header-cta">
+                    <a href="mailto:andranik136@gmail.com" class="header-cta">
                         <span>Get In Touch</span>
                         <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"></path><path d="m12 5 7 7-7 7"></path></svg>
                     </a>
@@ -57,7 +57,7 @@
             <div v-show="mobileMenuOpen" class="mobile-nav">
                 <a v-for="link in navLinks" :key="link.id" :href="'#' + link.id"
                     @click.prevent="scrollTo(link.id, true)">{{ link.text }}</a>
-                <a href="#contact" @click.prevent="scrollTo('contact', true)" class="mobile-cta" style="color: var(--amber-flame); font-weight: 700;">Get In Touch</a>
+                <a href="mailto:andranik136@gmail.com" @click="mobileMenuOpen = false" class="mobile-cta" style="color: var(--amber-flame); font-weight: 700;">Get In Touch</a>
             </div>
         </header>
 
@@ -84,14 +84,11 @@
                         <span>Explore My Work</span>
                         <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"></path><path d="m12 5 7 7-7 7"></path></svg>
                     </a>
-                    <a href="#contact" @click.prevent="scrollTo('contact')" class="btn-hud-secondary">
-                        <span>Get In Touch</span>
-                    </a>
                 </div>
             </div>
 
             <!-- Scroll indicator -->
-            <a href="#about" @click.prevent="scrollTo('about')" class="scroll-down-link" aria-label="Scroll down">
+            <a href="#about" @click.prevent="scrollTo('about', false, false)" class="scroll-down-link" aria-label="Scroll down">
                 <span>Explore</span>
                 <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none"
                     stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
@@ -128,32 +125,43 @@
         </div>
 
         <main class="container">
-            <!-- About Section -->
-            <section id="about" class="section about-section">
-                <!-- Top Info Bar -->
-                <div class="about-rail">
-                    <span class="about-location" title="Current local time in California">
-                        <span>California</span>
-                        <span class="about-location-dot" aria-hidden="true">·</span>
-                        <span class="clock-time">{{ californiaTime }}</span>
+            <!-- About Section (Collapsible) -->
+            <section id="about" class="section about-section" :class="{ 'is-expanded': aboutExpanded }">
+                <!-- Minimized / Toggle Bar -->
+                <button type="button" class="about-toggle-bar" @click="aboutExpanded = !aboutExpanded"
+                    :aria-expanded="aboutExpanded" aria-controls="about-panel">
+                    <span class="about-toggle-left">
+                        <img src="/media/my-profile-img.jpg" alt="" class="about-toggle-avatar" aria-hidden="true">
+                        <span class="about-toggle-text">
+                            <span class="about-toggle-label">About Me</span>
+                            <span class="about-toggle-sub">California · {{ californiaTime }}</span>
+                        </span>
                     </span>
-                    <div class="about-rail-line" aria-hidden="true"></div>
-                    <span class="status-badge">
-                        <span class="status-dot" aria-hidden="true"></span>
-                        Available For Select Projects
-                    </span>
-                </div>
 
-                <!-- Asymmetric Bento Grid -->
-                <div class="about-bento">
+                    <span class="about-toggle-right">
+                        <span class="status-badge">
+                            <span class="status-dot" aria-hidden="true"></span>
+                            Available For Select Projects
+                        </span>
+                        <span class="about-toggle-action">
+                            <span>{{ aboutExpanded ? 'Hide' : 'Expand' }}</span>
+                            <svg class="about-toggle-chevron" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m6 9 6 6 6-6"></path></svg>
+                        </span>
+                    </span>
+                </button>
+
+                <!-- Expandable Bento Grid -->
+                <div id="about-panel" class="about-collapsible" :class="{ 'is-open': aboutExpanded }" :inert="!aboutExpanded">
+                    <div class="about-collapsible-inner">
+                        <div class="about-bento">
                     <!-- Tile 1: Condensed Editorial Bio -->
                     <div class="bento-card bento-bio">
                         <h2 class="about-statement">
-                            I’m <span>Andranik</span> — a developer &amp; 3D artist crafting interactive web apps and isometric Blender worlds.
+                            I’m <span>Andranik</span>. I build interactive web apps, 3D scenes, and playful digital tools.
                         </h2>
 
                         <p class="about-subcopy">
-                            A decade of blending front-end engineering, Blender 3D, and agentic workflows into responsive digital experiences.
+                            Ten years working across front-end code, Blender 3D, and motion. Focused on clean design and things that feel fun to use.
                         </p>
 
                         <ul class="about-pillars" aria-label="Core disciplines">
@@ -164,14 +172,9 @@
                     </div>
 
                     <!-- Tile 2: Full-Bleed Portrait -->
-                    <figure class="bento-card bento-portrait">
+                    <div class="bento-card bento-portrait">
                         <img src="/media/my-profile-img.jpg" alt="Andranik Shirinian">
-
-                        <figcaption class="portrait-hud-bottom">
-                            <span class="portrait-name">Andranik Shirinian</span>
-                            <span class="portrait-role">3D Artist &amp; Web Developer</span>
-                        </figcaption>
-                    </figure>
+                    </div>
 
                     <!-- Tile 3: Key Stats -->
                     <div class="bento-stats">
@@ -233,14 +236,7 @@
                             </li>
                         </ul>
                     </div>
-
-                    <!-- Tile 5: Off-Screen -->
-                    <div class="bento-card bento-offscreen">
-                        <h3 class="toolkit-title">Off-Screen</h3>
-
-                        <p class="offscreen-copy">
-                            Catching Pacific sunsets &amp; exploring mountain trails with my dog, <span>Archie</span>.
-                        </p>
+                        </div>
                     </div>
                 </div>
             </section>
@@ -311,46 +307,6 @@
                     </button>
                 </div>
             </section>
-
-            <!-- Contact Section -->
-            <section id="contact" class="section">
-                <div class="section-header-block">
-                    <h2 class="section-title">Get In Touch</h2>
-                </div>
-
-                <div class="contact-terminal">
-                    <h3 class="contact-title">Let’s Build Something Exceptional</h3>
-                    <p class="contact-desc">
-                        Have a 3D modeling project in mind, need front-end architecture, or want to discuss full-time and freelance opportunities? My inbox is always open.
-                    </p>
-
-                    <!-- Interactive Email Copy Box -->
-                    <div class="email-copy-box" @click="copyEmail" role="button" tabindex="0" title="Click to copy email address">
-                        <span>andranik136@gmail.com</span>
-                        <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                            <rect width="14" height="14" x="8" y="8" rx="2" ry="2"></rect>
-                            <path d="M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2"></path>
-                        </svg>
-                        <span v-if="emailCopied" class="copy-feedback">Copied! ✓</span>
-                    </div>
-
-                    <!-- Social / External Link Pills -->
-                    <div class="social-links-row">
-                        <a href="mailto:andranik136@gmail.com" class="social-pill">
-                            <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="20" height="16" x="2" y="4" rx="2"></rect><path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7"></path></svg>
-                            Direct Email
-                        </a>
-                        <a href="https://github.com/andranik136" target="_blank" rel="noopener noreferrer" class="social-pill">
-                            <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M12 .297c-6.63 0-12 5.373-12 12 0 5.303 3.438 9.8 8.205 11.385.6.113.82-.258.82-.577 0-.285-.01-1.04-.015-2.04-3.338.724-4.042-1.61-4.042-1.61C4.422 18.07 3.633 17.7 3.633 17.7c-1.087-.744.084-.729.084-.729 1.205.084 1.838 1.236 1.838 1.236 1.07 1.835 2.809 1.305 3.495.998.108-.776.417-1.305.76-1.605-2.665-.3-5.466-1.332-5.466-5.93 0-1.31.465-2.38 1.235-3.22-.135-.303-.54-1.523.105-3.176 0 0 1.005-.322 3.3 1.23.96-.267 1.98-.399 3-.405 1.02.006 2.04.138 3 .405 2.28-1.552 3.285-1.23 3.285-1.23.645 1.653.24 2.873.12 3.176.765.84 1.23 1.91 1.23 3.22 0 4.61-2.805 5.625-5.475 5.92.42.36.81 1.096.81 2.22 0 1.606-.015 2.896-.015 3.286 0 .315.21.69.825.57C20.565 22.092 24 17.592 24 12.297c0-6.627-5.373-12-12-12"></path></svg>
-                            GitHub
-                        </a>
-                        <a href="https://linkedin.com/in/andranikshirinian" target="_blank" rel="noopener noreferrer" class="social-pill">
-                            <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M19 0h-14c-2.761 0-5 2.239-5 5v14c0 2.761 2.239 5 5 5h14c2.762 0 5-2.239 5-5v-14c0-2.761-2.238-5-5-5zm-11 19h-3v-11h3v11zm-1.5-12.268c-.966 0-1.75-.79-1.75-1.764s.784-1.764 1.75-1.764 1.75.79 1.75 1.764-.783 1.764-1.75 1.764zm13.5 12.268h-3v-5.604c0-3.368-4-3.113-4 0v5.604h-3v-11h3v1.765c1.396-2.586 7-2.777 7 2.476v6.759z"/></svg>
-                            LinkedIn
-                        </a>
-                    </div>
-                </div>
-            </section>
         </main>
 
         <!-- Quick Preview Modal -->
@@ -419,8 +375,8 @@
             setup() {
                 const scrolled = ref(false);
                 const mobileMenuOpen = ref(false);
-                const activeNavSection = ref('about');
-                const emailCopied = ref(false);
+                const aboutExpanded = ref(false);
+                const activeNavSection = ref('portfolio');
                 const previewItem = ref(null);
                 const galaxyPlaying = ref(true);
                 const californiaTime = ref('');
@@ -443,9 +399,8 @@
                 updateCaliforniaTime();
 
                 const navLinks = ref([
-                    { id: 'about', text: 'About' },
-                    { id: 'portfolio', text: 'My Work' },
-                    { id: 'contact', text: 'Contact' }
+                    { id: 'about', text: 'About Me' },
+                    { id: 'portfolio', text: 'My Work' }
                 ]);
 
                 const activeCategory = ref('All');
@@ -889,7 +844,7 @@
                     scrolled.value = window.scrollY > 40;
 
                     // Update active nav based on scroll position
-                    const sections = ['contact', 'portfolio', 'about'];
+                    const sections = ['portfolio', 'about'];
                     for (const id of sections) {
                         const el = document.getElementById(id);
                         if (el) {
@@ -902,7 +857,10 @@
                     }
                 };
 
-                const scrollTo = (id, isMobile = false) => {
+                const scrollTo = (id, isMobile = false, expandAbout = true) => {
+                    if (id === 'about' && expandAbout) {
+                        aboutExpanded.value = true;
+                    }
                     const el = document.getElementById(id);
                     if (el) {
                         const offset = 75;
@@ -932,16 +890,6 @@
 
                 const closePreview = () => {
                     previewItem.value = null;
-                };
-
-                // Copy Email
-                const copyEmail = () => {
-                    navigator.clipboard.writeText('andranik136@gmail.com').then(() => {
-                        emailCopied.value = true;
-                        setTimeout(() => {
-                            emailCopied.value = false;
-                        }, 3000);
-                    });
                 };
 
                 // Keyboard escape listener for modal
@@ -985,6 +933,7 @@
                 return {
                     scrolled,
                     mobileMenuOpen,
+                    aboutExpanded,
                     activeNavSection,
                     navLinks,
                     categories,
@@ -1006,9 +955,7 @@
                     toggleOrbit,
                     previewItem,
                     openPreview,
-                    closePreview,
-                    emailCopied,
-                    copyEmail
+                    closePreview
                 };
             }
         }).mount('#app');
