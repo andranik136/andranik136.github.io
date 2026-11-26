@@ -221,12 +221,6 @@
                         <div class="galaxy-card-media" style="background-image: url('${item.image}')">
                             <div class="galaxy-card-overlay"></div>
                         </div>
-                        <div class="galaxy-card-ticks">
-                            <span class="tick tick-tl"></span>
-                            <span class="tick tick-tr"></span>
-                            <span class="tick tick-bl"></span>
-                            <span class="tick tick-br"></span>
-                        </div>
                     </div>
                 `;
 
@@ -291,23 +285,7 @@
             const ctx = this.ctx;
             ctx.clearRect(0, 0, this.width, this.height);
 
-            const cx = this.width / 2;
-            const cy = this.height / 2;
-
-            // 1. Subtle concentric HUD coordinate circles
-            ctx.save();
-            ctx.strokeStyle = 'rgba(225, 229, 238, 0.035)';
-            ctx.lineWidth = 1;
-            ctx.setLineDash([4, 12]);
-
-            [240, 460, 720].forEach(r => {
-                ctx.beginPath();
-                ctx.arc(cx, cy, r, 0, Math.PI * 2);
-                ctx.stroke();
-            });
-            ctx.restore();
-
-            // 2. Ambient star dust particles drifting upward
+            // Ambient star dust particles drifting upward
             ctx.save();
             this.particles.forEach(p => {
                 if (this.isPlaying) {

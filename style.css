@@ -116,7 +116,7 @@ button {
 }
 
 /* ==========================================================================
-   HUD & Technical Utility Elements (GetArtCraft Style)
+   Technical Label Utility
    ========================================================================== */
 .hud-label {
     font-family: var(--font-mono);
@@ -126,59 +126,6 @@ button {
     text-transform: uppercase;
     color: var(--sunlit-clay);
 }
-
-.hud-tag {
-    display: inline-flex;
-    align-items: center;
-    gap: 0.5rem;
-    font-family: var(--font-mono);
-    font-size: 0.72rem;
-    font-weight: 600;
-    letter-spacing: 0.12em;
-    text-transform: uppercase;
-    color: var(--amber-flame);
-    background: rgba(245, 180, 0, 0.08);
-    border: 1px solid var(--border-accent);
-    padding: 0.35rem 0.85rem;
-    border-radius: var(--radius-full);
-}
-
-.hud-tag.dim {
-    color: var(--text-secondary);
-    background: rgba(225, 229, 238, 0.06);
-    border-color: var(--border-subtle);
-}
-
-/* Corner Hairline Ticks */
-.tick {
-    position: absolute;
-    width: 8px;
-    height: 8px;
-    pointer-events: none;
-    opacity: 0.75;
-}
-
-.tick::before, .tick::after {
-    content: '';
-    position: absolute;
-    background-color: var(--sunlit-clay);
-}
-
-.tick-tl { top: 6px; left: 6px; }
-.tick-tl::before { top: 0; left: 0; width: 6px; height: 1px; }
-.tick-tl::after { top: 0; left: 0; width: 1px; height: 6px; }
-
-.tick-tr { top: 6px; right: 6px; }
-.tick-tr::before { top: 0; right: 0; width: 6px; height: 1px; }
-.tick-tr::after { top: 0; right: 0; width: 1px; height: 6px; }
-
-.tick-bl { bottom: 6px; left: 6px; }
-.tick-bl::before { bottom: 0; left: 0; width: 6px; height: 1px; }
-.tick-bl::after { bottom: 0; left: 0; width: 1px; height: 6px; }
-
-.tick-br { bottom: 6px; right: 6px; }
-.tick-br::before { bottom: 0; right: 0; width: 6px; height: 1px; }
-.tick-br::after { bottom: 0; right: 0; width: 1px; height: 6px; }
 
 /* Container */
 .container {
@@ -717,51 +664,42 @@ button {
 }
 
 /* ==========================================================================
-   About Section
+   About Section — Asymmetric Bento Grid
    ========================================================================== */
-.about-grid {
-    display: grid;
-    grid-template-columns: 1fr;
-    gap: 3.5rem;
-    align-items: center;
+.about-section {
+    padding: 80px 0 96px;
 }
 
-@media (min-width: 992px) {
-    .about-grid {
-        grid-template-columns: 380px 1fr;
-    }
-}
-
-.about-visual-card {
-    position: relative;
-    background: var(--bg-card);
-    border: 1px solid var(--border-medium);
-    border-radius: var(--radius-lg);
-    padding: 1.75rem;
-    backdrop-filter: blur(16px);
-    box-shadow: var(--shadow-card);
-}
-
-.about-photo-wrapper {
-    position: relative;
-    border-radius: var(--radius-md);
-    overflow: hidden;
-    aspect-ratio: 1 / 1;
-    border: 1px solid var(--border-subtle);
-    margin-bottom: 1.5rem;
-}
-
-.about-photo-wrapper img {
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-    filter: saturate(1.05) contrast(1.02);
-}
-
-.about-status-strip {
+/* Top Info Bar */
+.about-rail {
     display: flex;
-    flex-direction: column;
-    gap: 0.75rem;
+    align-items: center;
+    gap: 1.25rem;
+    margin-bottom: 1.5rem;
+    flex-wrap: wrap;
+}
+
+.about-rail-line {
+    flex: 1;
+    min-width: 48px;
+    height: 1px;
+    background: var(--border-subtle);
+}
+
+.about-location {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-family: var(--font-mono);
+    font-size: 0.74rem;
+    font-weight: 600;
+    letter-spacing: 0.06em;
+    color: var(--alice-blue);
+    font-variant-numeric: tabular-nums;
+}
+
+.about-location-dot {
+    color: var(--amber-flame);
 }
 
 .status-badge {
@@ -771,7 +709,7 @@ button {
     font-family: var(--font-mono);
     font-size: 0.72rem;
     font-weight: 600;
-    letter-spacing: 0.08em;
+    letter-spacing: 0.06em;
     color: #22c55e;
     background: rgba(34, 197, 94, 0.1);
     border: 1px solid rgba(34, 197, 94, 0.3);
@@ -785,64 +723,221 @@ button {
     border-radius: 2px;
     background-color: #22c55e;
     box-shadow: 0 0 8px #22c55e;
+    animation: pulseGlow 2.4s infinite;
 }
 
-.meta-details {
-    display: flex;
-    justify-content: space-between;
-    font-family: var(--font-mono);
-    font-size: 0.72rem;
-    color: var(--text-muted);
-    border-top: 1px solid var(--border-subtle);
-    padding-top: 0.75rem;
+/* Bento Grid Architecture */
+.about-bento {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 1.25rem;
 }
 
-.about-narrative {
+.bento-card {
+    position: relative;
+    background: var(--bg-card);
+    border: 1px solid var(--border-subtle);
+    border-radius: var(--radius-lg);
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
+    box-shadow: var(--shadow-card);
+    transition: border-color 0.25s ease, transform 0.25s cubic-bezier(0.16, 1, 0.3, 1), background-color 0.25s ease;
+}
+
+/* Tile 1: Editorial Bio */
+.bento-bio {
+    padding: 2.25rem 2.25rem 1.85rem;
+    border-color: var(--border-medium);
+    border-left: 2px solid var(--amber-flame);
+    background: linear-gradient(155deg, rgba(1, 52, 88, 0.78) 0%, rgba(1, 33, 58, 0.72) 100%);
     display: flex;
     flex-direction: column;
-    gap: 1.5rem;
+    justify-content: space-between;
 }
 
-.about-lead {
-    font-size: 1.35rem;
-    font-weight: 400;
+.about-statement {
+    font-size: clamp(1.38rem, 2.35vw, 1.9rem);
+    font-weight: 700;
+    line-height: 1.36;
+    letter-spacing: -0.025em;
     color: var(--white);
-    line-height: 1.5;
+    margin-bottom: 1.1rem;
+    max-width: 28ch;
 }
 
-.about-lead span {
+.about-statement span {
     color: var(--school-bus-yellow);
-    font-weight: 600;
 }
 
-.about-narrative p {
-    font-size: 1.05rem;
-    line-height: 1.75;
+.about-subcopy {
+    font-size: 0.96rem;
+    line-height: 1.68;
     color: var(--text-dim);
+    max-width: 56ch;
+    margin-bottom: 1.85rem;
 }
 
-/* Stats Counter Grid */
-.about-stats-grid {
+.about-pillars {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.65rem 1.5rem;
+    list-style: none;
+    padding-top: 1.25rem;
+    border-top: 1px solid var(--border-subtle);
+    font-family: var(--font-mono);
+    font-size: 0.76rem;
+    font-weight: 600;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: var(--sunlit-clay);
+}
+
+.about-pillars li {
+    display: inline-flex;
+    align-items: center;
+}
+
+/* Tile 2: Full-Bleed Portrait */
+.bento-portrait {
+    margin: 0;
+    width: 100%;
+    min-width: 0;
+    overflow: hidden;
+    border-color: var(--border-medium);
+    background-color: var(--bg-dark);
+    aspect-ratio: 4 / 4.4;
+}
+
+.bento-portrait img {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    object-position: center 14%;
+    filter: saturate(1.04) contrast(1.03);
+    transition: transform 0.65s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.bento-portrait:hover img {
+    transform: scale(1.035);
+}
+
+.bento-portrait::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    z-index: 1;
+    background: linear-gradient(180deg, rgba(0, 20, 36, 0) 56%, rgba(0, 20, 36, 0.88) 100%);
+    pointer-events: none;
+}
+
+.portrait-hud-bottom {
+    position: absolute;
+    left: 1.15rem;
+    right: 1.15rem;
+    bottom: 1.15rem;
+    z-index: 2;
+    display: flex;
+    flex-direction: column;
+    gap: 0.2rem;
+    padding: 0.85rem 1rem;
+    background: rgba(0, 20, 36, 0.72);
+    border: 1px solid var(--border-subtle);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    border-radius: var(--radius-sm);
+}
+
+.portrait-name {
+    font-family: var(--font-mono);
+    font-size: 0.88rem;
+    font-weight: 700;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    color: var(--white);
+}
+
+.portrait-role {
+    font-family: var(--font-mono);
+    font-size: 0.72rem;
+    font-weight: 500;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--sunlit-clay);
+}
+
+/* Tile 3: Key Stats */
+.bento-stats {
     display: grid;
     grid-template-columns: repeat(3, 1fr);
-    gap: 1rem;
-    margin: 1.5rem 0;
-    padding: 1.5rem 0;
-    border-top: 1px solid var(--border-subtle);
-    border-bottom: 1px solid var(--border-subtle);
+    gap: 1.25rem;
 }
 
-.stat-item {
+.bento-stat-card {
+    padding: 1.5rem 1.4rem;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
     text-align: left;
+    color: inherit;
+    overflow: hidden;
+}
+
+.bento-stat-card::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 2px;
+    background: var(--gradient-amber);
+    opacity: 0;
+    transition: opacity 0.25s ease;
+}
+
+.bento-stat-interactive {
+    cursor: pointer;
+}
+
+.bento-stat-interactive:hover {
+    border-color: var(--border-accent);
+    background-color: var(--bg-card-hover);
+    transform: translateY(-2px);
+}
+
+.bento-stat-interactive:hover::after {
+    opacity: 1;
+}
+
+.bento-stat-interactive:focus-visible {
+    outline: 2px solid var(--amber-flame);
+    outline-offset: 2px;
+}
+
+.stat-arrow {
+    position: absolute;
+    top: 1.1rem;
+    right: 1.15rem;
+    font-family: var(--font-mono);
+    font-size: 0.85rem;
+    color: var(--amber-flame);
+    transition: transform 0.2s ease, color 0.2s ease;
+}
+
+.bento-stat-interactive:hover .stat-arrow {
+    color: var(--school-bus-yellow);
+    transform: translate(2px, -2px);
 }
 
 .stat-number {
     font-family: var(--font-mono);
-    font-size: 2.25rem;
+    font-size: clamp(2rem, 3vw, 2.55rem);
     font-weight: 800;
     color: var(--amber-flame);
     line-height: 1;
-    margin-bottom: 0.35rem;
+    margin-bottom: 0.45rem;
+    font-variant-numeric: tabular-nums;
 }
 
 .stat-label {
@@ -850,26 +945,32 @@ button {
     font-size: 0.8rem;
     color: var(--text-secondary);
     font-weight: 500;
+    line-height: 1.35;
 }
 
-/* Toolkit */
-.toolkit-block {
-    margin-top: 1rem;
+/* Tile 4: Creative Toolkit */
+.bento-toolkit {
+    padding: 1.75rem 2rem;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    gap: 1.15rem;
 }
 
 .toolkit-title {
-    font-size: 1rem;
+    font-size: 0.78rem;
     font-family: var(--font-mono);
-    letter-spacing: 0.08em;
+    font-weight: 600;
+    letter-spacing: 0.1em;
     text-transform: uppercase;
     color: var(--sunlit-clay);
-    margin-bottom: 1.25rem;
+    margin: 0;
 }
 
 .skills-list {
     display: flex;
     flex-wrap: wrap;
-    gap: 0.75rem;
+    gap: 0.7rem;
     list-style: none;
     padding: 0;
 }
@@ -882,9 +983,9 @@ button {
     font-size: 0.82rem;
     font-weight: 600;
     color: var(--alice-blue);
-    background: rgba(1, 40, 70, 0.7);
+    background: rgba(1, 34, 60, 0.78);
     border: 1px solid var(--border-subtle);
-    padding: 0.6rem 1rem;
+    padding: 0.62rem 1rem;
     border-radius: var(--radius-md);
     transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
 }
@@ -894,7 +995,7 @@ button {
     border-color: var(--amber-flame);
     background: rgba(1, 52, 90, 0.95);
     color: var(--white);
-    box-shadow: 0 6px 18px rgba(0, 15, 30, 0.5), 0 0 16px rgba(245, 180, 0, 0.2);
+    box-shadow: 0 6px 18px rgba(0, 15, 30, 0.5), 0 0 16px rgba(245, 180, 0, 0.18);
 }
 
 .skill-item svg {
@@ -910,6 +1011,152 @@ button {
 .skill-illustrator svg { color: #FF9A00; }
 .skill-ae svg { color: #9059FF; }
 .skill-blender svg { color: #EA7600; }
+
+/* Tile 5: Off-Screen */
+.bento-offscreen {
+    padding: 1.75rem 1.85rem;
+    background: linear-gradient(155deg, rgba(1, 52, 90, 0.74) 0%, rgba(1, 28, 50, 0.86) 100%);
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    gap: 1.15rem;
+}
+
+.offscreen-copy {
+    font-size: 0.94rem;
+    line-height: 1.65;
+    color: var(--alice-blue);
+    max-width: 30ch;
+}
+
+.offscreen-copy span {
+    color: var(--school-bus-yellow);
+    font-weight: 600;
+}
+
+/* Tablet Layout (768px – 1023px) */
+@media (min-width: 768px) and (max-width: 1023px) {
+    .about-bento {
+        grid-template-columns: repeat(2, 1fr);
+    }
+
+    .bento-bio,
+    .bento-toolkit,
+    .bento-offscreen {
+        grid-column: 1 / -1;
+    }
+
+    .bento-portrait {
+        aspect-ratio: auto;
+        min-height: 360px;
+    }
+
+    .bento-stats {
+        grid-template-columns: 1fr;
+    }
+}
+
+/* Desktop Asymmetric 12-Column Bento (1024px+) */
+@media (min-width: 1024px) {
+    .about-bento {
+        grid-template-columns: repeat(12, 1fr);
+    }
+
+    .bento-bio {
+        grid-column: 1 / 8;
+        grid-row: 1;
+        padding: 2.5rem 2.65rem 2rem;
+    }
+
+    .bento-portrait {
+        grid-column: 8 / 13;
+        grid-row: 1 / 3;
+        aspect-ratio: auto;
+        min-height: 100%;
+    }
+
+    .bento-stats {
+        grid-column: 1 / 8;
+        grid-row: 2;
+    }
+
+    .bento-toolkit {
+        grid-column: 1 / 9;
+        grid-row: 3;
+    }
+
+    .bento-offscreen {
+        grid-column: 9 / 13;
+        grid-row: 3;
+    }
+}
+
+@media (max-width: 540px) {
+    .bento-bio {
+        padding: 1.6rem 1.35rem 1.4rem;
+    }
+
+    .bento-toolkit,
+    .bento-offscreen {
+        padding: 1.4rem 1.35rem;
+    }
+
+    .portrait-hud-bottom {
+        left: 0.9rem;
+        right: 0.9rem;
+        bottom: 0.9rem;
+        padding: 0.7rem 0.85rem;
+    }
+
+    .bento-stats {
+        grid-template-columns: 1fr;
+        gap: 0.85rem;
+    }
+
+    .bento-stat-card {
+        flex-direction: row;
+        align-items: center;
+        justify-content: flex-start;
+        gap: 0.85rem;
+        padding: 1.05rem 1.25rem;
+    }
+
+    .stat-arrow {
+        position: static;
+        order: 3;
+        margin-left: auto;
+    }
+
+    .stat-number {
+        margin-bottom: 0;
+        min-width: 4.25rem;
+    }
+
+    .skills-list {
+        gap: 0.55rem;
+    }
+
+    .skill-item {
+        font-size: 0.75rem;
+        padding: 0.48rem 0.78rem;
+        gap: 0.45rem;
+    }
+
+    .skill-item svg {
+        width: 15px;
+        height: 15px;
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .status-dot,
+    .bento-portrait img,
+    .bento-card,
+    .stat-arrow {
+        animation: none;
+        transition: none;
+    }
+}
 
 /* ==========================================================================
    Portfolio Section & Filter Pills
@@ -1332,17 +1579,6 @@ button {
     position: relative;
 }
 
-.contact-terminal-header {
-    display: inline-flex;
-    align-items: center;
-    gap: 0.5rem;
-    font-family: var(--font-mono);
-    font-size: 0.72rem;
-    letter-spacing: 0.12em;
-    color: var(--sunlit-clay);
-    margin-bottom: 1.5rem;
-}
-
 .contact-title {
     font-size: clamp(2rem, 3.5vw, 2.75rem);
     font-weight: 800;
@@ -1495,8 +1731,11 @@ button {
         width: 100%;
     }
 
-    .about-stats-grid {
-        grid-template-columns: 1fr;
-        gap: 1.5rem;
+    .about-section {
+        padding: 72px 0 84px;
+    }
+
+    .about-rail-line {
+        display: none;
     }
 }

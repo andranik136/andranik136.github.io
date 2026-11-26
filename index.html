@@ -57,7 +57,7 @@
             <div v-show="mobileMenuOpen" class="mobile-nav">
                 <a v-for="link in navLinks" :key="link.id" :href="'#' + link.id"
                     @click.prevent="scrollTo(link.id, true)">{{ link.text }}</a>
-                <a href="#contact" @click.prevent="scrollTo('contact', true)" class="mobile-cta" style="color: var(--amber-flame); font-weight: 700;">Initiate Contact ↗</a>
+                <a href="#contact" @click.prevent="scrollTo('contact', true)" class="mobile-cta" style="color: var(--amber-flame); font-weight: 700;">Get In Touch</a>
             </div>
         </header>
 
@@ -129,108 +129,118 @@
 
         <main class="container">
             <!-- About Section -->
-            <section id="about" class="section">
-                <div class="section-header-block">
-                    <div class="section-pretitle">
-                        <span class="hud-tag">[ 01 // OVERVIEW ]</span>
-                    </div>
-                    <h2 class="section-title">Bridging Technical Code & 3D Art</h2>
-                    <p class="section-subtitle">
-                        Over a decade of translating complex digital ideas into polished, captivating experiences.
-                    </p>
+            <section id="about" class="section about-section">
+                <!-- Top Info Bar -->
+                <div class="about-rail">
+                    <span class="about-location" title="Current local time in California">
+                        <span>California</span>
+                        <span class="about-location-dot" aria-hidden="true">·</span>
+                        <span class="clock-time">{{ californiaTime }}</span>
+                    </span>
+                    <div class="about-rail-line" aria-hidden="true"></div>
+                    <span class="status-badge">
+                        <span class="status-dot" aria-hidden="true"></span>
+                        Available For Select Projects
+                    </span>
                 </div>
 
-                <div class="about-grid">
-                    <!-- Profile Card with HUD ticks -->
-                    <div class="about-visual-card">
-                        <span class="tick tick-tl"></span>
-                        <span class="tick tick-tr"></span>
-                        <span class="tick tick-bl"></span>
-                        <span class="tick tick-br"></span>
+                <!-- Asymmetric Bento Grid -->
+                <div class="about-bento">
+                    <!-- Tile 1: Condensed Editorial Bio -->
+                    <div class="bento-card bento-bio">
+                        <h2 class="about-statement">
+                            I’m <span>Andranik</span> — a developer &amp; 3D artist crafting interactive web apps and isometric Blender worlds.
+                        </h2>
 
-                        <div class="about-photo-wrapper">
-                            <img src="/media/my-profile-img.jpg" alt="Andranik Shirinian">
-                        </div>
+                        <p class="about-subcopy">
+                            A decade of blending front-end engineering, Blender 3D, and agentic workflows into responsive digital experiences.
+                        </p>
 
-                        <div class="about-status-strip">
-                            <span class="status-badge">
-                                <span class="status-dot"></span>
-                                Available For Select Projects
-                            </span>
-                            <div class="meta-details">
-                                <span>BASED IN CALIFORNIA</span>
-                                <span>UTC-7</span>
-                            </div>
-                        </div>
+                        <ul class="about-pillars" aria-label="Core disciplines">
+                            <li>Front-End Web</li>
+                            <li>Isometric 3D</li>
+                            <li>Motion &amp; Design</li>
+                        </ul>
                     </div>
 
-                    <!-- Narrative & Stats -->
-                    <div class="about-narrative">
-                        <p class="about-lead">
-                            Hello! I’m <span>Andranik</span>. For over 10 years, I’ve worked across the full creative spectrum—from engineering front-end applications to building isometric 3D worlds in Blender.
-                        </p>
-                        <p>
-                            I thrive on the challenge of taking intricate concepts and molding them into seamless, responsive user experiences. By blending modern agentic tools like Google Antigravity with the visual power of Blender and Adobe Creative Suite, I bridge the gap between technical logic and visual storytelling.
-                        </p>
-                        <p>
-                            When I’m away from my workstation, you’ll find me catching the Pacific sunset along the California coast or exploring scenic mountain trails with my dog, Archie.
-                        </p>
+                    <!-- Tile 2: Full-Bleed Portrait -->
+                    <figure class="bento-card bento-portrait">
+                        <img src="/media/my-profile-img.jpg" alt="Andranik Shirinian">
 
-                        <!-- Stats Grid -->
-                        <div class="about-stats-grid">
-                            <div class="stat-item">
-                                <div class="stat-number">10+</div>
-                                <div class="stat-label">Years Experience</div>
-                            </div>
-                            <div class="stat-item">
-                                <div class="stat-number">27</div>
-                                <div class="stat-label">3D Scenes & Models</div>
-                            </div>
-                            <div class="stat-item">
-                                <div class="stat-number">08</div>
-                                <div class="stat-label">Web Apps Built</div>
-                            </div>
+                        <figcaption class="portrait-hud-bottom">
+                            <span class="portrait-name">Andranik Shirinian</span>
+                            <span class="portrait-role">3D Artist &amp; Web Developer</span>
+                        </figcaption>
+                    </figure>
+
+                    <!-- Tile 3: Key Stats -->
+                    <div class="bento-stats">
+                        <div class="bento-card bento-stat-card">
+                            <div class="stat-number">10+</div>
+                            <div class="stat-label">Years Experience</div>
                         </div>
 
-                        <!-- Toolkit List -->
-                        <div class="toolkit-block">
-                            <h3 class="toolkit-title">Creative Toolkit</h3>
-                            <ul class="skills-list">
-                                <li class="skill-item skill-html5">
-                                    <svg viewBox="0 0 24 24" fill="currentColor"><path d="M1.5 0h21l-1.91 21.563L11.977 24l-8.564-2.438L1.5 0zm7.031 9.75l-.232-2.718 10.059.003.23-2.622L5.412 4.41l.698 8.01h9.126l-.326 3.426-2.91.804-2.955-.81-.188-2.11H6.248l.33 4.171L12 19.351l5.379-1.443.744-8.157H8.531z" /></svg>
-                                    HTML5
-                                </li>
-                                <li class="skill-item skill-css3">
-                                    <svg viewBox="0 0 24 24" fill="currentColor"><path d="M1.5 0h21l-1.91 21.563L11.977 24l-8.565-2.438L1.5 0zm17.09 4.413L5.41 4.41l.213 2.622 10.125.002-.255 2.716h-6.64l.24 2.573h6.182l-.366 3.523-2.91.804-2.956-.81-.188-2.11h-2.61l.29 3.855L12 19.288l5.373-1.53L18.59 4.414z" /></svg>
-                                    CSS3
-                                </li>
-                                <li class="skill-item skill-js">
-                                    <svg viewBox="0 0 24 24" fill="currentColor"><path d="M0 0h24v24H0V0zm22.034 18.276c-.175-1.095-.888-2.015-3.003-2.873-.736-.345-1.554-.585-1.797-1.14-.091-.33-.105-.51-.046-.705.15-.646.915-.84 1.515-.66.39.12.75.42.976.9 1.034-.676 1.034-.676 1.755-1.125-.27-.42-.404-.601-.586-.78-.63-.705-1.469-1.065-2.834-1.034l-.705.089c-.676.165-1.32.525-1.71 1.005-1.14 1.291-.811 3.541.569 4.471 1.365 1.02 3.361 1.244 3.616 2.205.24 1.17-.87 1.545-1.966 1.41-.811-.18-1.26-.586-1.755-1.336l-1.83 1.051c.21.48.45.689.81 1.109 1.74 1.756 6.09 1.666 6.871-1.004.029-.09.24-.705.074-1.65l.046.067zm-8.983-7.245h-2.248c0 1.938-.009 3.864-.009 5.805 0 1.232.063 2.363-.138 2.711-.33.689-1.18.601-1.566.48-.396-.196-.597-.466-.83-.855-.063-.105-.11-.196-.127-.196l-1.825 1.125c.305.63.75 1.172 1.324 1.517.855.51 2.004.675 3.207.405.783-.226 1.458-.691 1.811-1.411.51-.93.402-2.07.397-3.346.012-2.054 0-4.109 0-6.179l.004-.056z" /></svg>
-                                    JavaScript
-                                </li>
-                                <li class="skill-item skill-antigravity">
-                                    <svg viewBox="0 0 24 24" fill="currentColor">
-                                        <path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4"/>
-                                        <path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853"/>
-                                        <path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.06H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.94l2.85-2.22.81-.63z" fill="#FBBC05"/>
-                                        <path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.06l3.66 2.84c.87-2.6 3.3-4.52 6.16-4.52z" fill="#EA4335"/>
-                                    </svg>
-                                    Google Antigravity
-                                </li>
-                                <li class="skill-item skill-blender">
-                                    <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12.51 13.214c.046-.8.438-1.506 1.03-2.006a3.424 3.424 0 0 1 2.212-.79c.85 0 1.631.3 2.211.79.592.5.983 1.206 1.028 2.005.045.823-.285 1.586-.865 2.153a3.389 3.389 0 0 1-2.374.938 3.393 3.393 0 0 1-2.376-.938c-.58-.567-.91-1.33-.865-2.152M7.35 14.831c.006.314.106.922.256 1.398a7.372 7.372 0 0 0 1.593 2.757 8.227 8.227 0 0 0 2.787 2.001 8.947 8.947 0 0 0 3.66.76 8.964 8.964 0 0 0 3.657-.772 8.285 8.285 0 0 0 2.785-2.01 7.428 7.428 0 0 0 1.592-2.762 6.964 6.964 0 0 0 .25-3.074 7.123 7.123 0 0 0-1.016-2.779 7.764 7.764 0 0 0-1.852-2.043h.002L13.566 2.55l-.02-.015c-.492-.378-1.319-.376-1.86.002-.547.382-.609 1.015-.123 1.415l-.001.001 3.126 2.543-9.53.01h-.013c-.788.001-1.545.518-1.695 1.172-.154.665.38 1.217 1.2 1.22V8.9l4.83-.01-8.62 6.617-.034.025c-.813.622-1.075 1.658-.563 2.313.52.667 1.625.668 2.447.004L7.414 14s-.069.52-.063.831zm12.09 1.741c-.97.988-2.326 1.548-3.795 1.55-1.47.004-2.827-.552-3.797-1.538a4.51 4.51 0 0 1-1.036-1.622 4.282 4.282 0 0 1 .282-3.519 4.702 4.702 0 0 1 1.153-1.371c.942-.768 2.141-1.183 3.396-1.185 1.256-.002 2.455.41 3.398 1.175.48.391.87.854 1.152 1.367a4.28 4.28 0 0 1 .522 1.706 4.236 4.236 0 0 1-.239 1.811 4.54 4.54 0 0 1-1.035 1.626" /></svg>
-                                    Blender 3D
-                                </li>
-                                <li class="skill-item skill-illustrator">
-                                    <svg viewBox="0 0 24 24" fill="currentColor"><path d="M10.53 10.73c-.1-.31-.19-.61-.29-.92-.1-.31-.19-.6-.27-.89-.08-.28-.15-.54-.22-.78h-.02c-.09.43-.2.86-.34 1.29-.15.48-.3.98-.46 1.48-.14.51-.29.98-.44 1.4h2.54c-.06-.211-.14-.46-.23-.721-.09-.269-.18-.559-.27-.859zM19.75.3H4.25C1.9.3 0 2.2 0 4.55v14.9c0 2.35 1.9 4.25 4.25 4.25h15.5c2.35 0 4.25-1.9 4.25-4.25V4.55C24 2.2 22.1.3 19.75.3zM14.7 16.83h-2.091c-.069.01-.139-.04-.159-.11l-.82-2.38H7.91l-.76 2.35c-.02.09-.1.15-.19.141H5.08c-.11 0-.14-.061-.11-.18L8.19 7.38c.03-.1.06-.21.1-.33.04-.21.06-.43.06-.65-.01-.05.03-.1.08-.11h2.59c.08 0 .12.03.13.08l3.65 10.3c.03.109 0 .16-.1.16zm3.4-.15c0 .11-.039.16-.129.16H16.01c-.1 0-.15-.061-.15-.16v-7.7c0-.1.041-.14.131-.14h1.98c.09 0 .129.05.129.14v7.7zm-.209-9.03c-.231.24-.571.37-.911.35-.33.01-.65-.12-.891-.35-.23-.25-.35-.58-.34-.92-.01-.34.12-.66.359-.89.242-.23.562-.35.892-.35.391 0 .689.12.91.35.22.24.34.56.33.89.01.34-.11.67-.349.92z" /></svg>
-                                    Illustrator
-                                </li>
-                                <li class="skill-item skill-ae">
-                                    <svg viewBox="0 0 24 24" fill="currentColor"><path d="M8.54 10.73c-.1-.31-.19-.61-.29-.92s-.19-.6-.27-.89c-.08-.28-.15-.54-.22-.78h-.02c-.09.43-.2.86-.34 1.29-.15.48-.3.98-.46 1.48-.13.51-.29.98-.44 1.4h2.54c-.06-.21-.14-.46-.23-.72-.09-.27-.18-.56-.27-.86zm8.58-.29c-.55-.03-1.07.26-1.33.76-.12.23-.19.47-.22.72h2.109c.26 0 .45 0 .57-.01.08-.01.16-.03.23-.08v-.1c0-.13-.021-.25-.061-.37-.178-.56-.708-.94-1.298-.92zM19.75.3H4.25C1.9.3 0 2.2 0 4.55v14.9c0 2.35 1.9 4.25 4.25 4.25h15.5c2.35 0 4.25-1.9 4.25-4.25V4.55C24 2.2 22.1.3 19.75.3zm-7.04 16.511h-2.09c-.07.01-.14-.041-.16-.11l-.82-2.4H5.92l-.76 2.36c-.02.09-.1.15-.19.14H3.09c-.11 0-.14-.06-.11-.18L6.2 7.39c.03-.1.06-.19.1-.31.04-.21.06-.43.06-.65-.01-.05.03-.1.08-.11h2.59c.07 0 .12.03.13.08l3.65 10.25c.03.11.001.161-.1.161zm7.851-3.991c-.021.189-.031.33-.041.42-.01.07-.069.13-.14.13-.06 0-.17.01-.33.021-.159.02-.35.029-.579.029-.23 0-.471-.04-.73-.04h-3.17c.039.31.14.62.31.89.181.271.431.48.729.601.4.17.841.26 1.281.25.35-.011.699-.04 1.039-.11.311-.039.61-.119.891-.23.05-.039.08-.02.08.08v1.531c0 .039-.01.08-.021.119-.021.03-.04.051-.069.07-.32.14-.65.24-1 .3-.471.09-.94.13-1.42.12-.761 0-1.4-.12-1.92-.35-.49-.211-.921-.541-1.261-.95-.319-.39-.55-.83-.69-1.31-.14-.471-.209-.961-.209-1.461 0-.539.08-1.07.25-1.59.16-.5.41-.96.75-1.37.33-.4.739-.72 1.209-.95.471-.23 1.03-.31 1.67-.31.531-.01 1.06.09 1.55.31.41.18.77.45 1.05.8.26.34.47.72.601 1.14.129.4.189.81.189 1.22 0 .24-.01.45-.019.64z" /></svg>
-                                    After Effects
-                                </li>
-                            </ul>
-                        </div>
+                        <button type="button" class="bento-card bento-stat-card bento-stat-interactive" @click="jumpToCategory('3D Art')" title="Filter portfolio by 3D Art">
+                            <span class="stat-arrow" aria-hidden="true">↗</span>
+                            <div class="stat-number">{{ padNumber(getCategoryCount('3D Art')) }}</div>
+                            <div class="stat-label">3D Scenes &amp; Models</div>
+                        </button>
+
+                        <button type="button" class="bento-card bento-stat-card bento-stat-interactive" @click="jumpToCategory('Web Development')" title="Filter portfolio by Web Development">
+                            <span class="stat-arrow" aria-hidden="true">↗</span>
+                            <div class="stat-number">{{ padNumber(getCategoryCount('Web Development')) }}</div>
+                            <div class="stat-label">Web Apps Built</div>
+                        </button>
+                    </div>
+
+                    <!-- Tile 4: Creative Toolkit -->
+                    <div class="bento-card bento-toolkit">
+                        <h3 class="toolkit-title">Creative Toolkit</h3>
+
+                        <ul class="skills-list">
+                            <li class="skill-item skill-html5">
+                                <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M1.5 0h21l-1.91 21.563L11.977 24l-8.564-2.438L1.5 0zm7.031 9.75l-.232-2.718 10.059.003.23-2.622L5.412 4.41l.698 8.01h9.126l-.326 3.426-2.91.804-2.955-.81-.188-2.11H6.248l.33 4.171L12 19.351l5.379-1.443.744-8.157H8.531z" /></svg>
+                                HTML5
+                            </li>
+                            <li class="skill-item skill-css3">
+                                <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M1.5 0h21l-1.91 21.563L11.977 24l-8.565-2.438L1.5 0zm17.09 4.413L5.41 4.41l.213 2.622 10.125.002-.255 2.716h-6.64l.24 2.573h6.182l-.366 3.523-2.91.804-2.956-.81-.188-2.11h-2.61l.29 3.855L12 19.288l5.373-1.53L18.59 4.414z" /></svg>
+                                CSS3
+                            </li>
+                            <li class="skill-item skill-js">
+                                <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M0 0h24v24H0V0zm22.034 18.276c-.175-1.095-.888-2.015-3.003-2.873-.736-.345-1.554-.585-1.797-1.14-.091-.33-.105-.51-.046-.705.15-.646.915-.84 1.515-.66.39.12.75.42.976.9 1.034-.676 1.034-.676 1.755-1.125-.27-.42-.404-.601-.586-.78-.63-.705-1.469-1.065-2.834-1.034l-.705.089c-.676.165-1.32.525-1.71 1.005-1.14 1.291-.811 3.541.569 4.471 1.365 1.02 3.361 1.244 3.616 2.205.24 1.17-.87 1.545-1.966 1.41-.811-.18-1.26-.586-1.755-1.336l-1.83 1.051c.21.48.45.689.81 1.109 1.74 1.756 6.09 1.666 6.871-1.004.029-.09.24-.705.074-1.65l.046.067zm-8.983-7.245h-2.248c0 1.938-.009 3.864-.009 5.805 0 1.232.063 2.363-.138 2.711-.33.689-1.18.601-1.566.48-.396-.196-.597-.466-.83-.855-.063-.105-.11-.196-.127-.196l-1.825 1.125c.305.63.75 1.172 1.324 1.517.855.51 2.004.675 3.207.405.783-.226 1.458-.691 1.811-1.411.51-.93.402-2.07.397-3.346.012-2.054 0-4.109 0-6.179l.004-.056z" /></svg>
+                                JavaScript
+                            </li>
+                            <li class="skill-item skill-antigravity">
+                                <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+                                    <path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4"/>
+                                    <path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853"/>
+                                    <path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.06H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.94l2.85-2.22.81-.63z" fill="#FBBC05"/>
+                                    <path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.06l3.66 2.84c.87-2.6 3.3-4.52 6.16-4.52z" fill="#EA4335"/>
+                                </svg>
+                                Google Antigravity
+                            </li>
+                            <li class="skill-item skill-blender">
+                                <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12.51 13.214c.046-.8.438-1.506 1.03-2.006a3.424 3.424 0 0 1 2.212-.79c.85 0 1.631.3 2.211.79.592.5.983 1.206 1.028 2.005.045.823-.285 1.586-.865 2.153a3.389 3.389 0 0 1-2.374.938 3.393 3.393 0 0 1-2.376-.938c-.58-.567-.91-1.33-.865-2.152M7.35 14.831c.006.314.106.922.256 1.398a7.372 7.372 0 0 0 1.593 2.757 8.227 8.227 0 0 0 2.787 2.001 8.947 8.947 0 0 0 3.66.76 8.964 8.964 0 0 0 3.657-.772 8.285 8.285 0 0 0 2.785-2.01 7.428 7.428 0 0 0 1.592-2.762 6.964 6.964 0 0 0 .25-3.074 7.123 7.123 0 0 0-1.016-2.779 7.764 7.764 0 0 0-1.852-2.043h.002L13.566 2.55l-.02-.015c-.492-.378-1.319-.376-1.86.002-.547.382-.609 1.015-.123 1.415l-.001.001 3.126 2.543-9.53.01h-.013c-.788.001-1.545.518-1.695 1.172-.154.665.38 1.217 1.2 1.22V8.9l4.83-.01-8.62 6.617-.034.025c-.813.622-1.075 1.658-.563 2.313.52.667 1.625.668 2.447.004L7.414 14s-.069.52-.063.831zm12.09 1.741c-.97.988-2.326 1.548-3.795 1.55-1.47.004-2.827-.552-3.797-1.538a4.51 4.51 0 0 1-1.036-1.622 4.282 4.282 0 0 1 .282-3.519 4.702 4.702 0 0 1 1.153-1.371c.942-.768 2.141-1.183 3.396-1.185 1.256-.002 2.455.41 3.398 1.175.48.391.87.854 1.152 1.367a4.28 4.28 0 0 1 .522 1.706 4.236 4.236 0 0 1-.239 1.811 4.54 4.54 0 0 1-1.035 1.626" /></svg>
+                                Blender 3D
+                            </li>
+                            <li class="skill-item skill-illustrator">
+                                <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M10.53 10.73c-.1-.31-.19-.61-.29-.92-.1-.31-.19-.6-.27-.89-.08-.28-.15-.54-.22-.78h-.02c-.09.43-.2.86-.34 1.29-.15.48-.3.98-.46 1.48-.14.51-.29.98-.44 1.4h2.54c-.06-.211-.14-.46-.23-.721-.09-.269-.18-.559-.27-.859zM19.75.3H4.25C1.9.3 0 2.2 0 4.55v14.9c0 2.35 1.9 4.25 4.25 4.25h15.5c2.35 0 4.25-1.9 4.25-4.25V4.55C24 2.2 22.1.3 19.75.3zM14.7 16.83h-2.091c-.069.01-.139-.04-.159-.11l-.82-2.38H7.91l-.76 2.35c-.02.09-.1.15-.19.141H5.08c-.11 0-.14-.061-.11-.18L8.19 7.38c.03-.1.06-.21.1-.33.04-.21.06-.43.06-.65-.01-.05.03-.1.08-.11h2.59c.08 0 .12.03.13.08l3.65 10.3c.03.109 0 .16-.1.16zm3.4-.15c0 .11-.039.16-.129.16H16.01c-.1 0-.15-.061-.15-.16v-7.7c0-.1.041-.14.131-.14h1.98c.09 0 .129.05.129.14v7.7zm-.209-9.03c-.231.24-.571.37-.911.35-.33.01-.65-.12-.891-.35-.23-.25-.35-.58-.34-.92-.01-.34.12-.66.359-.89.242-.23.562-.35.892-.35.391 0 .689.12.91.35.22.24.34.56.33.89.01.34-.11.67-.349.92z" /></svg>
+                                Illustrator
+                            </li>
+                            <li class="skill-item skill-ae">
+                                <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M8.54 10.73c-.1-.31-.19-.61-.29-.92s-.19-.6-.27-.89c-.08-.28-.15-.54-.22-.78h-.02c-.09.43-.2.86-.34 1.29-.15.48-.3.98-.46 1.48-.13.51-.29.98-.44 1.4h2.54c-.06-.21-.14-.46-.23-.72-.09-.27-.18-.56-.27-.86zm8.58-.29c-.55-.03-1.07.26-1.33.76-.12.23-.19.47-.22.72h2.109c.26 0 .45 0 .57-.01.08-.01.16-.03.23-.08v-.1c0-.13-.021-.25-.061-.37-.178-.56-.708-.94-1.298-.92zM19.75.3H4.25C1.9.3 0 2.2 0 4.55v14.9c0 2.35 1.9 4.25 4.25 4.25h15.5c2.35 0 4.25-1.9 4.25-4.25V4.55C24 2.2 22.1.3 19.75.3zm-7.04 16.511h-2.09c-.07.01-.14-.041-.16-.11l-.82-2.4H5.92l-.76 2.36c-.02.09-.1.15-.19.14H3.09c-.11 0-.14-.06-.11-.18L6.2 7.39c.03-.1.06-.19.1-.31.04-.21.06-.43.06-.65-.01-.05.03-.1.08-.11h2.59c.07 0 .12.03.13.08l3.65 10.25c.03.11.001.161-.1.161zm7.851-3.991c-.021.189-.031.33-.041.42-.01.07-.069.13-.14.13-.06 0-.17.01-.33.021-.159.02-.35.029-.579.029-.23 0-.471-.04-.73-.04h-3.17c.039.31.14.62.31.89.181.271.431.48.729.601.4.17.841.26 1.281.25.35-.011.699-.04 1.039-.11.311-.039.61-.119.891-.23.05-.039.08-.02.08.08v1.531c0 .039-.01.08-.021.119-.021.03-.04.051-.069.07-.32.14-.65.24-1 .3-.471.09-.94.13-1.42.12-.761 0-1.4-.12-1.92-.35-.49-.211-.921-.541-1.261-.95-.319-.39-.55-.83-.69-1.31-.14-.471-.209-.961-.209-1.461 0-.539.08-1.07.25-1.59.16-.5.41-.96.75-1.37.33-.4.739-.72 1.209-.95.471-.23 1.03-.31 1.67-.31.531-.01 1.06.09 1.55.31.41.18.77.45 1.05.8.26.34.47.72.601 1.14.129.4.189.81.189 1.22 0 .24-.01.45-.019.64z" /></svg>
+                                After Effects
+                            </li>
+                        </ul>
+                    </div>
+
+                    <!-- Tile 5: Off-Screen -->
+                    <div class="bento-card bento-offscreen">
+                        <h3 class="toolkit-title">Off-Screen</h3>
+
+                        <p class="offscreen-copy">
+                            Catching Pacific sunsets &amp; exploring mountain trails with my dog, <span>Archie</span>.
+                        </p>
                     </div>
                 </div>
             </section>
@@ -238,10 +248,7 @@
             <!-- Portfolio Section -->
             <section id="portfolio" class="section">
                 <div class="section-header-block">
-                    <div class="section-pretitle">
-                        <span class="hud-tag">[ 02 // ARCHIVE ]</span>
-                    </div>
-                    <h2 class="section-title">Selected Works & Systems</h2>
+                    <h2 class="section-title">Selected Works</h2>
                     <p class="section-subtitle">
                         Explore front-end web applications, Linux desktop utilities, animated explainer videos, and detailed isometric 3D worlds.
                     </p>
@@ -260,11 +267,6 @@
                 <!-- Projects Grid -->
                 <div class="portfolio-grid">
                     <div v-for="item in displayedPortfolio" :key="item.id" class="portfolio-item">
-                        <span class="tick tick-tl"></span>
-                        <span class="tick tick-tr"></span>
-                        <span class="tick tick-bl"></span>
-                        <span class="tick tick-br"></span>
-
                         <div class="portfolio-image-container" @click="openPreview(item)" style="cursor: pointer;">
                             <div class="portfolio-image" :style="{ backgroundImage: 'url(' + item.image + ')' }"></div>
                             <span class="portfolio-category-badge" :class="getCategoryClass(item.category)">
@@ -313,23 +315,10 @@
             <!-- Contact Section -->
             <section id="contact" class="section">
                 <div class="section-header-block">
-                    <div class="section-pretitle">
-                        <span class="hud-tag">[ 03 // TRANSMISSION ]</span>
-                    </div>
-                    <h2 class="section-title">Initiate Contact</h2>
+                    <h2 class="section-title">Get In Touch</h2>
                 </div>
 
                 <div class="contact-terminal">
-                    <span class="tick tick-tl"></span>
-                    <span class="tick tick-tr"></span>
-                    <span class="tick tick-bl"></span>
-                    <span class="tick tick-br"></span>
-
-                    <div class="contact-terminal-header">
-                        <span class="orbit-pulse-dot"></span>
-                        <span>STATUS: ONLINE · INBOX MONITORED</span>
-                    </div>
-
                     <h3 class="contact-title">Let’s Build Something Exceptional</h3>
                     <p class="contact-desc">
                         Have a 3D modeling project in mind, need front-end architecture, or want to discuss full-time and freelance opportunities? My inbox is always open.
@@ -367,11 +356,6 @@
         <!-- Quick Preview Modal -->
         <div v-if="previewItem" class="hud-modal-backdrop" @click="closePreview" role="dialog" aria-modal="true" :aria-label="previewItem.title">
             <div class="hud-modal-box" @click.stop>
-                <span class="tick tick-tl"></span>
-                <span class="tick tick-tr"></span>
-                <span class="tick tick-bl"></span>
-                <span class="tick tick-br"></span>
-
                 <button class="hud-modal-close" @click="closePreview" aria-label="Close preview">
                     <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6 6 18"></path><path d="m6 6 12 12"></path></svg>
                 </button>
@@ -439,7 +423,24 @@
                 const emailCopied = ref(false);
                 const previewItem = ref(null);
                 const galaxyPlaying = ref(true);
+                const californiaTime = ref('');
                 let galaxyInstance = null;
+                let clockTimer = null;
+
+                const updateCaliforniaTime = () => {
+                    try {
+                        californiaTime.value = new Intl.DateTimeFormat('en-US', {
+                            timeZone: 'America/Los_Angeles',
+                            hour: '2-digit',
+                            minute: '2-digit',
+                            hour12: true,
+                            timeZoneName: 'short'
+                        }).format(new Date());
+                    } catch {
+                        californiaTime.value = 'UTC-7';
+                    }
+                };
+                updateCaliforniaTime();
 
                 const navLinks = ref([
                     { id: 'about', text: 'About' },
@@ -876,6 +877,13 @@
                     showAllProjects.value = false;
                 };
 
+                const padNumber = (num) => String(num).padStart(2, '0');
+
+                const jumpToCategory = (cat) => {
+                    setCategory(cat);
+                    scrollTo('portfolio');
+                };
+
                 // Scroll Handling
                 const handleScroll = () => {
                     scrolled.value = window.scrollY > 40;
@@ -946,6 +954,7 @@
                 onMounted(() => {
                     window.addEventListener('scroll', handleScroll, { passive: true });
                     window.addEventListener('keydown', handleKeyDown);
+                    clockTimer = setInterval(updateCaliforniaTime, 30000);
 
                     // Initialize the 3D rotating Galaxy in the Hero
                     if (window.HeroGalaxy) {
@@ -965,6 +974,9 @@
                 onUnmounted(() => {
                     window.removeEventListener('scroll', handleScroll);
                     window.removeEventListener('keydown', handleKeyDown);
+                    if (clockTimer) {
+                        clearInterval(clockTimer);
+                    }
                     if (galaxyInstance) {
                         galaxyInstance.destroy();
                     }
@@ -985,6 +997,9 @@
                     getCategoryCount,
                     getCategoryClass,
                     setCategory,
+                    padNumber,
+                    jumpToCategory,
+                    californiaTime,
                     scrollTo,
                     scrollToTop,
                     galaxyPlaying,
